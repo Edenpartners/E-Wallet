@@ -1,0 +1,14 @@
+.bordered-grid ion-col{
+    border-width: 1px;
+    border-color: lightgray;
+    border-style: solid;
+    margin: 1px;
+}
+
+.provider-list ion-row.selected {
+    background-color: #ededed;
+}
+.bordered-grid ion-col.no-border {
+    border: none;
+}
+

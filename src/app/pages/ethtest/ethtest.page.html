@@ -1,3 +1,67 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>
+            My ETH Test
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
 <ion-content padding>
-My ETH Test
+
+    <ion-title>Information</ion-title>
+    <ion-item>
+        <ion-label>{{web3.versionInfo}}</ion-label>
+    </ion-item>    
+
+    <ion-title>Providers</ion-title>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-grid class="provider-list bordered-grid">
+                    <ion-row *ngFor="let item of web3.providers; let i = index" [ngClass]="{'selected':web3.isCurrentProvider(item)}">
+                        <ion-col size="1">{{ i }}</ion-col>
+                        <ion-col>{{ item.address }}</ion-col>
+                        <ion-col size="auto">{{ item.type }}</ion-col>
+                        <ion-col size="auto"> {{ item.isConnected ? 'Connected':'Not Connected' }}</ion-col>
+                        <ion-col class="no-border" size="auto" *ngIf="!item.isConnected"><ion-button shape="round" (click)="item.connect()">Connect</ion-button></ion-col>
+                        <ion-col class="no-border" size="auto" *ngIf="item.isConnected"><ion-button shape="round" color="light" (click)="item.disconnect()">Disconnect</ion-button></ion-col>
+                        <ion-col class="no-border" size="auto" *ngIf="!web3.isCurrentProvider(item)"><ion-button shape="round" (click)="web3.setCurrentProvider(item)">Set as Provider</ion-button></ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+
+    <ion-title>Accounts</ion-title>
+    <ion-grid>
+        <ion-row>
+            
+        </ion-row>
+    </ion-grid>
+
+    <ion-list>
+        <ion-item>
+            <ion-label>Information</ion-label>
+            <ion-label>{{web3.versionInfo}}</ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label>Is Connected ?</ion-label>
+            <ion-label>{{web3.isConnected ? 'YES':'NO'}}</ion-label>
+        </ion-item>
+        <ion-item *ngIf="web3.isConnected">
+            <ion-label>Address</ion-label>
+            <ion-label></ion-label>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-item>
+            <ion-label color="primary">Is Connected ?</ion-label>
+            <ion-input value="testVal"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color="primary">Connection Address</ion-label>
+            <ion-input [value]="connectionAddr"></ion-input>
+            <ion-button shape="round" color="light" (click)="connectToWeb3()">Connect</ion-button>
+        </ion-item>
+    </ion-list>
 </ion-content>
