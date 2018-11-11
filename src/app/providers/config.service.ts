@@ -4,19 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class ConfigService {
+  sharedPassphrase = '1234qwer';
+  tempEncPassword = '1234qwer';
 
-  private num: number;
   constructor() {
-    this.num = 0;
   }
-
-  say() {
-    return 'say';
-  }
-
-  addNum() {
-    this.num += 1;
-    return this.num;
-  }
-
 }

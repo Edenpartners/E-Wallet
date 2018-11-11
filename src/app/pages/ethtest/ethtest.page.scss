@@ -5,10 +5,42 @@
     margin: 1px;
 }
 
-.provider-list ion-row.selected {
-    background-color: #ededed;
+.bordered-input {
+    border-width: 1px;
+    border-color: lightgray;
+    border-style: solid;
 }
+
+ion-textarea {
+    border-width: 1px;
+    border-color: lightgray;
+    border-style: solid;
+}
+
+.selected {
+    background-color: #ff9999;
+}
+
 .bordered-grid ion-col.no-border {
     border: none;
+}
+
+.margin-left {
+    margin-left:20px;
+}
+
+.even {
+    background-color: #dddddd;
+}
+.odd {
+    background-color: #eeeeee;
+}
+
+.small-font {
+    font-size : .5em;
+}
+
+.smallest-font {
+    font-size : .2em;
 }
 

@@ -10,7 +10,7 @@
 
     <ion-title>Information</ion-title>
     <ion-item>
-        <ion-label>{{web3.versionInfo}}</ion-label>
+        <ion-label>{{eths.versionInfo}}</ion-label>
     </ion-item>    
 
     <ion-title>Providers</ion-title>
@@ -18,14 +18,14 @@
         <ion-row>
             <ion-col>
                 <ion-grid class="provider-list bordered-grid">
-                    <ion-row *ngFor="let item of web3.providers; let i = index" [ngClass]="{'selected':web3.isCurrentProvider(item)}">
+                    <ion-row *ngFor="let item of eths.providers; let i = index" [ngClass]="{'selected':eths.isCurrentProvider(item)}">
                         <ion-col size="1">{{ i }}</ion-col>
-                        <ion-col>{{ item.address }}</ion-col>
                         <ion-col size="auto">{{ item.type }}</ion-col>
-                        <ion-col size="auto"> {{ item.isConnected ? 'Connected':'Not Connected' }}</ion-col>
-                        <ion-col class="no-border" size="auto" *ngIf="!item.isConnected"><ion-button shape="round" (click)="item.connect()">Connect</ion-button></ion-col>
-                        <ion-col class="no-border" size="auto" *ngIf="item.isConnected"><ion-button shape="round" color="light" (click)="item.disconnect()">Disconnect</ion-button></ion-col>
-                        <ion-col class="no-border" size="auto" *ngIf="!web3.isCurrentProvider(item)"><ion-button shape="round" (click)="web3.setCurrentProvider(item)">Set as Provider</ion-button></ion-col>
+                        <ion-col>{{ item.describe }}</ion-col>
+                        <ion-col size="auto"> {{ item.hasProvider() ? 'Connected':'Not Connected' }}</ion-col>
+                        <ion-col class="no-border" size="auto" *ngIf="!item.hasProvider()"><ion-button shape="round" (click)="item.connect()">Connect</ion-button></ion-col>
+                        <ion-col class="no-border" size="auto" *ngIf="item.hasProvider()"><ion-button shape="round" color="light" (click)="item.disconnect()">Disconnect</ion-button></ion-col>
+                        <ion-col class="no-border" size="auto" *ngIf="!eths.isCurrentProvider(item)"><ion-button shape="round" (click)="eths.setCurrentProvider(item)">Select</ion-button></ion-col>
                     </ion-row>
                 </ion-grid>
             </ion-col>
@@ -33,35 +33,158 @@
     </ion-grid>
 
     <ion-title>Accounts</ion-title>
-    <ion-grid>
+    <ion-grid class="provider-list bordered-grid">
         <ion-row>
-            
+            <ion-col size="auto" class="no-border"><ion-label>BIP-39 (12 Words)</ion-label></ion-col>
+            <ion-textarea placeholder="" [(ngModel)]="mnemonicWords"></ion-textarea>
+        </ion-row>
+        <ion-row>
+            <ion-col size="auto" class="no-border"><ion-label>Wallet Index</ion-label></ion-col>
+            <ion-col><ion-input placeholder="" [(ngModel)]="restoreWalletIndex"></ion-input></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-button (click)="generateRandomMnemonic()">Generate</ion-button>
+            <ion-button (click)="copyMWToCliboard()" class="margin-left">Copy</ion-button>
+            <ion-button (click)="restoreWallet()" class="margin-left">Restore Wallet</ion-button>
+        </ion-row>
+    </ion-grid>
+    <ion-title>List</ion-title>
+
+    <ion-grid>
+        <ion-row *ngFor="let item of wallets; let i = index; let isOdd=odd; let isEven=even" [ngClass]="{'selected':isSelectedWallet(item), 'even': isSelectedWallet(item) ? false : isEven, 'odd': isSelectedWallet(item) ? false : isOdd}">
+            <ion-grid>
+                <ion-row>
+                    <!-- Default wallet information -->
+                    <ion-col align-self-center size="1">{{ i }}</ion-col>
+                    <ion-col size="auto"><ion-button color="light" class="small-font" (click)="copyToClipboard(item.data.address)">Address : {{item.data.address}}</ion-button></ion-col>
+                    <ion-col size="auto"><ion-button color="light" (click)="copyToClipboard(item.data.info.privateKey)">Private Key</ion-button></ion-col>
+                    <ion-col size="auto"><ion-button color="light" (click)="copyToClipboard(item.data.info.mnemonic)">Mnemonic</ion-button></ion-col>
+                    <ion-col size="auto"><ion-button color="primary" (click)="selectWallet(item)">Select</ion-button></ion-col>
+                    <ion-col size="auto"><ion-button color="danger" (click)="deleteWallet(item)">Delete</ion-button></ion-col>
+                    <ion-col size="auto"><ion-button color="light" (click)="startEtherBalanceRetrieving(item)">{{ item.ethBalanceEther === null ? 'Get Balance':item.ethBalanceEther}}</ion-button></ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="auto"><ion-button color="primary" (click)="toggleWalletTransactionsRow(item)">{{item.transactionsExpanded?'< Transactions':'Transactions >'}}</ion-button></ion-col>
+                </ion-row>
+
+                <ion-row *ngIf="item.transactionsExpanded">
+                    <ion-col>
+                        <ion-grid class="bordered-grid">
+                            <ion-row>
+                                <ion-col class="no-border">Transaction List</ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="auto"><ion-button color="primary" (click)="toggleWalletContractsRow(item)">{{item.contractsExpanded?'< Contracts':'Contracts >'}}</ion-button></ion-col>
+                </ion-row>
+
+                <!-- Contracts information -->
+                <ion-row *ngIf="item.contractsExpanded">
+                    <ion-col>
+                        <ion-grid class="bordered-grid">
+                            <ion-row>
+                                <ion-col class="no-border">Contract Address List</ion-col>
+                            </ion-row>
+                            <!-- Contract Array -->
+                            <ion-row *ngFor="let contract of item.data.contracts; let contIndex = index;">
+                                <ion-grid>
+                                    <ion-row>
+                                        <ion-col size="auto">
+                                            {{ contract.type }}
+                                        </ion-col>
+                                        <ion-col>
+                                            <ion-button color="light" class="small-font" (click)="copyToClipboard(contract.address)">Address : {{contract.address}}</ion-button>
+                                        </ion-col>
+                                        <ion-col size="auto" class="no-border">
+                                            <ion-button (click)="deleteContractInfoFromWallet(item, contract)">DEL</ion-button>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row *ngIf="contract.type ==='ERC20'">
+                                        <ion-col>
+                                            <ion-grid>
+                                                <ion-row>
+                                                    <ion-col size="auto">
+                                                        <ion-button (click)="getERC20TokenInfo(item, contract)">Retrieve Info</ion-button>
+                                                    </ion-col>
+                                                    <ion-col *ngIf="contract.contractInfo">
+                                                        Name : {{contract.contractInfo.name}} / Symbol : {{contract.contractInfo.symbol}} / Decimal : {{contract.contractInfo.decimal}}
+                                                    </ion-col>
+                                                </ion-row>
+                                                <ion-row>
+                                                    <ion-col size="auto">
+                                                        <ion-button (click)="transferERC20Token(item, contract, tokenReceiverAddress, tokenSendAmount)" [disabled]="!contract.contractInfo">Transfer Token</ion-button>
+                                                    </ion-col>
+                                                    <ion-col>
+                                                        <ion-input style="background-color: white;" class="borderd-input" placeholder="To" #tokenReceiverAddress></ion-input>
+                                                    </ion-col>
+                                                    <ion-col size="2">
+                                                        <ion-input style="background-color: white;" class="borderd-input" placeholder="Amount" #tokenSendAmount></ion-input>
+                                                    </ion-col>
+                                                </ion-row>
+                                            </ion-grid>
+                                        </ion-col>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-row>
+                            <!-- Add Contract Input Form -->
+                            <ion-row>
+                                <ion-col size="auto" class="no-border">
+                                    <ion-select [(ngModel)]="item.extraData.selectedContractType" 
+                                    (ionChange)="onSelectContractType(i,item.extraData.selectedContractType)">
+                                        <ion-select-option *ngFor="let contractType of supportedContracts;">{{contractType}}</ion-select-option>
+                                    </ion-select>
+                                </ion-col>
+                                <ion-col><ion-input style="background-color: white;" class="borderd-input" placeholder="Contract Address" [(ngModel)]="item.extraData.contractAddressToAdd"></ion-input></ion-col>
+                                <ion-col size="auto" class="no-border"><ion-button (click)="addContractInfoToWallet(item)">Add Contract</ion-button></ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
         </ion-row>
     </ion-grid>
 
+    <ion-title>Send ETH to</ion-title>
     <ion-list>
         <ion-item>
-            <ion-label>Information</ion-label>
-            <ion-label>{{web3.versionInfo}}</ion-label>
+            <ion-label size="auto">From</ion-label>
+            <ion-input placeholder="Select Wallet" [value]="this.selectedWallet === null ? '':this.selectedWallet.data.address" readonly></ion-input>
         </ion-item>
         <ion-item>
-            <ion-label>Is Connected ?</ion-label>
-            <ion-label>{{web3.isConnected ? 'YES':'NO'}}</ion-label>
+            <ion-label>To</ion-label>
+            <ion-input placeholder="to" #sendEthToAddress></ion-input>
         </ion-item>
-        <ion-item *ngIf="web3.isConnected">
-            <ion-label>Address</ion-label>
-            <ion-label></ion-label>
+        <ion-item>
+            <ion-label>ETH</ion-label>
+            <ion-input placeholder="ETH" #sendEthAmount></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-button (click)="sendEth(sendEthToAddress, sendEthAmount)">Confirm</ion-button>
         </ion-item>
     </ion-list>
+
+    <ion-title>Kyber Network : Trade ETH -> ERC20 Token</ion-title>
     <ion-list>
         <ion-item>
-            <ion-label color="primary">Is Connected ?</ion-label>
-            <ion-input value="testVal"></ion-input>
+            <ion-label>My ETH Wallet address</ion-label>
+            <ion-input placeholder="Select Wallet" [value]="this.selectedWallet === null ? '':this.selectedWallet.data.address" readonly></ion-input>
         </ion-item>
         <ion-item>
-            <ion-label color="primary">Connection Address</ion-label>
-            <ion-input [value]="connectionAddr"></ion-input>
-            <ion-button shape="round" color="light" (click)="connectToWeb3()">Connect</ion-button>
+            <ion-label>ERC20 Contract Address</ion-label>
+            <ion-input placeholder="Target Address" #kyberTradeEthToErcTargetAddress></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>ETH</ion-label>
+            <ion-input placeholder="ETH" #kyberTradeEthToErcAmount></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-button (click)="kyberNetworkTradeEthToErc20Token(kyberTradeEthToErcTargetAddress, kyberTradeEthToErcAmount)">Confirm</ion-button>
         </ion-item>
     </ion-list>
 </ion-content>

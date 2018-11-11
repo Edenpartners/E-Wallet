@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
-
 import { EthtestPage } from './ethtest.page';
+import { ClipboardModule } from 'ngx-clipboard';
 
 const routes: Routes = [
   {
@@ -19,7 +19,8 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    ClipboardModule
   ],
   declarations: [EthtestPage]
 })
