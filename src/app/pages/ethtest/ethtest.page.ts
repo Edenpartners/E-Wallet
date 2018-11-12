@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { EthService, EthProvider } from '../../providers/ether.service';
+import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { ConfigService } from '../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
@@ -8,7 +8,7 @@ import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/u
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
 import { Observable, interval} from 'rxjs';
-import { AbiStorageService } from '../../providers/abiStorage.service';
+import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, ContractInfo, ContractType, WalletInfo } from '../../providers/wallet.service';
 import { Input } from '@ionic/angular';
 import { KyberNetworkService, KyberNetworkContractInformation } from '../../providers/kybernetwork.service';
@@ -33,6 +33,7 @@ interface WalletRow {
   contractWorkers: Array<any>;
 }
 
+
 const standardBIP39path = 'm/44\'/60\'/0\'/0/0';
 const standardBIP39pathExcludingIndex = 'm/44\'/60\'/0\'/0/';
 
@@ -56,6 +57,9 @@ export class EthtestPage implements OnInit {
   restoreWalletIndex = 0;
 
   supportedContracts: Array<ContractType> = [ContractType.UNKNOWN, ContractType.ERC20];
+  supportedProviderTypes: Array<EthProviders.Type> = [EthProviders.Type.KnownNetwork, EthProviders.Type.JsonRpc];
+  selectedWalletProviderType: EthProviders.Type = EthProviders.Type.KnownNetwork;
+  selectedWalletConnectionInfo: string;
 
   constructor(
     public cfg: ConfigService,
@@ -63,12 +67,21 @@ export class EthtestPage implements OnInit {
     private cbService: ClipboardService,
     private store: LocalStorageService,
     private logger: NGXLogger,
-    private abiStorage: AbiStorageService,
+    private etherData: EtherDataService,
     private walletService: WalletService,
     private kyberNetworkService: KyberNetworkService) { }
 
   ngOnInit() {
     this.refreshList();
+  }
+
+  resolveProvider(walletRow: WalletRow): EthProviders.Base {
+    return this.eths.getProvider(walletRow.data.provider);
+  }
+
+  wipeData() {
+    this.store.clear();
+    window.location.reload();
   }
 
   generateRandomMnemonic() {
@@ -194,6 +207,16 @@ export class EthtestPage implements OnInit {
   restoreWallet() {
     const mWords = this.getTrimmedMWords();
     if (mWords.length < 1) {
+      alert('input mnemonic words!');
+      return;
+    }
+
+    if (!this.selectedWalletProviderType || this.selectedWalletProviderType.length < 1) {
+      alert('select wallet provider!');
+      return;
+    }
+    if (!this.selectedWalletConnectionInfo || this.selectedWalletConnectionInfo.length < 1){
+      alert('input wallet provider connection info!');
       return;
     }
 
@@ -207,7 +230,8 @@ export class EthtestPage implements OnInit {
         mnemonic: mWords, path: path,
         privateKey: wallet.privateKey,
       },
-      contracts: []
+      contracts: [],
+      provider: { type: this.selectedWalletProviderType, connectionInfo: this.selectedWalletConnectionInfo },
     };
 
     this.insecureWallets.push(walletInfo);
@@ -264,14 +288,8 @@ export class EthtestPage implements OnInit {
 
     const delay = 3000;
 
-    if (!this.eths.currentProvider) {
-      this.logger.debug('need ethereum network provider');
-      restartWork();
-      return;
-    }
-
-    const p: EthProvider = this.eths.currentProvider;
-    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getProvider());
+    const p: EthProviders.Base = this.resolveProvider(walletRow);
+    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getEthersJSProvider());
 
     w.getBalance().then((val) => {
       walletRow.ethBalanceWei = val;
@@ -342,11 +360,6 @@ export class EthtestPage implements OnInit {
       return;
     }
 
-    if (!this.eths.currentProvider) {
-      alert('no connection');
-      return;
-    }
-
     const sendEthTo = sendEthToInput.value;
     if (sendEthTo.length < 1) {
       alert('set receiver address');
@@ -355,8 +368,8 @@ export class EthtestPage implements OnInit {
 
     const sendEthAmount = sendEthAmountInput.value;
 
-    const p: EthProvider = this.eths.currentProvider;
-    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, p.getProvider());
+    const p: EthProviders.Base = this.resolveProvider(this.selectedWallet);
+    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, p.getEthersJSProvider());
 
     const amount = ethers.utils.parseEther(String(sendEthAmount));
 
@@ -456,19 +469,14 @@ export class EthtestPage implements OnInit {
       this.logger.debug('this is not an ERC-20 Token');
     }
 
-    if (!this.eths.currentProvider) {
-      this.logger.debug('need ethereum network provider');
-      return;
-    }
-
-    const p: EthProvider = this.eths.currentProvider;
-    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getProvider());
+    const p: EthProviders.Base = this.resolveProvider(walletRow);
+    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getEthersJSProvider());
 
     // this.abiStorage.etherERC20
     // last argument as provider = readonly but wallet = r/w
     // https://blog.ricmoo.com/human-readable-contract-abis-in-ethers-js-141902f4d917
     // https://docs.ethers.io/ethers.js/html/api-contract.html#contract-abi
-    const contract = new Contract(ctInfo.address, this.abiStorage.etherERC20, p.getProvider());
+    const contract = new Contract(ctInfo.address, this.etherData.etherERC20, p.getEthersJSProvider());
 
     const logger = this.logger;
 
@@ -516,11 +524,6 @@ export class EthtestPage implements OnInit {
       return;
     }
 
-    if (!this.eths.currentProvider) {
-      this.logger.debug('need ethereum network provider');
-      return;
-    }
-
     const toAddress = toAddressInput.value;
     let adjustedAmount: BigNumber = null;
     try {
@@ -543,14 +546,14 @@ export class EthtestPage implements OnInit {
   }
 
   async asyncTransferERC20Token(walletRow: WalletRow, ctInfo: ContractInfo, toAddress: string, sendingAmount: BigNumber) {
-    const p: EthProvider = this.eths.currentProvider;
-    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getProvider());
+    const p: EthProviders.Base = this.resolveProvider(walletRow);
+    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getEthersJSProvider());
 
     this.logger.debug('start transfer erc-20 token');
 
     // this.abiStorage.etherERC20
     // last argument as provider = readonly but wallet = r/w
-    const contract = new Contract(ctInfo.address, this.abiStorage.etherERC20, w);
+    const contract = new Contract(ctInfo.address, this.etherData.etherERC20, w);
     const transferEvent = new Promise((resolve, reject) => {
       // Listen ERC-20 : Transfer Event
 
@@ -625,11 +628,6 @@ export class EthtestPage implements OnInit {
       return;
     }
 
-    if (!this.eths.currentProvider) {
-      alert('no connection');
-      return;
-    }
-
     const targetErc20ContractAddres = kyberTradeEthToErcTargetAddressInput.value;
     if (targetErc20ContractAddres.length < 1) {
       alert('set target address');
@@ -638,15 +636,14 @@ export class EthtestPage implements OnInit {
 
     const tradeEthAmount = kyberTradeEthToErcAmountInput.value;
 
-    const p: EthProvider = this.eths.currentProvider;
-    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, p.getProvider());
+    const p: EthProviders.Base = this.resolveProvider(this.selectedWallet);
+    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, p.getEthersJSProvider());
 
     const ethWeiAmount: BigNumber = ethers.utils.parseEther(String(tradeEthAmount));
 
     this.logger.debug('start trade ETH -> erc-20 token');
 
-    // const kyberAbi =  this.abiStorage.kyberNetworkProxy;
-    const kyberAbi =  this.abiStorage.etherERC20;
+    // const kyberProxyAbi =  this.etherData.kyberNetworkProxy;
 
     // https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/KyberNetworkProxy.sol
     const kyberProxyAbi = [
@@ -663,7 +660,7 @@ export class EthtestPage implements OnInit {
       w);
 
     const expectedRateResult = contract.functions.getExpectedRate(
-      this.abiStorage.tokenContractAddresses.mainNet.ETH,
+      this.etherData.tokenContractAddresses.mainNet.ETH,
       targetErc20ContractAddres,
       ethWeiAmount);
 

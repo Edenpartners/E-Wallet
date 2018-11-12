@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Provider } from 'ethers/providers';
 import { ethers, Wallet } from 'ethers';
+import { EthProviders } from './ether.service';
 
 
 export enum ContractType {
@@ -28,6 +29,7 @@ export interface WalletInfo {
       privateKey: string,
     };
     contracts: Array<ContractInfo>;
+    provider: EthProviders.Info;
 }
 
 @Injectable({
