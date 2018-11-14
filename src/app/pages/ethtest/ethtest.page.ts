@@ -11,7 +11,8 @@ import { Observable, interval} from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, ContractInfo, ContractType, WalletInfo } from '../../providers/wallet.service';
 import { Input } from '@ionic/angular';
-import { KyberNetworkService, KyberNetworkContractInformation } from '../../providers/kybernetwork.service';
+import { KyberNetworkService } from '../../providers/kybernetwork.service';
+import { Provider } from 'ethers/providers';
 
 
 interface WalletRow {
@@ -32,10 +33,6 @@ interface WalletRow {
 
   contractWorkers: Array<any>;
 }
-
-
-const standardBIP39path = 'm/44\'/60\'/0\'/0/0';
-const standardBIP39pathExcludingIndex = 'm/44\'/60\'/0\'/0/';
 
 @Component({
   selector: 'app-ethtest',
@@ -58,8 +55,12 @@ export class EthtestPage implements OnInit {
 
   supportedContracts: Array<ContractType> = [ContractType.UNKNOWN, ContractType.ERC20];
   supportedProviderTypes: Array<EthProviders.Type> = [EthProviders.Type.KnownNetwork, EthProviders.Type.JsonRpc];
+  supportedKnownNetworks: Array<EthProviders.KnownNetworkType> =
+    [EthProviders.KnownNetworkType.homestead,
+      EthProviders.KnownNetworkType.ropsten];
+
   selectedWalletProviderType: EthProviders.Type = EthProviders.Type.KnownNetwork;
-  selectedWalletConnectionInfo: string;
+  selectedWalletConnectionInfo: string = EthProviders.KnownNetworkType.homestead;
 
   constructor(
     public cfg: ConfigService,
@@ -88,6 +89,13 @@ export class EthtestPage implements OnInit {
     this.mnemonicWords = ethers.Wallet.createRandom().mnemonic;
   }
 
+  onWalletProviderTypeChange() {
+    if (this.selectedWalletProviderType === EthProviders.Type.KnownNetwork) {
+      this.selectedWalletConnectionInfo = EthProviders.KnownNetworkType.homestead;
+    } else {
+      this.selectedWalletConnectionInfo = '';
+    }
+  }
   copyMWToCliboard() {
     this.copyToClipboard(this.getTrimmedMWords());
   }
@@ -220,7 +228,7 @@ export class EthtestPage implements OnInit {
       return;
     }
 
-    const path = standardBIP39pathExcludingIndex + String(this.restoreWalletIndex);
+    const path = this.etherData.getBIP39DerivationPath(String(this.restoreWalletIndex));
     const wallet = ethers.Wallet.fromMnemonic(mWords, path);
 
     const walletInfo: WalletInfo = {
@@ -476,7 +484,8 @@ export class EthtestPage implements OnInit {
     // last argument as provider = readonly but wallet = r/w
     // https://blog.ricmoo.com/human-readable-contract-abis-in-ethers-js-141902f4d917
     // https://docs.ethers.io/ethers.js/html/api-contract.html#contract-abi
-    const contract = new Contract(ctInfo.address, this.etherData.etherERC20, p.getEthersJSProvider());
+    const erc20Abi = this.etherData.abiResolver.getERC20(p.info.connectionInfo);
+    const contract = new Contract(ctInfo.address, erc20Abi, p.getEthersJSProvider());
 
     const logger = this.logger;
 
@@ -537,7 +546,7 @@ export class EthtestPage implements OnInit {
       this.logger.debug(e);
     }
 
-    this.logger.debug('checking transfer' + toAddress + ',' + adjustedAmount);
+    this.logger.debug('checking transfer to : ' + toAddress + ',' + adjustedAmount);
 
     if (!toAddress || toAddress.length < 1) { return; }
     if (!adjustedAmount) { return; }
@@ -553,21 +562,18 @@ export class EthtestPage implements OnInit {
 
     // this.abiStorage.etherERC20
     // last argument as provider = readonly but wallet = r/w
-    const contract = new Contract(ctInfo.address, this.etherData.etherERC20, w);
+    const contract = new Contract(ctInfo.address, this.etherData.abiResolver.getERC20(p), w);
+
     const transferEvent = new Promise((resolve, reject) => {
       // Listen ERC-20 : Transfer Event
 
       const transferListner = (from, to, amount, result) => {
-        this.logger.debug(from);
-        this.logger.debug(to);
-        this.logger.debug(amount);
-        this.logger.debug(result);
-
         contract.removeListener('Transfer', transferListner);
         resolve({
           from: from,
           to: to,
-          amount: amount
+          amount: amount,
+          result: result
         });
 
         setTimeout(() => {
@@ -575,40 +581,52 @@ export class EthtestPage implements OnInit {
         }, 60000);
       };
 
-
       this.logger.debug('Add Transfer Listener');
       contract.addListener('Transfer', transferListner);
     });
-
-    /*
-    chainId: 3
-    data: "0xa9059cbb00000...b6b3a7640000"
-    from: "0x5D09F493d1d2c2C5F218c43e2aC16f051D436976"
-    gasLimit: t {_hex: "0x8ee1", _ethersType: "BigNumber"}
-    gasPrice: t {_hex: "0x3b9aca00", _ethersType: "BigNumber"}
-    hash: "0x5f4226bdd4bca3255cbd318245b735f325e406500125490e27f9e03bab3e0d67"
-    nonce: 21
-    r: "0xeef48580fc69b161e026faaf4cf8b967f762608ad7b69de917ff01b3d17ef469"
-    s: "0x069db54618d2d40a31a630afc9dd16c174e79cc826dbe10310d66de6be13a889"
-    to: "0x46EA3cb3bbfFb2095eb523a19278a0B73665D5B0"
-    v: 41
-    value: t {_hex: "0x00", _ethersType: "BigNumber"}
-    wait: ƒ (e)
-     */
-    const tx: object = await contract.transfer(toAddress, sendingAmount);
-    this.logger.debug(tx);
-
     // const resolvedData = await transferEvent;
     transferEvent.then(
       (resolvedData) => {
-        this.logger.debug('transfer complete!');
+        this.logger.debug('==========================');
+        this.logger.debug('event : transfer complete!');
         this.logger.debug(resolvedData);
+        this.logger.debug('==========================');
       },
       (error) => {
-        this.logger.debug('transfer failed!');
+        this.logger.debug('event : transfer failed!');
         this.logger.debug(error);
       }
     );
+
+    const tp = contract.transfer(toAddress, sendingAmount);
+    tp.then((resultData) => {
+      /*
+      chainId: 3
+      data: "0xa9059cbb00000...b6b3a7640000"
+      from: "0x5D09F493d1d2c2C5F218c43e2aC16f051D436976"
+      gasLimit: t {_hex: "0x8ee1", _ethersType: "BigNumber"}
+      gasPrice: t {_hex: "0x3b9aca00", _ethersType: "BigNumber"}
+      hash: "0x5f4226bdd4bca3255cbd318245b735f325e406500125490e27f9e03bab3e0d67"
+      nonce: 21
+      r: "0xeef48580fc69b161e026faaf4cf8b967f762608ad7b69de917ff01b3d17ef469"
+      s: "0x069db54618d2d40a31a630afc9dd16c174e79cc826dbe10310d66de6be13a889"
+      to: "0x46EA3cb3bbfFb2095eb523a19278a0B73665D5B0"
+      v: 41
+      value: t {_hex: "0x00", _ethersType: "BigNumber"}
+      wait: ƒ (e)
+      */
+      this.logger.debug('==========================');
+      this.logger.debug('transaction complete');
+      this.logger.debug(resultData);
+      this.logger.debug('==========================');
+    }, (error) => {
+      this.logger.debug('transfer failed');
+      this.logger.debug(error);
+    });
+
+    w.getTransactionCount().then((tc) => {
+      this.logger.debug('transaction count : ' + tc);
+    });
   }
 
 
@@ -637,30 +655,89 @@ export class EthtestPage implements OnInit {
     const tradeEthAmount = kyberTradeEthToErcAmountInput.value;
 
     const p: EthProviders.Base = this.resolveProvider(this.selectedWallet);
-    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, p.getEthersJSProvider());
+    const rp: Provider = p.getEthersJSProvider();
+    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, rp);
 
     const ethWeiAmount: BigNumber = ethers.utils.parseEther(String(tradeEthAmount));
 
     this.logger.debug('start trade ETH -> erc-20 token');
-
-    // const kyberProxyAbi =  this.etherData.kyberNetworkProxy;
-
-    // https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/KyberNetworkProxy.sol
-    const kyberProxyAbi = [
-      'function getExpectedRate(address src, address dest, uint srcQty) public view returns(uint expectedRate, uint slippageRate)',
-      'function trade(address src, uint srcAmount, address dest, address destAddress, ' +
-        'uint maxDestAmount, uint minConversionRate, address walletId) ' +
-        'public payable returns(uint)',
-      'function swapEtherToToken(address token, uint minConversionRate) public payable returns(uint)'
-    ];
+    const kyberProxyAbi =  this.etherData.abiResolver.getKyberNetworkProxy(p);
 
     const contract = new Contract(
-      KyberNetworkContractInformation.mainNet.KyberNetworkProxy,
+      this.etherData.contractResolver.getKyberNetworkProxy(p),
       kyberProxyAbi,
       w);
 
+    const executeTradeWork = async (minConversionRate) => {
+      // const resolvedData = await transferEvent;
+      this.createExecuteTradeEventPromise(contract).then(
+        (resolvedData) => {
+          this.logger.debug('==========================');
+          this.logger.debug('event : ExecuteTradeEvent complete!');
+          this.logger.debug(resolvedData);
+          this.logger.debug('==========================');
+        },
+        (error) => {
+          this.logger.debug('event : ExecuteTradeEvent failed!');
+          this.logger.debug(error);
+        }
+      );
+
+      // may be 1 gwei
+      const gasPrice: BigNumber = await rp.getGasPrice();
+      // or let maxGasPrice = await KyberNetworkProxyContract.methods.maxGasPrice().call()
+      console.log('got gas price : ' + gasPrice);
+
+      const estimatedGasBn = await contract.estimate.swapEtherToToken(
+        targetErc20ContractAddres,
+        minConversionRate,
+        { value: ethWeiAmount });
+      console.log('got estimated val : ' + estimatedGasBn);
+
+      const tradePromise = contract.functions.swapEtherToToken(
+        targetErc20ContractAddres,
+        minConversionRate,
+        { value: ethWeiAmount, gasPrice: gasPrice, gasLimit: estimatedGasBn }
+      );
+
+      this.logger.debug('run Trade');
+      this.logger.debug(tradePromise);
+
+      tradePromise.then((tradeResult) => {
+        this.logger.debug('trade transaction Result');
+        this.logger.debug(tradeResult);
+
+        if (tradeResult.gasPrice) {
+          this.logger.debug('gasPrice : ' + ethers.utils.bigNumberify(tradeResult.gasPrice));
+        }
+        if (tradeResult.gasLimit) {
+          this.logger.debug('gasLimit : ' + ethers.utils.bigNumberify(tradeResult.gasLimit));
+        }
+      },
+      (tradeError) => {
+        this.logger.debug('tradeError');
+        // gas required exceeds allowance or always failing transaction ?
+        alert(tradeError);
+        this.logger.debug(tradeError);
+      });
+    };
+
+
+    /**
+     * check the trade available with Amount
+     * https://developer.kyber.network/docs/VendorsGuide/
+     * srcTokenContract = new web3.eth.Contract(ERC20ABI, SRC_TOKEN_ADDRESS)
+     * allowanceAmount = srcTokenContract.methods.allowance(USER_ADDRESS,KYBER_NETWORK_PROXY_ADDRESS).call()
+     * if (srcTokenWeiAmount <= allowanceAmount) {
+     *     //proceed to step 3
+     * } else {
+     *     //proceed to step 2
+     * }
+     */
+
+    // Expecting Rate
     const expectedRateResult = contract.functions.getExpectedRate(
-      this.etherData.tokenContractAddresses.mainNet.ETH,
+      this.etherData.contractResolver.getETH(p),
       targetErc20ContractAddres,
       ethWeiAmount);
 
@@ -676,8 +753,8 @@ export class EthtestPage implements OnInit {
 
         if (element['_hex']) {
           const hexVal = element['_hex'];
-          this.logger.debug('hexlify : ' + ethers.utils.hexlify(hexVal));
-          this.logger.debug('hexval : ' + hexVal);
+          // this.logger.debug('hexlify : ' + ethers.utils.hexlify(hexVal));
+          // this.logger.debug('hexval : ' + hexVal);
           const num: BigNumber = ethers.utils.bigNumberify(hexVal);
           this.logger.debug('bn : ' + num);
 
@@ -689,27 +766,10 @@ export class EthtestPage implements OnInit {
         }
       });
 
+      this.logger.debug('expected rate : ' + expectedRate + ', slippage rate : ' + slippageRate);
+      // run trade
       if (expectedRate && slippageRate) {
-        const tradePromise = contract.functions.swapEtherToToken(
-          targetErc20ContractAddres,
-          expectedRate,
-          { value: ethWeiAmount }
-        );
-
-        this.logger.debug('run Trade');
-        this.logger.debug(tradePromise);
-
-        tradePromise.then((tradeResult) => {
-          this.logger.debug('tradeResult');
-          this.logger.debug(tradeResult);
-        },
-        (tradeError) => {
-          this.logger.debug('tradeError');
-          // gas required exceeds allowance or always failing transaction ?
-          this.logger.debug(tradeError);
-        });
-        // contract.functions.trade(this.abiStorage.tokenContractAddresses.mainNet.ETH, ethWeiAmount,
-          // targetErc20ContractAddres, w.address, );
+        executeTradeWork(slippageRate);
       }
     },
     (e) => {
@@ -717,13 +777,41 @@ export class EthtestPage implements OnInit {
       this.logger.debug(e);
     });
 
-    //swapEtherToToken
+    // swapEtherToToken
     console.log(expectedRateResult);
 
     // function getExpectedRate(ERC20 src, ERC20 dest, uint srcQty)
     // function swapEtherToToken(ERC20 token, uint minConversionRate) public payable returns(uint) {
   }
 
+  createExecuteTradeEventPromise(contract: Contract): Promise<object> {
+    const executeTradeEvent = new Promise((resolve, reject) => {
+      // Listen ERC-20 : Transfer Event
+
+      const myListener = (trader, srcTokenContractAddress, dstTokenContractAddress, actualSrcAmount, actualDestAmount, result) => {
+        contract.removeListener('ExecuteTrade', myListener);
+
+        // const num: BigNumber = ethers.utils.bigNumberify(hexVal);
+        resolve({
+          trader: trader,
+          srcTokenContractAddress: srcTokenContractAddress,
+          dstTokenContractAddress: dstTokenContractAddress,
+          actualSrcAmount: actualSrcAmount,
+          actualDestAmount: actualDestAmount,
+          result: result
+        });
+
+        setTimeout(() => {
+          reject(new Error('timeout'));
+        }, 60000);
+      };
+
+      this.logger.debug('Add ExecuteTrade Listener');
+      contract.addListener('ExecuteTrade', myListener);
+    });
+
+    return executeTradeEvent;
+  }
   async kyberNetworkTradeErc20ToOther() {
     /**
      * srcTokenContract = new web3.eth.Contract(ERC20ABI, SRC_TOKEN_ADDRESS)
@@ -735,6 +823,9 @@ export class EthtestPage implements OnInit {
         }
      */
   }
+
+
+
   // ====================================
   // Old Testing Codes
   // ====================================
@@ -753,5 +844,15 @@ export class EthtestPage implements OnInit {
       path: wallet.path,
       privateKey: wallet.privateKey
     };
+  }
+
+  convertToBigNumber(text: string, resultInput: Input) {
+    const bn = ethers.utils.bigNumberify(text);
+    resultInput.value = bn.toString() + ' / ' + bn.toHexString();
+  }
+
+  convertHexToBigNumber(text: string, resultInput: Input) {
+    const bn = ethers.utils.bigNumberify(text);
+    resultInput.value = bn.toString() + ' / ' + bn.toHexString();
   }
 }

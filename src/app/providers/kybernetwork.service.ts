@@ -53,18 +53,6 @@
 
 import { Injectable } from '@angular/core';
 
-
-export const KyberNetworkContractInformation = {
-    mainNet: {
-        kyberNetwork: '0x91a502C678605fbCe581eae053319747482276b9',
-        KyberNetworkProxy: '0x818E6FECD516Ecc3849DAf6845e3EC868087B755'
-    },
-    ropsten: {
-        kyberNetwork: '0x91a502C678605fbCe581eae053319747482276b9',
-        KyberNetworkProxy: '0x818E6FECD516Ecc3849DAf6845e3EC868087B755'
-    }
-};
-
 @Injectable({
   providedIn: 'root'
 })

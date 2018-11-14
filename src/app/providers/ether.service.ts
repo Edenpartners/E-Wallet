@@ -5,7 +5,7 @@ import { InjectionToken, Injectable, Inject, OnInit, OnDestroy } from '@angular/
 import Web3 from 'web3';
 
 // https://github.com/ethers-io/ethers.js/
-import { Observable, bindNodeCallback, of, Subject, interval} from 'rxjs';
+import { Observable, bindNodeCallback, of , Subject, interval } from 'rxjs';
 import { tap, map, catchError, timeInterval } from 'rxjs/operators';
 import { NGXLogger } from 'ngx-logger';
 
@@ -22,135 +22,133 @@ let indexNum = 0;
 
 export namespace EthProviders {
 
-    export function createInstanceFrom(info: Info) {
-        if (info.type === Type.KnownNetwork) {
-            return new EthProviders.KnownProvider(info);
-        } else if(info.type === Type.JsonRpc) {
-            return new EthProviders.JsonProvider(info);
-        }
+  export function createInstanceFrom(info: Info) {
+    if (info.type === Type.KnownNetwork) {
+      return new EthProviders.KnownProvider(info);
+    } else if (info.type === Type.JsonRpc) {
+      return new EthProviders.JsonProvider(info);
+    }
+  }
+
+  export enum KnownNetworkType {
+    homestead = 'homestead',
+      ropsten = 'ropsten'
+  }
+
+  export enum Type {
+    KnownNetwork = 'KnownNetwork',
+      JsonRpc = 'JsonRpc'
+  }
+
+  export interface Info {
+    type: EthProviders.Type;
+    connectionInfo: string;
+  }
+
+  export class Base {
+    idx: number;
+    info: EthProviders.Info;
+    protected provider: Provider = null;
+
+    constructor(info: EthProviders.Info) {
+      indexNum += 1;
+      this.idx = indexNum;
+      this.info = info;
     }
 
-    export enum KnownNetworkType {
-        homestead = 'homestead',
-        ropsten = 'ropsten'
+    public getEthersJSProvider(): Provider {
+      return null;
     }
 
-    export enum Type {
-        KnownNetwork = 'KnownNetwork',
-        JsonRpc = 'JsonRpc'
+    public hasEthersJSProvider(): boolean {
+      return this.provider !== null;
     }
 
-    export interface Info {
-        type: EthProviders.Type;
-        connectionInfo: string;
+    public isEqual(otherProvider: EthProviders.Base): boolean {
+      if (otherProvider.info.type === this.info.type && otherProvider.info.connectionInfo === this.info.connectionInfo) {
+        return true;
+      }
     }
 
-    export class Base {
-        idx: number;
-        protected info: EthProviders.Info;
-        protected provider: Provider = null;
-
-        constructor(info: EthProviders.Info) {
-            indexNum += 1;
-            this.idx = indexNum;
-            this.info = info;
-        }
-
-        public getEthersJSProvider(): Provider {
-            return null;
-        }
-
-        public hasEthersJSProvider(): boolean {
-            return this.provider !== null;
-        }
-
-        public isEqual(otherProvider: EthProviders.Base): boolean {
-            if (otherProvider.info.type === this.info.type && otherProvider.info.connectionInfo === this.info.connectionInfo) {
-                return true;
-            }
-        }
-
-        public isEqualInfo(info: EthProviders.Info): boolean {
-            if (info.type === this.info.type && info.connectionInfo === this.info.connectionInfo) {
-                return true;
-            }
-        }
-
-        public connect() {
-        }
+    public isEqualInfo(info: EthProviders.Info): boolean {
+      if (info.type === this.info.type && info.connectionInfo === this.info.connectionInfo) {
+        return true;
+      }
     }
 
-    export class KnownProvider extends EthProviders.Base {
-        constructor(info: EthProviders.Info = { type: Type.KnownNetwork, connectionInfo: 'homestead' }) {
-            super(info);
-        }
+    public connect() {}
+  }
 
-        public getEthersJSProvider(): Provider {
-            if (!this.provider) { this.connect(); }
-            return this.provider;
-        }
-
-        public connect() {
-            if (!this.provider) {
-                this.provider = ethers.getDefaultProvider(this.info.connectionInfo);
-            }
-        }
-
-        public disconnect() {
-            this.provider = null;
-        }
+  export class KnownProvider extends EthProviders.Base {
+    constructor(info: EthProviders.Info = { type: Type.KnownNetwork, connectionInfo: 'homestead' }) {
+      super(info);
     }
 
-    export class JsonProvider extends EthProviders.Base {
-        constructor(info: EthProviders.Info = { type: Type.JsonRpc, connectionInfo: 'http://localhost:8545' }) {
-            super(info);
-        }
-
-        public getEthersJSProvider(): Provider {
-            if (!this.provider) { this.connect(); }
-            return this.provider;
-        }
-
-        public connect() {
-            if (!this.provider) {
-                this.provider = new ethers.providers.JsonRpcProvider(this.info.connectionInfo);
-            }
-        }
-
-        public disconnect() {
-            this.provider = null;
-        }
+    public getEthersJSProvider(): Provider {
+      if (!this.provider) { this.connect(); }
+      return this.provider;
     }
+
+    public connect() {
+      if (!this.provider) {
+        this.provider = ethers.getDefaultProvider(this.info.connectionInfo);
+      }
+    }
+
+    public disconnect() {
+      this.provider = null;
+    }
+  }
+
+  export class JsonProvider extends EthProviders.Base {
+    constructor(info: EthProviders.Info = { type: Type.JsonRpc, connectionInfo: 'http://localhost:8545' }) {
+      super(info);
+    }
+
+    public getEthersJSProvider(): Provider {
+      if (!this.provider) { this.connect(); }
+      return this.provider;
+    }
+
+    public connect() {
+      if (!this.provider) {
+        this.provider = new ethers.providers.JsonRpcProvider(this.info.connectionInfo);
+      }
+    }
+
+    public disconnect() {
+      this.provider = null;
+    }
+  }
 }
 
-
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class EthService {
-    providers: Array<EthProviders.Base> = [];
+  providers: Array < EthProviders.Base > = [];
 
-    constructor(private logger: NGXLogger) {
-        commonLogger = logger;
-        commonLogger.info('web3 service creation');
+  constructor(private logger: NGXLogger) {
+    commonLogger = logger;
+    commonLogger.info('web3 service creation');
 
-        this.providers = [];
+    this.providers = [];
+  }
+
+  getProvider(info: EthProviders.Info): EthProviders.Base {
+    for (let i = 0; i < this.providers.length; i++) {
+      const p = this.providers[i];
+      if (p.isEqualInfo(info)) {
+        return p;
+      }
     }
 
-    getProvider(info: EthProviders.Info): EthProviders.Base {
-        for (let i = 0; i < this.providers.length; i++) {
-            const p = this.providers[i];
-            if (p.isEqualInfo(info)) {
-                return p;
-            }
-        }
+    const result = EthProviders.createInstanceFrom(info);
+    this.providers.push(result);
+    return result;
+  }
 
-        const result = EthProviders.createInstanceFrom(info);
-        this.providers.push(result);
-        return result;
-    }
-
-    get versionInfo() {
-        return ethers.version;
-    }
+  get versionInfo() {
+    return ethers.version;
+  }
 }

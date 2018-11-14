@@ -8,7 +8,8 @@ const routes: Routes = [
   // { path: '', redirectTo: 'me', pathMatch: 'full' },
   { path: 'me', loadChildren: './pages/samples/tabs/tabs.module#TabsPageModule' },
   { path: 'home', loadChildren: './pages/samples/home/home.module#HomePageModule' },
-  { path: 'ethtest', loadChildren: './pages/ethtest/ethtest.module#EthtestPageModule' }
+  { path: 'ethtest', loadChildren: './pages/ethtest/ethtest.module#EthtestPageModule' },
+  { path: 'signin', loadChildren: './pages/signin/signin.module#SigninPageModule' }
 ];
 
 // log a routing state

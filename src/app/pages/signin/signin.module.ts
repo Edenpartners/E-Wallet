@@ -4,22 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
-import { EthtestPage } from './ethtest.page';
-import { ClipboardModule } from 'ngx-clipboard';
 
-const routes: Routes = [{
-  path: '',
-  component: EthtestPage
-}];
+import { SigninPage } from './signin.page';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: SigninPage
+  }
+];
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes),
-    ClipboardModule
+    RouterModule.forChild(routes)
   ],
-  declarations: [EthtestPage]
+  declarations: [SigninPage]
 })
-export class EthtestPageModule {}
+export class SigninPageModule {}
