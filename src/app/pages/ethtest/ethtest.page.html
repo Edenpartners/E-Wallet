@@ -69,7 +69,8 @@
         let i = index;
         let isOdd = odd;
         let isEven = even
-      " [ngClass]="{
+      "
+      [ngClass]="{
         selected: isSelectedWallet(item),
         even: isSelectedWallet(item) ? false : isEven,
         odd: isSelectedWallet(item) ? false : isOdd
@@ -79,10 +80,12 @@
           <!-- Default wallet information -->
           <ion-col align-self-center size="1">{{ i }}</ion-col>
           <ion-col size="auto">
-            <ion-button color="light" class="small-font" (click)="copyToClipboard(item.data.address)">Address : {{ item.data.address }}</ion-button>
+            <ion-button color="light" class="small-font" (click)="copyToClipboard(item.data.address)">Address
+              : {{ item.data.address }}</ion-button>
           </ion-col>
           <ion-col size="auto">
-            <ion-button color="light" (click)="copyToClipboard(item.data.info.privateKey)">Private Key</ion-button>
+            <ion-button color="light" (click)="copyToClipboard(item.data.info.privateKey)">Private
+              Key</ion-button>
           </ion-col>
           <ion-col size="auto">
             <ion-button color="light" (click)="copyToClipboard(item.data.info.mnemonic)">Mnemonic</ion-button>
@@ -116,12 +119,21 @@
               <ion-row>
                 <ion-col class="no-border">Transaction List</ion-col>
               </ion-row>
+
+              <ion-row *ngFor="let tx of item.transactionHistory; let txIdx = index;">
+                <ion-col>
+                  <ion-button class="small-font" (click)="copyToClipboard(txToString(tx))">
+                    {{ tx.hash }}
+                  </ion-button>
+                </ion-col>
+              </ion-row>
             </ion-grid>
           </ion-col>
         </ion-row>
 
         <ion-row>
-          <ion-col size="auto">
+          <ion-col size="
+                auto">
             <ion-button color="light" (click)="toggleWalletContractsRow(item)">{{
                 item.contractsExpanded ? '< Contracts' : 'Contracts >'
               }}</ion-button>
@@ -141,7 +153,8 @@
                   let contIndex = index;
                   let isContractRowOdd = odd;
                   let isContractRowEven = even
-                " [ngClass]="{
+                "
+                [ngClass]="{
                   'odd-green': isContractRowOdd,
                   'even-green': isContractRowEven
                 }">
@@ -149,7 +162,8 @@
                   <ion-row>
                     <ion-col size="auto"> {{ contract.type }} </ion-col>
                     <ion-col>
-                      <ion-button color="light" class="small-font" (click)="copyToClipboard(contract.address)">Address : {{ contract.address }}</ion-button>
+                      <ion-button color="light" class="small-font" (click)="copyToClipboard(contract.address)">Address
+                        : {{ contract.address }}</ion-button>
                     </ion-col>
                     <ion-col size="auto" class="no-border">
                       <ion-button color="danger" (click)="deleteContractInfoFromWallet(item, contract)">DEL</ion-button>
@@ -160,12 +174,13 @@
                       <ion-grid>
                         <ion-row>
                           <ion-col size="auto">
-                            <ion-button color="light" (click)="getERC20TokenInfo(item, contract)">Retrieve Info</ion-button>
+                            <ion-button color="light" (click)="getERC20TokenInfo(item, contract)">Retrieve
+                              Info</ion-button>
                           </ion-col>
                           <ion-col *ngIf="contract.contractInfo">
                             Name : {{ contract.contractInfo.name }} / Symbol :
                             {{ contract.contractInfo.symbol }} / Decimal :
-                            {{ contract.contractInfo.decimal }}
+                            {{ contract.contractInfo.decimal }} / My Balance : {{ findContractWorker(item, contract).adjustedBalance ? findContractWorker(item, contract).adjustedBalance : '-' }}
                           </ion-col>
                           <ion-col size="auto">
                             <ion-button color="light" (click)="getERC20TokenBalance(item, contract)">Balance</ion-button>
@@ -180,13 +195,16 @@
                                   tokenReceiverAddress,
                                   tokenSendAmount
                                 )
-                              " [disabled]="!contract.contractInfo">Transfer Token</ion-button>
+                              "
+                              [disabled]="!contract.contractInfo">Transfer Token</ion-button>
                           </ion-col>
                           <ion-col>
-                            <ion-input style="background-color: white;" class="borderd-input" placeholder="To" #tokenReceiverAddress></ion-input>
+                            <ion-input style="background-color: white;" class="borderd-input"
+                              placeholder="To" #tokenReceiverAddress></ion-input>
                           </ion-col>
                           <ion-col size="2">
-                            <ion-input style="background-color: white;" class="borderd-input" placeholder="Amount" #tokenSendAmount></ion-input>
+                            <ion-input style="background-color: white;" class="borderd-input"
+                              placeholder="Amount" #tokenSendAmount></ion-input>
                           </ion-col>
                         </ion-row>
                       </ion-grid>
@@ -207,7 +225,8 @@
                   </ion-select>
                 </ion-col>
                 <ion-col>
-                  <ion-input style="background-color: white;" class="borderd-input" placeholder="Contract Address" [(ngModel)]="item.extraData.contractAddressToAdd"></ion-input>
+                  <ion-input style="background-color: white;" class="borderd-input" placeholder="Contract Address"
+                    [(ngModel)]="item.extraData.contractAddressToAdd"></ion-input>
                 </ion-col>
                 <ion-col size="auto" class="no-border">
                   <ion-button (click)="addContractInfoToWallet(item)">Add Contract</ion-button>
@@ -228,7 +247,8 @@
       <ion-label size="auto">From</ion-label>
       <ion-input placeholder="Select Wallet" [value]="
           this.selectedWallet === null ? '' : this.selectedWallet.data.address
-        " readonly></ion-input>
+        "
+        readonly></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>To</ion-label>
@@ -252,7 +272,8 @@
       <ion-label>My ETH Wallet address</ion-label>
       <ion-input placeholder="Select Wallet" [value]="
           this.selectedWallet === null ? '' : this.selectedWallet.data.address
-        " readonly></ion-input>
+        "
+        readonly></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>ERC20 Contract Address</ion-label>
