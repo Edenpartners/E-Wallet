@@ -80,7 +80,7 @@ export class EthtestPage implements OnInit {
     private etherData: EtherDataService,
     private walletService: WalletService,
     private kyberNetworkService: KyberNetworkService,
-    private ednWalletApi: EtherApiService) {}
+    private etherApi: EtherApiService) {}
 
   ngOnInit() {
     this.refreshList();
@@ -311,19 +311,15 @@ export class EthtestPage implements OnInit {
 
     const delay = 3000;
 
-    const p: EthProviders.Base = this.resolveProvider(walletRow);
-    const w: Wallet = this.walletService.walletInstance(walletRow.data, p.getEthersJSProvider());
+    this.etherApi.getEthBalance(walletRow.data).then((val) => {
+      walletRow.ethBalanceWei = val;
+      walletRow.ethBalanceEther = ethers.utils.formatEther(val);
 
-    w.getBalance().then((val) => {
-        walletRow.ethBalanceWei = val;
-        walletRow.ethBalanceEther = ethers.utils.formatEther(val);
-
-        restartWork();
-      },
-      (err) => {
-        this.logger.debug(err);
-        restartWork();
-      });
+      restartWork();
+    }, (err) => {
+      this.logger.debug(err);
+      restartWork();
+    });
   }
 
   toggleWalletContractsRow(walletRow: WalletRow) {
@@ -378,39 +374,27 @@ export class EthtestPage implements OnInit {
    * Transactions
    */
   sendEth(sendEthToInput: Input, sendEthAmountInput: Input) {
-    if (!this.selectedWallet) {
-      alert('select wallet');
-      return;
-    }
+    if (!this.selectedWallet) { alert('select wallet'); return; }
 
     const sendEthTo = sendEthToInput.value;
-    if (sendEthTo.length < 1) {
-      alert('set receiver address');
-      return;
-    }
+    if (sendEthTo.length < 1) { alert('set receiver address'); return; }
 
     const sendEthAmount = sendEthAmountInput.value;
+    let sendEthAmountBn: BigNumber = ethers.utils.parseEther(sendEthAmount);
+    if (!sendEthAmountBn) { alert('set eth amount'); return; }
 
-    const p: EthProviders.Base = this.resolveProvider(this.selectedWallet);
-    const w: Wallet = new ethers.Wallet(this.selectedWallet.data.info.privateKey, p.getEthersJSProvider());
-
-    const amount = ethers.utils.parseEther(String(sendEthAmount));
-
-    const tx = {
-      to: sendEthTo,
-      value: amount
+    const onTxCreate = (tx) => {
+      this.selectedWallet.transactionHistory.push(tx);
+      this.store.set('tx_' + this.selectedWallet.data.id, this.selectedWallet.transactionHistory);
     };
 
-    const sendPromise = w.sendTransaction(tx);
-    sendPromise.then(
-      (resultTx) => {
-        this.logger.debug(resultTx);
-        this.selectedWallet.transactionHistory.push(resultTx);
-        this.store.set('tx_' + this.selectedWallet.data.id, this.selectedWallet.transactionHistory);
-      },
-      (e) => {
-        this.logger.debug(e);
-      });
+    this.etherApi.sendEth(this.selectedWallet.data, sendEthTo,
+      sendEthAmountBn, -1,
+      onTxCreate).then((txReceipt) => {
+      alert('tx complete');
+    }, (error) => {
+      alert(error);
+    });
   }
 
   /** Contract Features */
@@ -485,7 +469,7 @@ export class EthtestPage implements OnInit {
 
   // https://medium.com/@piyopiyo/how-to-get-erc20-token-balance-with-web3-js-206df52f2561
   getERC20TokenInfo(walletRow: WalletRow, contractInfo: ContractInfo) {
-    this.ednWalletApi.getERC20TokenInfo(walletRow.data, contractInfo).then(
+    this.etherApi.getERC20TokenInfo(walletRow.data, contractInfo).then(
       (result: { name: string, symbol: string, decimal: number }) => {
         this.logger.debug('erc-20 token info', result);
         contractInfo.contractInfo = result;
@@ -498,7 +482,7 @@ export class EthtestPage implements OnInit {
   }
 
   getERC20TokenBalance(walletRow: WalletRow, contractInfo: ContractInfo) {
-    this.ednWalletApi.getERC20TokenBalance(walletRow.data, contractInfo).then(
+    this.etherApi.getERC20TokenBalance(walletRow.data, contractInfo).then(
       (result: { balance: BigNumber, adjustedBalance: BigNumber }) => {
         // { balance: BigNumber, adjustedBalance: BigNumber }
         const contractWorker = this.findContractWorker(walletRow, contractInfo);
@@ -518,16 +502,20 @@ export class EthtestPage implements OnInit {
       walletRow.transactionHistory.push(tx);
       this.store.set('tx_' + walletRow.data.id, walletRow.transactionHistory);
     };
+    const onTransactionReceipt = (txReceipt) => {
+      this.logger.log('transaction receipt');
+    }
+
     const onSuccess = (data) => {};
     const onError = (error) => {
       this.logger.debug('event : transfer failed!');
       this.logger.debug(error);
     };
-    this.ednWalletApi.transferERC20Token(
+    this.etherApi.transferERC20Token(
       walletRow.data, contractInfo,
       toAddressInput.value,
       sendingAmountInput.value, -1,
-      onTransactionCreate).then(onSuccess, onError);
+      onTransactionCreate, onTransactionReceipt).then(onSuccess, onError);
   }
 
   /**
@@ -545,17 +533,22 @@ export class EthtestPage implements OnInit {
       return;
     }
 
-    const onTransactionCreate = (txData) => {
-      console.log(txData);
+    const onTxCreate = (txData) => {
+      this.logger.debug("on tx create");
       this.selectedWallet.transactionHistory.push(txData);
       this.store.set('tx_' + this.selectedWallet.data.id, this.selectedWallet.transactionHistory);
-    }
+    };
+    const onTxReceipt = (txReceiptData) => {
+      this.logger.debug("on tx receipt");
+    };
+
     const onSuccess = (data) => { console.log(data); }
     const onError = (error) => { alert(error); }
-    this.ednWalletApi.kyberNetworkTradeEthToErc20Token(this.selectedWallet.data,
+    this.etherApi.kyberNetworkTradeEthToErc20Token(this.selectedWallet.data,
       kyberTradeEthToErcTargetAddressInput.value,
       kyberTradeEthToErcAmountInput.value,
-      onTransactionCreate
+      onTxCreate,
+      onTxReceipt,
     ).then(onSuccess, onError);
   }
 

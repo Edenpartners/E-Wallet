@@ -16,6 +16,9 @@ import { Provider } from 'ethers/providers';
 import { BigNumber } from 'ethers/utils';
 import { resolveReflectiveProviders } from '@angular/core/src/di/reflective_provider';
 import { resolveDefinition } from '@angular/core/src/view/util';
+import { async } from '@angular/core/testing';
+import { runInThisContext } from 'vm';
+import { TransitiveCompileNgModuleMetadata } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +32,64 @@ export class EtherApiService {
     private etherData: EtherDataService
   ) {}
 
-  async getERC20TokenInfo(walletInfo: WalletInfo, ctInfo: ContractInfo, timeout = -1): Promise <
+  getEthBalance(walletInfo: WalletInfo): Promise < any > {
+    return new Promise((finalResolve, finalReject) => {
+      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const w: Wallet = this.walletService.walletInstance(walletInfo, p.getEthersJSProvider());
+
+      w.getBalance().then((val) => {
+          finalResolve(val);
+        },
+        (err) => {
+          this.logger.debug(err);
+          finalReject(err);
+        }
+      );
+    });
+  }
+
+  sendEth(walletInfo: WalletInfo, sendEthTo: string, sendWeiAmount: BigNumber,
+    timeout = -1,
+    onTransactionCreate: ((any) => void) = (tx) => {},
+    onTransactionReceipt: ((any) => void) = null): Promise < any > {
+    return new Promise((finalResolve, finalReject) => {
+      if (sendEthTo.length < 1) {
+        finalReject(new Error('set receiver address'));
+        return;
+      }
+
+      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const w: Wallet = new ethers.Wallet(walletInfo.info.privateKey, p.getEthersJSProvider());
+
+      const tx = {
+        to: sendEthTo,
+        value: sendWeiAmount
+      };
+
+      const sendPromise = w.sendTransaction(tx);
+      sendPromise.then(
+        (tx) => {
+          this.logger.debug(tx);
+          onTransactionCreate(tx);
+
+          this.trackTransactionReceipt(p, tx.hash).then((txReceipt) => {
+            if (onTransactionReceipt !== null) {
+              onTransactionReceipt(txReceipt);
+            }
+            finalResolve(txReceipt);
+          }, (txReceiptError) => {
+            this.logger.debug(txReceiptError);
+            finalReject(txReceiptError);
+          });
+        },
+        (txError) => {
+          this.logger.debug(txError);
+          finalReject(txError);
+        });
+    });
+  }
+
+  getERC20TokenInfo(walletInfo: WalletInfo, ctInfo: ContractInfo, timeout = -1): Promise <
     any > {
       return new Promise < any > (async (finalResolve, finalReject) => {
         if (ctInfo.type !== ContractType.ERC20) {
@@ -147,7 +207,8 @@ export class EtherApiService {
   async transferERC20Token(
     walletInfo: WalletInfo, ctInfo: ContractInfo,
     toAddress: string, sendingAmount: string, timeout = -1,
-    onTransactionCreate: ((any) => void) = (tx) => {}
+    onTransactionCreate: ((any) => void) = (tx) => {},
+    onTransactionReceipt: ((any) => void) = null
   ): Promise < any > {
 
     return new Promise(async (finalResolve, finalReject) => {
@@ -243,6 +304,7 @@ export class EtherApiService {
         gasPrice: gasPrice,
         gasLimit: estimatedGasBn
       });
+
       tp.then((tx) => {
         /*
         chainId: 3
@@ -264,6 +326,15 @@ export class EtherApiService {
         this.logger.debug(tx);
         this.logger.debug('==========================');
         onTransactionCreate(tx);
+
+        if (onTransactionReceipt !== null) {
+          this.trackTransactionReceipt(p, tx.hash).then((txReceipt) => {
+            onTransactionReceipt(txReceipt);
+          }, (error) => {
+            this.logger.debug('txReceiptError');
+            this.logger.debug(error);
+          });
+        }
       }, (txError) => {
         this.logger.debug('transfer failed');
         this.logger.debug(txError);
@@ -271,6 +342,47 @@ export class EtherApiService {
       });
     });
   } // end of function
+
+  trackTransactionReceipt(p: EthProviders.Base,
+    txHash: string, repeatIfError: boolean = true, timeout = -1): Promise < any > {
+    return new Promise(async (finalResolve, finalReject) => {
+      const rp = p.getEthersJSProvider();
+
+      let isComplete = false;
+      const worker = () => {
+        rp.getTransactionReceipt(txHash).then((txReceipt) => {
+          this.logger.debug(txReceipt);
+          isComplete = true;
+          finalResolve(txReceipt);
+        }, (err) => {
+          if (repeatIfError && isComplete == false) {
+            console.log('run again');
+            worker();
+          } else {
+            finalReject(err);
+          }
+        });
+      };
+
+      worker();
+
+      if (timeout >= 0) {
+        const startTime = new Date().getTime();
+        let intervalId = setInterval(() => {
+          const now = new Date().getTime();
+          const diffTime = now - startTime;
+          if (isComplete || diffTime >= timeout) {
+            clearInterval(intervalId);
+            intervalId = null;
+            if (diffTime >= timeout) {
+              finalReject(new Error('timeout'));
+            }
+            return;
+          }
+        }, 1000);
+      }
+    });
+  }
 
   getGasPrice(p: EthProviders.Base): Promise < BigNumber > {
     return p.getEthersJSProvider().getGasPrice();
@@ -286,7 +398,8 @@ export class EtherApiService {
   async kyberNetworkTradeEthToErc20Token(
     walletInfo: WalletInfo,
     tradeTargetAddress: string, srcEthAmount: string,
-    onTransactionCreate: ((any) => void) = (tx) => {}
+    onTransactionCreate: ((any) => void) = (tx) => {},
+    onTransactionReceipt: ((any) => void) = null
   ) {
     return new Promise(async (finalResolve, finalReject) => {
       const targetErc20ContractAddres = tradeTargetAddress;
@@ -324,6 +437,16 @@ export class EtherApiService {
             ethWeiAmount, getRateData.slippageRate);
         }).then((tradeTxData) => {
           onTransactionCreate(tradeTxData);
+
+          if (onTransactionReceipt !== null) {
+            this.trackTransactionReceipt(p, tradeTxData.hash).then((txReceipt) => {
+              onTransactionReceipt(txReceipt);
+            }, (error) => {
+              this.logger.debug('txReceiptError');
+              this.logger.debug(error);
+            });
+          }
+
           return this.kyberNetworkHandleExecuteTradeEvent(contract);
         }).then((resolvedData) => {
           this.logger.debug('==========================');

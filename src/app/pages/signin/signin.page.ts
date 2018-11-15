@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-signin',
   templateUrl: './signin.page.html',
@@ -7,9 +7,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SigninPage implements OnInit {
 
-  constructor() { }
+  constructor(private translate: TranslateService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
 }

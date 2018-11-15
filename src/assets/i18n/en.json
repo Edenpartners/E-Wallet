@@ -1,0 +1,47 @@
+{
+  "TEST": "Test {{value}}",
+  "______________SIGN_IN": "",
+  "Copyright": "Copyright by Eden Partners, Inc. Company Confidential.",
+  "AppName": "E-Wallets",
+  "SigninComment": "Sign-in into EdenChain",
+  "IsForgotPasswd": "Forgot your password?",
+  "InputUserId": "User ID",
+  "InputPassword": "Password",
+  "Login": "Log In",
+  "OrSigninWith": "or Sign-in with",
+  "Facebook": "Facebook",
+  "Twitter": "Twitter",
+  "Google": "Google",
+  "DontHaveAccount": "Don't have an account?",
+
+  "______________SIGN_IN_POPUP": "",
+  "SigninSuccessTitle": "Sign-in succeed.",
+  "JumpIf": "Jump if",
+  "IDontHaveWallet": "No wallet has been created",
+  "IHaveWallet": "One or more wallet has been created",
+
+  "______________SIGN_UP": "",
+  "SignupComment": "Sign-up into EdenChain",
+  "InputEmail": "Email",
+  "ConfigmPasswd": "re-type password",
+  "Continue": "Continue",
+
+  "OrSignupWith": "or Sign-up with",
+
+  "______________SIGN_IN_PROFILE": "",
+  "ProfileComment":"Details about you",
+  "UserName": "User name",
+  "PhoneNumber": "Mobile Number",
+
+  "TermsAndConditions": "Terms and conditions",
+  "Privacy": "Privacy",
+
+  "______________HOME": "",
+  "MyEDNWalletsTitle":"My EDN Wallets",
+  "MyTEDNWalletsTitle":"My TEDN Wallets",
+
+  "AddEdn":"ADD EDN",
+  "Deposit":"DEPOSIT",
+  "Withdraw":"WITHDRAW"
+
+}

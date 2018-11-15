@@ -2,17 +2,15 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { TabsPage } from './tabs.page';
-import { HomePage } from '../home/home.page';
+import { HomePage } from '../../home/home.page';
 import { AboutPage } from '../about/about.page';
 import { ContactPage } from '../contact/contact.page';
 import { EthtestPage } from '../../ethtest/ethtest.page';
 
-const routes: Routes = [
-  {
+const routes: Routes = [{
     path: 'tabs',
     component: TabsPage,
-    children: [
-      {
+    children: [{
         path: '',
         redirectTo: '/tabs/(home:home)',
         pathMatch: 'full',

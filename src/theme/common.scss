@@ -1,0 +1,8 @@
+.common-colr {
+  background: red;
+}
+
+
+ion-button.main {
+  --background: var(--main, #ffffff);
+}

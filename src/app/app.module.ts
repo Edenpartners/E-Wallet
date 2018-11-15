@@ -12,6 +12,13 @@ import { LoggerModule, NgxLoggerLevel, LoggerConfig } from 'ngx-logger';
 import { ClipboardModule } from 'ngx-clipboard';
 import { WebStorageModule } from 'ngx-store';
 
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader'
+
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 @NgModule({
   declarations: [AppComponent],
@@ -26,8 +33,20 @@ import { WebStorageModule } from 'ngx-store';
 
     // Logging
     LoggerModule.forRoot({
-      disableConsoleLogging: false, level: NgxLoggerLevel.DEBUG,
-      serverLoggingUrl: null, serverLogLevel: NgxLoggerLevel.ERROR }),
+      disableConsoleLogging: false,
+      level: NgxLoggerLevel.DEBUG,
+      serverLoggingUrl: null,
+      serverLogLevel: NgxLoggerLevel.ERROR
+    }),
+
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
+    })
+
   ],
   exports: [
     ClipboardModule

@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'AppName' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <div>
+    <ion-toolbar>
+      <ion-title>{{ 'MyEDNWalletsTitle' | translate }}</ion-title>
+    </ion-toolbar>
+    <ion-content padding style="height:180px;">
+      <ion-list>
+        <ion-card *ngFor="let item of items">
+          <ion-label>
+            {{ item }}
+          </ion-label>
+        </ion-card>
+      </ion-list>
+    </ion-content>
+    <ion-toolbar>
+      <ion-button>{{ 'AddEdn' | translate }}</ion-button>
+    </ion-toolbar>
+  </div>
+
+  <div style="padding-top:40px;">
+    <ion-toolbar>
+      <ion-title>{{ 'MyTEDNWalletsTitle' | translate }}</ion-title>
+    </ion-toolbar>
+    <ion-list style="max-height:150px;">
+      <ion-item>
+        <ion-label>
+          Test
+        </ion-label>
+      </ion-item>
+    </ion-list>
+    <ion-toolbar>
+      <ion-button>{{ 'Deposit' | translate }}</ion-button>
+      <ion-button>{{ 'Withdraw' | translate }}</ion-button>
+    </ion-toolbar>
+  </div>
+</ion-content>

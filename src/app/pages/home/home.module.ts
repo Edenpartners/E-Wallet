@@ -2,11 +2,11 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { SharedPageModule } from '../../modules/shared.page.module';
 
-import { SigninPage } from './signin.page';
+import { HomePage } from './home.page';
 
 const routes: Routes = [{
   path: '',
-  component: SigninPage
+  component: HomePage
 }];
 
 @NgModule({
@@ -14,6 +14,6 @@ const routes: Routes = [{
     SharedPageModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [SigninPage]
+  declarations: [HomePage]
 })
-export class SigninPageModule {}
+export class HomePageModule {}
