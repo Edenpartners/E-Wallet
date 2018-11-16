@@ -1,0 +1,36 @@
+.hcf-content {
+  height: 100%;
+  align-items: center;
+}
+
+.hcf-content .content {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hcf-content .content p {
+  text-align: center;
+}
+
+.pin-code {
+  display: flex;
+  flex-direction: row;
+  align-items: center; // align-items center
+}
+
+.pin-code ion-button {
+  --width: 40px;
+  --height: 40px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.footer {
+  width: 100%;
+}
+
+ion-item {
+  --background: transparent;
+}

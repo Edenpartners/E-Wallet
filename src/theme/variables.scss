@@ -1,3 +1,4 @@
+// this will also available to use from all pages
 @import './common.scss';
 
 // Ionic Variables and Theming. For more info, please see:
@@ -5,7 +6,6 @@
 
 /** Ionic CSS Variables **/
 :root {
-
   /** primary **/
   --ion-color-primary: #3880ff;
   --ion-color-primary-rgb: 56, 128, 255;
@@ -77,37 +77,4 @@
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
-
-
-  /** main **/
-  --ion-color-main: #DC8633;
-  --ion-color-main-rgb: 220, 134, 51;
-  --ion-color-main-contrast: #000000;
-  --ion-color-main-contrast-rgb: 0, 0, 0;
-  --ion-color-main-shade: #c2762d;
-  --ion-color-main-tint: #e09247;
-
-  --ion-color-main2: #524689;
-  --ion-color-main2-rgb: 82, 70, 137;
-  --ion-color-main2-contrast: #ffffff;
-  --ion-color-main2-contrast-rgb: 255, 255, 255;
-  --ion-color-main2-shade: #483e79;
-  --ion-color-main2-tint: #635995;
-
-  /** main **/
-  --main: #DC8633;
-  --main-rgb: 220, 134, 51;
-  --main-contrast: #000000;
-  --main-contrast-rgb: 0, 0, 0;
-  --main-shade: #c2762d;
-  --main-tint: #e09247;
-
-  --main2: #524689;
-  --main2-rgb: 82, 70, 137;
-  --main2-contrast: #ffffff;
-  --main2-contrast-rgb: 255, 255, 255;
-  --main2-shade: #483e79;
-  --main2-tint: #635995;
-
-  --common-back: #efefef;
 }

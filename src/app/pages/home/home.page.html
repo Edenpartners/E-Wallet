@@ -1,42 +1,42 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>{{ 'AppName' | translate }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+<div class="page-wrapper fixed-flex hcf-content">
+  <div margin-top class="logo-wrapper header">
+    <div class="logo-img"></div>
+  </div>
+  <div padding class="content lists-wrapper">
+    <div padding-bottom class="hcf-content edn-wallet-container">
+      <ion-toolbar class="header">
+        <ion-title>{{ 'MyEDNWalletsTitle' | translate }}</ion-title>
+      </ion-toolbar>
+      <ion-content class="content">
+        <ion-list>
+          <ion-card *ngFor="let item of items">
+            <ion-label>
+              {{ item }}
+            </ion-label>
+          </ion-card>
+        </ion-list>
+      </ion-content>
+      <ion-toolbar class="footer">
+        <ion-button>{{ 'AddEdn' | translate }}</ion-button>
+      </ion-toolbar>
+    </div>
 
-<ion-content padding>
-  <div>
-    <ion-toolbar>
-      <ion-title>{{ 'MyEDNWalletsTitle' | translate }}</ion-title>
-    </ion-toolbar>
-    <ion-content padding style="height:180px;">
-      <ion-list>
-        <ion-card *ngFor="let item of items">
+    <div class="hcf-content tedn-wallet-container">
+      <ion-toolbar class="header">
+        <ion-title>{{ 'MyTEDNWalletsTitle' | translate }}</ion-title>
+      </ion-toolbar>
+      <ion-list class="content">
+        <ion-item>
           <ion-label>
-            {{ item }}
+            Test
           </ion-label>
-        </ion-card>
+        </ion-item>
       </ion-list>
-    </ion-content>
-    <ion-toolbar>
-      <ion-button>{{ 'AddEdn' | translate }}</ion-button>
-    </ion-toolbar>
+      <ion-toolbar class="footer">
+        <ion-button>{{ 'Deposit' | translate }}</ion-button>
+        <ion-button>{{ 'Withdraw' | translate }}</ion-button>
+      </ion-toolbar>
+    </div>
   </div>
 
-  <div style="padding-top:40px;">
-    <ion-toolbar>
-      <ion-title>{{ 'MyTEDNWalletsTitle' | translate }}</ion-title>
-    </ion-toolbar>
-    <ion-list style="max-height:150px;">
-      <ion-item>
-        <ion-label>
-          Test
-        </ion-label>
-      </ion-item>
-    </ion-list>
-    <ion-toolbar>
-      <ion-button>{{ 'Deposit' | translate }}</ion-button>
-      <ion-button>{{ 'Withdraw' | translate }}</ion-button>
-    </ion-toolbar>
-  </div>
-</ion-content>
+</div>

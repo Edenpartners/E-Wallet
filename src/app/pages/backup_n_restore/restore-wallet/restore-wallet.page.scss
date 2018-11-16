@@ -1,0 +1,23 @@
+.hcf-content {
+  width: 70%;
+  height: 100%;
+  align-items: center;
+}
+
+.hcf-content .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hcf-content .content p {
+  text-align: center;
+}
+
+.footer {
+  width: 100%;
+}
+
+ion-item {
+  --background: transparent;
+}

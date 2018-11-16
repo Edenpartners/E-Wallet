@@ -42,6 +42,53 @@
 
   "AddEdn":"ADD EDN",
   "Deposit":"DEPOSIT",
-  "Withdraw":"WITHDRAW"
+  "Withdraw":"WITHDRAW",
+
+  "______________DP_EDN_LIST": "",
+  "DpEdnListTitle":"Add EDN",
+  "DpFromEth":"Add from ETH",
+
+  "______________DP_EDN_MAIN": "",
+  "DpEdnMainTitle":"Add EDN from ETH",
+  "Exchange":"Exchange",
+  "KyberNetworks":"Kyber Networks",
+  "AddEdnTo":"Add EDN to",
+
+  "Amount":"Amount",
+  "ETH":"ETH",
+  "EDN":"EDN",
+
+  "Add":"ADD",
+
+  "______________CREATE_PIN_CODE": "",
+  "CreatePinTitle":"Create PIN",
+  "PinComment":"A 6-digit PIN code is needed when accessing confidential information of E-Wallet. You should keep this 6-digit PIN code secretly and provide whenever your approval is needed for transfer of fund or backup code.",
+  "CreatePinComment":"Create 6-digit PIN code",
+  "CreatePin":"CREATE PIN",
+
+  "______________CONFIRM_PIN_CODE": "",
+  "ConfirmPinTitle":"Confirm PIN",
+  "ConfirmPinComment":"Enter 6-digit PIN",
+
+  "______________BACKUP_WALLET_NOTICE": "",
+  "BackupWalletTitle":"Backup Wallet",
+  "BackupWarningTitle":"Important Notice",
+  "BackupWarningMessage1":"A recovery phrase is about to be shown. You must present this phrase correctly when this app is deleted or your device is replaced.",
+  "BackupWarningMessage2":"This is only way to recover your wallet and fund.",
+  "BackupWarningMessage3":"You should keep this information securely and out of reach of others.",
+  "ReadyBackup":"I AM READY TO WRITE IT DOWN!",
+
+  "______________BACKUP_WALLET": "",
+  "YourPhrase":"Your wallet recovery phrase is",
+  "VerifyPhraseComment":"Please verify recovery phrase",
+  "KeepPhrase":"Write down above phrase and keep it safely for future recovery.",
+  "GotIt":"GOT IT",
+  "Verify":"VERIFY",
+
+  "______________EDN_WALLET_MAIN": "",
+  "EwMainTitle":"My EDN Wallets",
+  "Expenses":"Expenses",
+  "Address":"Address",
+  "CurrentBalance":"Current Balance"
 
 }
