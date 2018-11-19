@@ -1,31 +1,47 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'SignupProfileTitle' | translate}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content>
-  <div>
-    <img src='assets/img/e-wallet-logo-small.png' />
-  </div>
-  <div>
-    <ion-list>
-      <ion-item>
-        <ion-label>{{ 'ProfileComment' | translate }}</ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-input [placeholder]="'UserName' | translate"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-input [placeholder]="'PhoneNumber' | translate"></ion-input>
-      </ion-item>
+  <div class="hfc-layout">
+    <div class="header">
+      <div margin-top class="logo-wrapper header">
+        <div class="logo-img"></div>
+      </div>
+    </div>
+    <div class="content flex-ch-h-centered">
+      <div class="flex-ch-centered" style="width:70%;">
+        <div>
+          <ion-label>{{ 'ProfileComment' | translate }}</ion-label>
+        </div>
 
-      <ion-item>
-        <ion-checkbox color="secondary"></ion-checkbox>
-        <ion-label>{{ 'TermsAndConditions' | translate }}</ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-checkbox color="secondary"></ion-checkbox>
-        <ion-label>{{ 'Privacy' | translate }}</ion-label>
-      </ion-item>
+        <div style="margin-bottom:5px;">
+          <ion-input [placeholder]="'InputEmail' | translate"></ion-input>
+        </div>
+        <div margin-bottom>
+          <ion-input [placeholder]="'PhoneNumber' | translate"></ion-input>
+        </div>
 
-      <ion-item>
-        <ion-button class="main">{{ 'Continue' | translate }}</ion-button>
-      </ion-item>
-    </ion-list>
+        <ion-item lines="none" style="width:100%;">
+          <ion-checkbox color="secondary"></ion-checkbox>
+          <ion-label>{{ 'TermsAndConditions' | translate }}</ion-label>
+        </ion-item>
+        <ion-item lines="none" style="width:100%;">
+          <ion-checkbox color="secondary"></ion-checkbox>
+          <ion-label>{{ 'Privacy' | translate }}</ion-label>
+        </ion-item>
+
+        <div margin-top>
+          <ion-button class="main" expand="full" href="/pc-edit">{{ 'Continue' | translate }}</ion-button>
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content>

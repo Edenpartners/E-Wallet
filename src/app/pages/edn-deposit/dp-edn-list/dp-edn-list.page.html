@@ -1,6 +1,11 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{ 'DpEdnListTitle' | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'DpEdnListTitle' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -8,7 +13,7 @@
   <div class="page-wrapper" padding>
     <button ion-button>
       <div class="row-hor-direction">
-        <ion-fab-button icon-start color="medium">
+        <ion-fab-button icon-start color="medium" (click)="onAddFromEthClick()">
           <ion-icon name="add"></ion-icon>
         </ion-fab-button>
         <ion-label class="row-hor-item-fill">{{ 'DpFromEth' | translate }}</ion-label>

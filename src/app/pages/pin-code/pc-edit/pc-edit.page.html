@@ -1,12 +1,17 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{ 'CreatePinTitle' | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'CreatePinTitle' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content no-bounce>
-  <div class="page-wrapper fixed-flex" padding ion-fixed>
-    <div class="hcf-content">
+  <div class="page-wrapper fill" padding ion-fixed>
+    <div class="hcf-layout">
       <div class="content">
         <p>
           {{ 'PinComment' | translate }}
@@ -19,17 +24,23 @@
         </ion-item>
 
         <div class="pin-code">
-          <ion-button color="medium"></ion-button>
-          <ion-button color="medium"></ion-button>
-          <ion-button color="medium"></ion-button>
-          <ion-button color="medium"></ion-button>
-          <ion-button color="medium"></ion-button>
-          <ion-button color="medium"></ion-button>
+          <ion-button color="medium">
+          </ion-button>
+          <ion-button color="medium">
+          </ion-button>
+          <ion-button color="medium">
+          </ion-button>
+          <ion-button color="medium">
+          </ion-button>
+          <ion-button color="medium">
+          </ion-button>
+          <ion-button color="medium">
+          </ion-button>
         </div>
       </div>
 
       <div class="footer">
-        <ion-button expand="block">
+        <ion-button expand="block" href="/home">
           {{ 'CreatePin' | translate }}
         </ion-button>
       </div>

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterService } from '../../../providers/router.service';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-ew-main',
@@ -7,9 +9,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EwMainPage implements OnInit {
 
-  constructor() { }
+  constructor(private logger: NGXLogger, private rs: RouterService) {
 
-  ngOnInit() {
   }
 
+  ngOnInit() {}
+
+  onBackBtnClick() {
+    this.rs.goBack();
+  }
 }

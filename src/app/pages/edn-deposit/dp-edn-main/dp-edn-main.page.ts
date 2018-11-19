@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterService } from '../../../providers/router.service';
 
 @Component({
   selector: 'app-dp-edn-main',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DpEdnMainPage implements OnInit {
 
-  constructor() { }
+  selectedTrader = 'Kyber Networks';
 
-  ngOnInit() {
+  constructor(private rs: RouterService) {
+
   }
+
+  ngOnInit() {}
 
 }

@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { DirectivesModule } from '../directives/directives.module';
+
 /**
  * can use every page
  */
@@ -13,13 +15,15 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     FormsModule,
     IonicModule,
-    TranslateModule
+    TranslateModule,
+    DirectivesModule
   ],
   exports: [
     CommonModule,
     FormsModule,
     IonicModule,
     TranslateModule
-  ]
+  ],
+  declarations: []
 })
 export class SharedPageModule {}

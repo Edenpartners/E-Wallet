@@ -1,9 +1,19 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>ew-tx-list</ion-title>
-  </ion-toolbar>
-</ion-header>
+<div class="page-wrapper fill" padding>
+  <div class="hcf-layout fill">
+    <div class="content">
+    </div>
 
-<ion-content padding>
-
-</ion-content>
+    <div class="footer">
+      <ion-toolbar class="footer">
+        <div class="flex-h-direction">
+          <div class="flex-item-fill flex-ch-centered">
+            <ion-button btnStyle href="/ew-main/sub/(sub:qrcode)">{{ "Receive" | translate }}</ion-button>
+          </div>
+          <div class="flex-item-fill flex-ch-centered">
+            <ion-button btnStyle href="/ew-main/sub/(sub:send)">{{ "Send" | translate }}</ion-button>
+          </div>
+        </div>
+      </ion-toolbar>
+    </div>
+  </div>
+</div>

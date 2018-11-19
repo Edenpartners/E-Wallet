@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedPageModule } from '../../modules/shared.page.module';
 
 import { HomePage } from './home.page';
+import { DirectivesModule } from '../../directives/directives.module';
 
 const routes: Routes = [{
   path: '',
@@ -12,7 +13,8 @@ const routes: Routes = [{
 @NgModule({
   imports: [
     SharedPageModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    DirectivesModule
   ],
   declarations: [HomePage]
 })

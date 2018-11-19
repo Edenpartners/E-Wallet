@@ -7,9 +7,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EwTxListPage implements OnInit {
 
-  constructor() { }
+  name = 0;
 
-  ngOnInit() {
+  constructor() {}
+
+  ngOnInit() {}
+
+  onSendBtnClick() {
+    this.name += 1;
   }
-
 }

@@ -1,3 +1,21 @@
+.logo-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  background: #00000000;
+
+  .logo-img {
+    width: 200px;
+    height: 35px;
+    background: url('../../../assets/img/e-wallet-logo-small.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+}
+
 ion-input {
   // border: 1px black solid;
   background-color: #eeeeee;
@@ -6,4 +24,9 @@ ion-input {
 
 ion-content {
   --background: var(--common-back, #ffffff);
+}
+
+.content .flex-ch-centered div {
+  flex: 1;
+  width: 100%;
 }

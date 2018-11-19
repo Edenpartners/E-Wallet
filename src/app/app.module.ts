@@ -11,17 +11,22 @@ import { AppRoutingModule } from './app-routing.module';
 import { LoggerModule, NgxLoggerLevel, LoggerConfig } from 'ngx-logger';
 import { ClipboardModule } from 'ngx-clipboard';
 import { WebStorageModule } from 'ngx-store';
+import { NgxQRCodeModule } from 'ngx-qrcode2';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
+import { DirectivesModule } from './directives/directives.module';
+import { CommonNavBar } from './components/common-nav-bar';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent
+  ],
   entryComponents: [],
   imports: [
     BrowserModule,
@@ -30,6 +35,7 @@ export function createTranslateLoader(http: HttpClient) {
 
     ClipboardModule,
     WebStorageModule,
+    NgxQRCodeModule,
 
     // Logging
     LoggerModule.forRoot({
@@ -46,10 +52,10 @@ export function createTranslateLoader(http: HttpClient) {
         deps: [HttpClient]
       }
     })
-
   ],
   exports: [
-    ClipboardModule
+    ClipboardModule,
+    NgxQRCodeModule
   ],
   providers: [
     StatusBar,

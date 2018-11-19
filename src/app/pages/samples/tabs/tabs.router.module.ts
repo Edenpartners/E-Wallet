@@ -10,9 +10,11 @@ import { EthtestPage } from '../../ethtest/ethtest.page';
 const routes: Routes = [{
     path: 'tabs',
     component: TabsPage,
-    children: [{
+    children: [
+      /** '/me/tabs' -> '/me/tabs/(home:home) */
+      {
         path: '',
-        redirectTo: '/tabs/(home:home)',
+        redirectTo: '/me/tabs/(home:home)',
         pathMatch: 'full',
       },
       {
@@ -37,9 +39,10 @@ const routes: Routes = [{
       }
     ]
   },
+  /**  '/me' -> '/me/tabs/(home:home) */
   {
     path: '',
-    redirectTo: '/tabs/(home:home)',
+    redirectTo: '/me/tabs/(home:home)',
     pathMatch: 'full'
   }
 ];

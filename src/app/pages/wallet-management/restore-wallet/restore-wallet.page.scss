@@ -1,0 +1,34 @@
+.hcf-layout {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.hcf-layout .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+
+.hcf-layout .content {
+  width: 100%;
+}
+
+.content .input-area {
+  width: 100%;
+}
+
+ion-item {
+  --background: transparent;
+}
+
+ion-textarea {
+  border: 1px #dddddd solid;
+  --height: 200px;
+}
+
+.footer {
+  width: 100%;
+}

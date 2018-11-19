@@ -1,42 +1,69 @@
-<div class="page-wrapper fixed-flex hcf-content">
+<div class="page-wrapper fill hcf-layout">
   <div margin-top class="logo-wrapper header">
     <div class="logo-img"></div>
   </div>
   <div padding class="content lists-wrapper">
-    <div padding-bottom class="hcf-content edn-wallet-container">
-      <ion-toolbar class="header">
-        <ion-title>{{ 'MyEDNWalletsTitle' | translate }}</ion-title>
+    <div padding-bottom class="hcf-layout edn-wallet-container">
+      <ion-toolbar class="header" color="main2">
+        <ion-title>{{ "MyEDNWalletsTitle" | translate }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button href="/add-wallet">
+            <ion-icon name="add"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
       <ion-content class="content">
-        <ion-list>
-          <ion-card *ngFor="let item of items">
-            <ion-label>
-              {{ item }}
-            </ion-label>
-          </ion-card>
-        </ion-list>
+        <ion-grid>
+          <ion-row *ngFor="
+            let item of wallets;
+            let i = index;
+            let isOdd = odd;
+            let isEven = even
+          "
+            [ngClass]="{
+            even: isEven,
+            odd: isOdd
+          }">
+            <ion-button btnStyle href="/ew-main/sub">{{ 'EDN Wallet : ' + i  + ' / 0 EDN' }}</ion-button>
+            <!-- <span>{{ ' / 0 EDN' }}</span> -->
+            <!-- item.data.address + -->
+            <ion-button fill="clear" color="dark">
+              <ion-icon name="menu"></ion-icon>
+            </ion-button>
+          </ion-row>
+        </ion-grid>
       </ion-content>
       <ion-toolbar class="footer">
-        <ion-button>{{ 'AddEdn' | translate }}</ion-button>
+        <ion-buttons slot="end">
+          <ion-button btnStyle href="/dp-edn-list">{{ "AddEdn" | translate }}</ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </div>
 
-    <div class="hcf-content tedn-wallet-container">
-      <ion-toolbar class="header">
-        <ion-title>{{ 'MyTEDNWalletsTitle' | translate }}</ion-title>
+    <div class="hcf-layout tedn-wallet-container">
+      <ion-toolbar class="header" color="main2">
+        <ion-title>{{ "MyTEDNWalletsTitle" | translate }}</ion-title>
       </ion-toolbar>
-      <ion-list class="content">
-        <ion-item>
-          <ion-label>
-            Test
-          </ion-label>
-        </ion-item>
-      </ion-list>
+      <ion-content class="content">
+        <ion-grid>
+          <ion-row class="odd">
+            <ion-button btnStyle href="/tw-main">Garden of eden</ion-button>
+            <ion-button fill="clear" color="dark">
+              <ion-icon name="menu"></ion-icon>
+            </ion-button>
+          </ion-row>
+        </ion-grid>
+      </ion-content>
       <ion-toolbar class="footer">
-        <ion-button>{{ 'Deposit' | translate }}</ion-button>
-        <ion-button>{{ 'Withdraw' | translate }}</ion-button>
+        <div class="flex-h-direction">
+          <div class="flex-item-fill flex-ch-centered">
+            <ion-button btnStyle>{{ "Deposit" | translate }}</ion-button>
+          </div>
+          <div class="flex-item-fill flex-ch-centered">
+            <ion-button btnStyle>{{ "Withdraw" | translate }}</ion-button>
+          </div>
+        </div>
       </ion-toolbar>
     </div>
   </div>
-
 </div>

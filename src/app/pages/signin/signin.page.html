@@ -1,44 +1,50 @@
 <ion-content>
-  <div>
-    <img src='assets/img/e-wallet-logo-small.png' />
-    <p padding>{{ 'Copyright' | translate }}</p>
-    <ion-title>
-      {{ 'AppName' | translate }}
-    </ion-title>
-  </div>
-  <div>
-    <ion-list>
-      <ion-item>
-        <ion-label>{{ 'SigninComment' | translate }}</ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-input [placeholder]="'InputUserId' | translate"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-input clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
-      </ion-item>
-      <ion-item>
-        <span>{{ 'IsForgotPasswd' | translate }}</span>
-      </ion-item>
-      <ion-item>
-        <ion-button class="main">{{ 'Login' | translate }}</ion-button>
-      </ion-item>
+  <div class="hfc-layout">
+    <div class="header">
+      <div margin-top class="logo-wrapper header">
+        <div class="logo-img"></div>
+      </div>
 
-      <ion-item>
-        <span>{{ 'OrSigninWith' | translate }}</span>
-      </ion-item>
-      <ion-item>
-        <ion-button>{{ 'Facebook' | translate }}</ion-button>
-      </ion-item>
-      <ion-item>
-        <ion-button>{{ 'Twitter' | translate }}</ion-button>
-      </ion-item>
-      <ion-item>
-        <ion-button>{{ 'Google' | translate }}</ion-button>
-      </ion-item>
-      <ion-item>
-        <p>{{ 'DontHaveAccount' | translate }}</p>
-      </ion-item>
-    </ion-list>
+      <p padding style="text-align: center;">{{ 'Copyright' | translate }}</p>
+    </div>
+    <div class="content flex-ch-h-centered">
+      <div class="flex-ch-centered" style="width:70%;">
+        <div>
+          <ion-label>{{ 'SigninComment' | translate }}</ion-label>
+        </div>
+        <div style="margin-bottom:5px;">
+          <ion-input [placeholder]="'InputUserId' | translate"></ion-input>
+        </div>
+        <div>
+          <ion-input clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
+        </div>
+        <div>
+          <ion-button btnStyle expand="block" fill="clear" href="/signup">
+            <div>{{ 'IsForgotPasswd' | translate }}</div>
+          </ion-button>
+        </div>
+        <div margin-bottom>
+          <ion-button expand="block" color="continue" href="/pc-edit">{{ 'Login' | translate }}</ion-button>
+        </div>
+
+        <div>
+          <span>{{ 'OrSigninWith' | translate }}</span>
+        </div>
+        <div>
+          <ion-button expand="block">{{ 'Facebook' | translate }}</ion-button>
+        </div>
+        <div>
+          <ion-button expand="block">{{ 'Twitter' | translate }}</ion-button>
+        </div>
+        <div margin-bottom>
+          <ion-button expand="block">{{ 'Google' | translate }}</ion-button>
+        </div>
+        <div>
+          <ion-button btnStyle expand="block" fill="clear" href="/signup">
+            <div>{{ 'DontHaveAccount' | translate }}</div>
+          </ion-button>
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content>

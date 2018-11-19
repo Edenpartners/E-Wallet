@@ -16,7 +16,7 @@
   }
 }
 
-.hcf-content {
+.hcf-layout {
   width: 100%;
 }
 
@@ -35,6 +35,18 @@
   flex: 0.45;
 }
 
-.hcf-content .header .content ion-card {
+.hcf-layout .header .content ion-card {
   color: red;
+}
+
+.flex-h-direction .flex-item-fill {
+  flex: 1;
+}
+
+.even {
+  background-color: #dddddd;
+}
+
+.odd {
+  background-color: #eeeeee;
 }

@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterService } from '../../../providers/router.service';
+import { Input } from '@ionic/angular';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-pc-edit',
@@ -7,9 +10,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PcEditPage implements OnInit {
 
-  constructor() { }
+  constructor(private logger: NGXLogger, private rs: RouterService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
 }

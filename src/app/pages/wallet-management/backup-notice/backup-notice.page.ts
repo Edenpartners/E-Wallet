@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterService } from '../../../providers/router.service';
 
 @Component({
   selector: 'app-backup-notice',
@@ -7,9 +8,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class BackupNoticePage implements OnInit {
 
-  constructor() { }
+  constructor(private rs: RouterService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
 }

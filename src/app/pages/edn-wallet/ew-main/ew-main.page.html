@@ -1,31 +1,43 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>ew-main</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'EwMainTitle' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="page-wrapper">
-  <div>
-    <ion-item lines="none">
-      <ion-title>
-        {{ 'Expenses' | translate }}
-      </ion-title>
-    </ion-item>
-    <ion-item lines="none">
-      <ion-label>
-        {{ 'Address' | translate }}
-      </ion-label>
-      <ion-label>
-        0x1234567890
-      </ion-label>
-    </ion-item>
-    <ion-item lines="none">
-      <ion-label>
-        {{ 'CurrentBalance' | translate }}
-      </ion-label>
-      <ion-label>
-        0x1234567890
-      </ion-label>
-    </ion-item>
+<ion-content no-bounce>
+  <div class="page-wrapper fill">
+    <div class="hcf-layout">
+      <div class="header">
+        <ion-item lines="none">
+          <ion-title>
+            {{ 'Expenses' | translate }}
+          </ion-title>
+        </ion-item>
+        <ion-item lines="none" href="/ew-main/sub/(sub:qrcode)">
+          <ion-label>
+            {{ 'Address' | translate }}
+          </ion-label>
+          <ion-label>
+            0x1234567890
+          </ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label>
+            {{ 'CurrentBalance' | translate }}
+          </ion-label>
+          <ion-label>
+            0x1234567890
+          </ion-label>
+        </ion-item>
+      </div>
+      <ion-content class="content" style="background:red;">
+        <ion-router-outlet name="sub"></ion-router-outlet>
+      </ion-content>
+    </div>
   </div>
 </ion-content>

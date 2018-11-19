@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'AddWalletTitle' | translate}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content no-padding>
+  <div class="page-wrapper" padding>
+    <button ion-button>
+      <div class="row-hor-direction">
+        <ion-fab-button icon-start color="medium" (click)="onCreateBtnClick()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+        <ion-label class="row-hor-item-fill">{{ 'CreateNewWallet' | translate }}</ion-label>
+      </div>
+    </button>
+    <button ion-button>
+      <div class="row-hor-direction">
+        <ion-fab-button icon-start color="medium" (click)="onImportBtnClick()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+        <ion-label class="row-hor-item-fill">{{ 'ImportWallet' | translate }}</ion-label>
+      </div>
+    </button>
+  </div>
+</ion-content>

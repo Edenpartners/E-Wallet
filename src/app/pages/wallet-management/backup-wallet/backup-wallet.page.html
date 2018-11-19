@@ -1,12 +1,17 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{ 'BackupWalletTitle' | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'BackupWalletTitle' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content no-bounce>
-  <div class="page-wrapper fixed-flex" padding ion-fixed>
-    <div class="hcf-content">
+  <div class="page-wrapper fill flex-ch-centered" padding ion-fixed>
+    <div class="hcf-layout">
       <div class="content">
         <ion-label>
           {{ 'YourPhrase' | translate }}
@@ -31,7 +36,7 @@
         <ion-button expand="block" color="danger">
           {{ 'GotIt' | translate }}
         </ion-button>
-        <ion-button expand="block" color="danger">
+        <ion-button expand="block" color="danger" (click)="onVerifyBtnClick()">
           {{ 'Verify' | translate }}
         </ion-button>
       </div>

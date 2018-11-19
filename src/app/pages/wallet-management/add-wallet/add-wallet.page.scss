@@ -1,0 +1,24 @@
+.page-wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.row-hor-direction {
+  display: flex;
+  flex-direction: row;
+
+  align-items: center; //center vertically
+}
+
+.row-hor-item-fill {
+  padding-left: 10px;
+}
+
+button {
+  width: 100%;
+  background: transparent;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}

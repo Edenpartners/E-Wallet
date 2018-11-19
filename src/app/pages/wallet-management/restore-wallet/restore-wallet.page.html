@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'ImportWalletTitle' | translate}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content no-bounce>
+  <div class="page-wrapper fill flex-ch-centered" padding ion-fixed>
+    <div class="hcf-layout">
+      <div class="content">
+        <div class="input-area flex-ch-centered">
+          <ion-label margin-top>
+            {{ 'EnterPhraseComment' | translate }}
+          </ion-label>
+          <ion-textarea margin-top [rows]="10" [(ngModel)]="userInputMnemonic"></ion-textarea>
+        </div>
+      </div>
+
+      <div class="footer">
+        <ion-button expand="block" color="danger" (click)="restoreWallet()">
+          {{ 'Import' | translate }}
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

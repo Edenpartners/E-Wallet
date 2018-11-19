@@ -1,16 +1,16 @@
-.hcf-content {
-  width: 70%;
+.hcf-layout {
+  width: 90%;
   height: 100%;
   align-items: center;
 }
 
-.hcf-content .content {
+.hcf-layout .content {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.hcf-content .content p {
+.hcf-layout .content p {
   text-align: center;
 }
 

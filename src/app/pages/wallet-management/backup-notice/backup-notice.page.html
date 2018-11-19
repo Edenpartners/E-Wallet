@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="rs.goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'BackupWalletTitle' | translate}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content no-bounce>
+  <div class="page-wrapper fill flex-ch-centered" padding ion-fixed>
+    <div class="hcf-layout">
+      <div class="content">
+        <ion-label color="danger">
+          {{ 'BackupWarningTitle' | translate }}
+        </ion-label>
+        <p>
+          {{ 'BackupWarningMessage1' | translate }}
+        </p>
+        <p>
+          {{ 'BackupWarningMessage2' | translate }}
+        </p>
+        <p>
+          {{ 'BackupWarningMessage3' | translate }}
+        </p>
+      </div>
+
+      <div class="footer">
+        <ion-button expand="block" color="danger" href="/backup-wallet">
+          {{ 'ReadyBackup' | translate }}
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

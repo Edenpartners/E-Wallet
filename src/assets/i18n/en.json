@@ -21,6 +21,7 @@
   "IHaveWallet": "One or more wallet has been created",
 
   "______________SIGN_UP": "",
+  "SignupTitle": "Sign-up",
   "SignupComment": "Sign-up into EdenChain",
   "InputEmail": "Email",
   "ConfigmPasswd": "re-type password",
@@ -29,6 +30,7 @@
   "OrSignupWith": "or Sign-up with",
 
   "______________SIGN_IN_PROFILE": "",
+  "SignupProfileTitle":"Sign-up",
   "ProfileComment":"Details about you",
   "UserName": "User name",
   "PhoneNumber": "Mobile Number",
@@ -85,10 +87,28 @@
   "GotIt":"GOT IT",
   "Verify":"VERIFY",
 
+  "______________IMPORT_WALLET": "",
+  "ImportWalletTitle":"Import Wallet",
+  "EnterPhraseComment":"Please enter the recovery phrase",
+  "Import":"Import",
+
+  "______________ADD_WALLET": "",
+  "AddWalletTitle":"Add Wallet",
+  "CreateNewWallet":"Create New Wallet",
+  "ImportWallet":"Import Wallet",
+
   "______________EDN_WALLET_MAIN": "",
   "EwMainTitle":"My EDN Wallets",
   "Expenses":"Expenses",
   "Address":"Address",
-  "CurrentBalance":"Current Balance"
+  "CurrentBalance":"Current Balance",
 
+  "______________EDN_WALLET_LIST": "",
+  "Receive":"RECEIVE",
+  "Send":"SEND",
+
+  "______________EDN_WALLET_QRCODE": "",
+
+  "______________EDN_WALLET_SEND": "",
+  "SendTo":"Send To"
 }

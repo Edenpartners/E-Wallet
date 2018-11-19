@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterService } from '../../../providers/router.service';
 
 @Component({
   selector: 'app-dp-edn-list',
@@ -7,9 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DpEdnListPage implements OnInit {
 
-  constructor() { }
+  constructor(private rs: RouterService) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+  onAddFromEthClick() {
+    this.rs.goTo('/dp-edn-main');
   }
 
 }

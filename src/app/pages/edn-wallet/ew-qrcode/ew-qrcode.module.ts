@@ -1,25 +1,20 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
-
-import { IonicModule } from '@ionic/angular';
+import { SharedPageModule } from '../../../modules/shared.page.module';
 
 import { EwQrcodePage } from './ew-qrcode.page';
+import { NgxQRCodeModule } from 'ngx-qrcode2';
 
-const routes: Routes = [
-  {
-    path: '',
-    component: EwQrcodePage
-  }
-];
+const routes: Routes = [{
+  path: '',
+  component: EwQrcodePage
+}];
 
 @NgModule({
   imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RouterModule.forChild(routes)
+    SharedPageModule,
+    RouterModule.forChild(routes),
+    NgxQRCodeModule
   ],
   declarations: [EwQrcodePage]
 })
