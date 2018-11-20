@@ -18,6 +18,8 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { DirectivesModule } from './directives/directives.module';
 import { CommonNavBar } from './components/common-nav-bar';
+import { ComponentsModule } from './components/components.module';
+import { SharedPageModule } from './modules/shared.page.module';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -32,6 +34,7 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
+    ComponentsModule,
 
     ClipboardModule,
     WebStorageModule,
@@ -55,7 +58,8 @@ export function createTranslateLoader(http: HttpClient) {
   ],
   exports: [
     ClipboardModule,
-    NgxQRCodeModule
+    NgxQRCodeModule,
+    ComponentsModule
   ],
   providers: [
     StatusBar,

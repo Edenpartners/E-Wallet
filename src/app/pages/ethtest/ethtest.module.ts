@@ -1,11 +1,7 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
-
-import { IonicModule } from '@ionic/angular';
+import { SharedPageModule } from '../../modules/shared.page.module';
 import { EthtestPage } from './ethtest.page';
-import { ClipboardModule } from 'ngx-clipboard';
 
 const routes: Routes = [{
   path: '',
@@ -14,11 +10,8 @@ const routes: Routes = [{
 
 @NgModule({
   imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RouterModule.forChild(routes),
-    ClipboardModule
+    SharedPageModule,
+    RouterModule.forChild(routes)
   ],
   declarations: [EthtestPage]
 })

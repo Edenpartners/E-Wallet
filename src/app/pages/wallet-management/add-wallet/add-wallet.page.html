@@ -1,14 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="rs.goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'AddWalletTitle' | translate}}</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'AddWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
-
 
 <ion-content no-padding>
   <div class="page-wrapper" padding>

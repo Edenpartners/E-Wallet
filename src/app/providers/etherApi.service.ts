@@ -10,15 +10,9 @@ import {
   ContractType,
   WalletInfo
 } from './wallet.service';
-import { Input } from '@ionic/angular';
 import { KyberNetworkService } from './kybernetwork.service';
 import { Provider } from 'ethers/providers';
 import { BigNumber } from 'ethers/utils';
-import { resolveReflectiveProviders } from '@angular/core/src/di/reflective_provider';
-import { resolveDefinition } from '@angular/core/src/view/util';
-import { async } from '@angular/core/testing';
-import { runInThisContext } from 'vm';
-import { TransitiveCompileNgModuleMetadata } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'

@@ -1,7 +1,5 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>{{ 'ConfirmPinTitle' | translate }}</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'ConfirmPinTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
 <ion-content no-bounce>
@@ -9,9 +7,7 @@
     <div class="hcf-layout">
       <div class="content">
         <ion-item lines="none">
-          <ion-label>
-            {{ 'ConfirmPinComment' | translate }}
-          </ion-label>
+          <ion-label> {{ 'ConfirmPinComment' | translate }} </ion-label>
         </ion-item>
 
         <div class="pin-code">

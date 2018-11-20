@@ -1,12 +1,5 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="rs.goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'SignupTitle' | translate}}</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'SignupTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
 <ion-content>
@@ -26,13 +19,23 @@
           <ion-input [placeholder]="'InputEmail' | translate"></ion-input>
         </div>
         <div style="margin-bottom:5px;">
-          <ion-input clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
+          <ion-input
+            clearOnEdit="true"
+            type="password"
+            [placeholder]="'InputPassword' | translate"
+          ></ion-input>
         </div>
         <div margin-bottom>
-          <ion-input clearOnEdit="true" type="password" [placeholder]="'ConfigmPasswd' | translate"></ion-input>
+          <ion-input
+            clearOnEdit="true"
+            type="password"
+            [placeholder]="'ConfigmPasswd' | translate"
+          ></ion-input>
         </div>
         <div margin-bottom>
-          <ion-button expand="block" color="continue" href="/signup-profile">{{ 'Continue' | translate }}</ion-button>
+          <ion-button expand="block" color="continue" href="/signup-profile">{{
+            'Continue' | translate
+          }}</ion-button>
         </div>
 
         <div>

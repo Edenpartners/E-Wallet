@@ -1,14 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="rs.goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'DpEdnMainTitle' | translate}}</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'DpEdnMainTitle' | translate }}"></common-nav-bar>
 </ion-header>
-
 
 <ion-content no-padding no-bounce>
   <div class="page-wrapper" padding ion-fixed>
@@ -23,16 +15,12 @@
       </ion-select>
       <ion-label>{{ 'Amount' | translate }}</ion-label>
       <ion-item no-padding>
-        <ion-input>
-
-        </ion-input>
+        <ion-input> </ion-input>
         <ion-label>ETH</ion-label>
       </ion-item>
 
       <ion-item no-padding margin-top>
-        <ion-input>
-
-        </ion-input>
+        <ion-input> </ion-input>
         <ion-label>EDN</ion-label>
       </ion-item>
 

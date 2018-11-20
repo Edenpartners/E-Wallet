@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DirectivesModule } from '../directives/directives.module';
+import { ComponentsModule } from '../components/components.module';
 
 /**
  * can use every page
@@ -16,13 +17,16 @@ import { DirectivesModule } from '../directives/directives.module';
     FormsModule,
     IonicModule,
     TranslateModule,
-    DirectivesModule
+    DirectivesModule,
+    ComponentsModule
   ],
   exports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    TranslateModule
+    TranslateModule,
+    DirectivesModule,
+    ComponentsModule
   ],
   declarations: []
 })

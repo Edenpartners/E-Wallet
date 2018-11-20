@@ -10,14 +10,19 @@ import { RouterService } from '../providers/router.service';
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>{{ title | translate }}</ion-title>
+      <ion-title>{{ title }}</ion-title>
     </ion-toolbar>
   `,
-  styles: [`
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `
+  ]
 })
 export class CommonNavBar implements OnInit {
-  @Input('title') title;
+  @Input() title;
 
   constructor(private rs: RouterService) {}
 
@@ -25,5 +30,4 @@ export class CommonNavBar implements OnInit {
   onBackBtnClick() {
     this.rs.goBack();
   }
-
 }

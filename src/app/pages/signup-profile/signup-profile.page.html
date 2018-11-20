@@ -1,12 +1,5 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="rs.goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'SignupProfileTitle' | translate}}</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'SignupProfileTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
 <ion-content>
@@ -37,7 +30,6 @@
           <ion-checkbox color="secondary"></ion-checkbox>
           <ion-label>{{ 'Privacy' | translate }}</ion-label>
         </ion-item>
-
         <div margin-top>
           <ion-button class="main" expand="full" href="/pc-edit">{{ 'Continue' | translate }}</ion-button>
         </div>

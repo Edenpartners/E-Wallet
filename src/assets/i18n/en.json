@@ -110,5 +110,8 @@
   "______________EDN_WALLET_QRCODE": "",
 
   "______________EDN_WALLET_SEND": "",
-  "SendTo":"Send To"
+  "SendTo":"Send To",
+
+  "______________TEDN_WALLET_MAIN": "",
+  "TednWalletMain":"My DApp Wallets"
 }

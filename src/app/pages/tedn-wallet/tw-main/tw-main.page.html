@@ -1,12 +1,5 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="rs.goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>My DApp Wallets</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'TednWalletMain' | translate }}"></common-nav-bar>
 </ion-header>
 
 <ion-content no-bounce>
@@ -14,23 +7,20 @@
     <div class="hcf-layout">
       <div class="header">
         <ion-item lines="none">
-          <ion-label>
-            {{ 'CurrentBalance' | translate }}
-          </ion-label>
+          <ion-label> {{ 'CurrentBalance' | translate }} </ion-label>
         </ion-item>
       </div>
 
-      <div class="content">
-      </div>
+      <div class="content"></div>
 
       <div class="footer">
         <ion-toolbar class="footer">
           <div class="flex-h-direction">
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle>{{ "Deposit" | translate }}</ion-button>
+              <ion-button btnStyle>{{ 'Deposit' | translate }}</ion-button>
             </div>
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle>{{ "Withdraw" | translate }}</ion-button>
+              <ion-button btnStyle>{{ 'Withdraw' | translate }}</ion-button>
             </div>
           </div>
         </ion-toolbar>

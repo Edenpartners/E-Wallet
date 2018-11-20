@@ -1,41 +1,24 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="rs.goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'CreatePinTitle' | translate}}</ion-title>
-  </ion-toolbar>
+  <common-nav-bar title="{{ 'CreatePinTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
 <ion-content no-bounce>
   <div class="page-wrapper fill" padding ion-fixed>
     <div class="hcf-layout">
       <div class="content">
-        <p>
-          {{ 'PinComment' | translate }}
-        </p>
+        <p>{{ 'PinComment' | translate }}</p>
 
         <ion-item lines="none">
-          <ion-label>
-            {{ 'CreatePinComment' | translate }}
-          </ion-label>
+          <ion-label> {{ 'CreatePinComment' | translate }} </ion-label>
         </ion-item>
 
         <div class="pin-code">
-          <ion-button color="medium">
-          </ion-button>
-          <ion-button color="medium">
-          </ion-button>
-          <ion-button color="medium">
-          </ion-button>
-          <ion-button color="medium">
-          </ion-button>
-          <ion-button color="medium">
-          </ion-button>
-          <ion-button color="medium">
-          </ion-button>
+          <ion-button color="medium"> </ion-button>
+          <ion-button color="medium"> </ion-button>
+          <ion-button color="medium"> </ion-button>
+          <ion-button color="medium"> </ion-button>
+          <ion-button color="medium"> </ion-button>
+          <ion-button color="medium"> </ion-button>
         </div>
       </div>
 
