@@ -5,6 +5,8 @@
   "AppName": "E-Wallets",
   "SigninComment": "Sign-in into EdenChain",
   "IsForgotPasswd": "Forgot your password?",
+  "InputUserEmail": "User Email",
+  "DisplayName": "Display Name",
   "InputUserId": "User ID",
   "InputPassword": "Password",
   "Login": "Log In",

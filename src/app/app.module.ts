@@ -15,26 +15,41 @@ import { NgxQRCodeModule } from 'ngx-qrcode2';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
-import { DirectivesModule } from './directives/directives.module';
-import { CommonNavBar } from './components/common-nav-bar';
-import { ComponentsModule } from './components/components.module';
-import { SharedPageModule } from './modules/shared.page.module';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HTTP } from '@ionic-native/http/ngx';
+import { AppVersion } from '@ionic-native/app-version/ngx';
+
+//===== firebase
+import { AngularFireModule } from '@angular/fire';
+import {
+  AngularFireDatabaseModule,
+  AngularFireDatabase
+} from '@angular/fire/database';
+import { AngularFireAuthModule, AngularFireAuth } from '@angular/fire/auth';
+import { TwitterConnect } from '@ionic-native/twitter-connect/ngx';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
+import { Facebook } from '@ionic-native/facebook/ngx';
+//=====
+
+import { environment } from '../environments/environment';
+import { FormsModule } from '@angular/forms';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent],
   entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
+    FormsModule,
     AppRoutingModule,
-    ComponentsModule,
+
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireDatabaseModule,
+    AngularFireAuthModule,
 
     ClipboardModule,
     WebStorageModule,
@@ -51,20 +66,24 @@ export function createTranslateLoader(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
+        useFactory: createTranslateLoader,
         deps: [HttpClient]
       }
     })
   ],
-  exports: [
-    ClipboardModule,
-    NgxQRCodeModule,
-    ComponentsModule
-  ],
+  exports: [ClipboardModule, NgxQRCodeModule],
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    HTTP,
+    AppVersion,
+
+    AngularFireDatabase,
+    AngularFireAuth,
+    Facebook,
+    TwitterConnect,
+    GooglePlus
   ],
   bootstrap: [AppComponent]
 })

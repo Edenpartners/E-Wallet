@@ -6,12 +6,17 @@ import { ethers, Wallet, Contract } from 'ethers';
 import { ConfigService } from '../../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
+import {
+  getJsonWalletAddress,
+  BigNumber,
+  AbiCoder,
+  Transaction
+} from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
 import { Observable, interval } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
-import { WalletService, ContractInfo, ContractType, WalletInfo } from '../../../providers/wallet.service';
+import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { Input } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
@@ -19,14 +24,13 @@ import { EtherApiService } from '../../../providers/etherApi.service';
 @Component({
   selector: 'app-restore-wallet',
   templateUrl: './restore-wallet.page.html',
-  styleUrls: ['./restore-wallet.page.scss'],
+  styleUrls: ['./restore-wallet.page.scss']
 })
 export class RestoreWalletPage implements OnInit {
-
-  @LocalStorage() insecureWallets = [];
   userInputMnemonic = '';
 
-  constructor(private rs: RouterService,
+  constructor(
+    private rs: RouterService,
     public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
@@ -34,12 +38,15 @@ export class RestoreWalletPage implements OnInit {
     private logger: NGXLogger,
     private etherData: EtherDataService,
     private walletService: WalletService,
-    private etherApi: EtherApiService) {}
+    private etherApi: EtherApiService
+  ) {}
 
   ngOnInit() {}
 
   restoreWallet() {
-    if (this.userInputMnemonic.length < 1) return;
+    if (this.userInputMnemonic.length < 1) {
+      return;
+    }
 
     this.logger.debug(this.userInputMnemonic);
 
@@ -48,19 +55,22 @@ export class RestoreWalletPage implements OnInit {
     const path = this.etherData.getBIP39DerivationPath(String(0));
     const wallet = ethers.Wallet.fromMnemonic(mWords, path);
 
-    const walletInfo: WalletInfo = {
+    const walletInfo: WalletTypes.WalletInfo = {
       id: UUID.UUID(),
       address: wallet.address,
       info: {
         mnemonic: mWords,
         path: path,
-        privateKey: wallet.privateKey,
+        privateKey: wallet.privateKey
       },
       contracts: [],
-      provider: { type: EthProviders.Type.KnownNetwork, connectionInfo: 'ropsten' },
+      provider: {
+        type: EthProviders.Type.KnownNetwork,
+        connectionInfo: 'ropsten'
+      }
     };
 
-    this.insecureWallets.push(walletInfo);
+    [].push(walletInfo);
 
     this.rs.goBack();
   }

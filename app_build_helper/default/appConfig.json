@@ -1,0 +1,75 @@
+{
+  "deletes": [],
+
+  "regexes": [{
+    "_COMMENT": "Apply comment for ignoring build error",
+    "dest": "../platforms/android/cordova-support-google-services/ewallet-build.gradle",
+    "source": "([\\s]*apply plugin: com.google.gms.googleservices.GoogleServicesPlugin)",
+    "replace": "// $1"
+  }],
+  "jsons": [],
+  "copies": [{
+      "_COMMENT": "Set Firebase global config file for all",
+      "path": {
+        "type": "relative",
+        "value": "project-root/src/environments/firebase.config.ts"
+      },
+      "dest": "../src/environments/firebase.config.ts"
+    },
+    {
+      "_COMMENT": "Set Firebase config file for android",
+      "path": {
+        "type": "relative",
+        "value": "project-root/google-services.json"
+      },
+      "dest": "../google-services.json"
+    },
+    {
+      "_COMMENT": "Set Firebase config file for android",
+      "path": {
+        "type": "relative",
+        "value": "project-root/google-services.json"
+      },
+      "dest": "../platforms/android/google-services.json"
+    },
+    {
+      "_COMMENT": "Set Firebase config file for ios",
+      "path": {
+        "type": "relative",
+        "value": "project-root/GoogleService-Info.plist"
+      },
+      "dest": "../GoogleService-Info.plist"
+    },
+    {
+      "_COMMENT": "Set Firebase config file for ios",
+      "path": {
+        "type": "relative",
+        "value": "project-root/GoogleService-Info.plist"
+      },
+      "dest": "../platforms/ios/E-Wallet/Resources/GoogleService-Info.plist"
+    }
+  ],
+
+  "firebase": {
+    "auth": {
+      "FIREBASE_AUTH_VERSION": "16.0.+"
+    },
+
+    "twitter": {
+      "FABRIC_KEY": "X",
+      "TWITTER_KEY": "X",
+      "TWITTER_SECRET": "X"
+    },
+
+    "facebook": {
+      "APP_ID": "X",
+      "APP_NAME": "X"
+    },
+
+    "google": {
+      "PLAY_SERVICES_VERSION": "16.0.+",
+      "REVERSED_CLIENT_ID": "X",
+      "WEB_APPLICATION_CLIENT_ID": "X"
+    }
+  }
+}

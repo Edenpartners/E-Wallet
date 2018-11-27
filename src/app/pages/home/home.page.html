@@ -1,5 +1,17 @@
 <div class="page-wrapper fill hcf-layout">
-  <div margin-top class="logo-wrapper header"><div class="logo-img"></div></div>
+  <div margin-top class="logo-wrapper header">
+    <div class="logo-img"></div>
+  </div>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="signout()">
+        Signout
+      </ion-button>
+      <ion-button (click)="gotoApiTest()">
+        ApiTest
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
   <div padding class="content lists-wrapper">
     <div padding-bottom class="hcf-layout edn-wallet-container">
       <ion-toolbar class="header" color="main2">
@@ -12,8 +24,7 @@
       </ion-toolbar>
       <ion-content class="content">
         <ion-grid>
-          <ion-row
-            *ngFor="
+          <ion-row *ngFor="
               let item of wallets;
               let i = index;
               let isOdd = odd;
@@ -22,8 +33,7 @@
             [ngClass]="{
               even: isEven,
               odd: isOdd
-            }"
-          >
+            }">
             <ion-button btnStyle href="/ew-main/sub">{{
               'EDN Wallet : ' + i + ' / 0 EDN'
             }}</ion-button>

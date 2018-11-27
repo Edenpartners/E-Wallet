@@ -1,4 +1,3 @@
-
 // See this
 // https://developer.kyber.network/docs
 
@@ -12,7 +11,6 @@
 // https://tracker.kyber.network/api/tokens/pairs
 // ====================================================
 
-
 // Contracts
 // ============================================
 // Smart Contracts Information
@@ -25,7 +23,6 @@
 // Contract Addresses - Ropsten
 // https://developer.kyber.network/docs/RopstenEnvGuide/
 // =======================================================
-
 
 // Trade Guide
 // ============================================
@@ -44,7 +41,6 @@
 // Get KyberNetworkProxy ABI for Ropsten : https://ropsten.etherscan.io/address/0x818E6FECD516Ecc3849DAf6845e3EC868087B755#code
 // ============================================
 
-
 // Kyber Swap
 // ============================================
 // https://kyber.network/swap/eth_knc
@@ -57,5 +53,5 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class KyberNetworkService {
-    constructor() { }
+  constructor() {}
 }

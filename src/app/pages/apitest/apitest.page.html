@@ -1,0 +1,206 @@
+<ion-header>
+  <common-nav-bar title="My API Test"></common-nav-bar>
+</ion-header>
+<ion-content padding>
+  <ion-list>
+    <ion-item>
+      <ion-title>Firebase</ion-title>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>{{ isSignedIn() ? ('Signed in with : ' + getDisplayableName()) : 'Signed out' }}</ion-label>
+      <ion-button *ngIf="isSignedIn()" (click)="signoutFirebase()">
+        Signout
+      </ion-button>
+    </ion-item>
+    <ion-item [ngClass]="{hidden:isSignedIn()}">
+      <ion-input #userId placeholder="User ID" value="test55@test.com"></ion-input>
+      <ion-input #userPasswd placeholder="User Passwd" value="123456"></ion-input>
+    </ion-item>
+
+    <ion-toolbar>
+      <ion-label>Fetch Firebase Info</ion-label>
+      <ion-buttons>
+        <ion-button (click)="fetchFirebaseSigninInfo(userId.value)">
+          Fetch
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+
+    <ion-toolbar *ngIf="!isSignedIn()">
+      <ion-label>Register</ion-label>
+      <ion-buttons>
+        <ion-button (click)="registerFirebaseUser(userId.value, userPasswd.value)">
+          Firebase
+        </ion-button>
+        <ion-button (click)="signinFirebaseUserWithGoogle(true)">
+          Google
+        </ion-button>
+        <ion-button (click)="signinFirebaseUserWithFacebook(true)">
+          Facebook
+        </ion-button>
+        <ion-button (click)="signinFirebaseUserWithTwitter(true)">
+          Twitter
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar *ngIf="!isSignedIn()">
+      <ion-label>Sign-In</ion-label>
+      <ion-buttons>
+        <ion-button (click)="signinFirebaseUser(userId.value, userPasswd.value)">
+          Firebase
+        </ion-button>
+        <ion-button (click)="signinFirebaseUserWithGoogle(false)">
+          Google
+        </ion-button>
+        <ion-button (click)="signinFirebaseUserWithFacebook(false)">
+          Facebook
+        </ion-button>
+        <ion-button (click)="signinFirebaseUserWithTwitter(false)">
+          Twitter
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+
+
+  </ion-list>
+
+  <ion-grid *ngIf="isSignedIn()">
+    <ion-row>
+      <ion-col size="auto">
+        <ion-button (click)="getUserInfo()">
+          getUserInfo
+        </ion-button>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-button (click)="updateUserInfo()">
+          updateUserInfo
+        </ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-textarea [(ngModel)]="userInfoText" rows="10">
+
+      </ion-textarea>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="auto">
+        <ion-button (click)="getTEDNBalance()">
+          getTEDNBalance
+        </ion-button>
+      </ion-col>
+      <ion-col size-xs>
+        <ion-label>TEDN Balance : {{ tednBalance }}</ion-label>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="auto">
+        <ion-input #tednDepositAmount placeholder="Amount">
+        </ion-input>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-button (click)="depositTEDN(tednDepositAmount.value)">
+          depositTEDN
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="auto">
+        <ion-input #tednWithdrawAmount placeholder="Amount">
+        </ion-input>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-button (click)="withdrawTEDN(tednWithdrawAmount.value)">
+          withdrawTEDN
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="auto">
+        <ion-input #tednTxPageNum placeholder="Transaction Page Number" value="1">
+        </ion-input>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-input #tednTxCountPerPage placeholder="Transaction Count Per Page" value="10">
+        </ion-input>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-button (click)="getTEDNTransaction(tednTxPageNum.value, tednTxCountPerPage.value)">
+          getTEDNTransaction
+        </ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size-xs>
+        <ion-label>Coin HD Address : {{ storage.coinHDAddress }}</ion-label>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="auto">
+        <ion-button (click)="getCoinHDAddress()">
+          getCoinHDAddress
+        </ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size-xs>
+        <ion-input placeholder="Eth Address" [(ngModel)]="ethaddressToSend"></ion-input>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="auto">
+        <ion-button (click)="addEthAddress()">
+          addEthAddress
+        </ion-button>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-button (click)="delEthAddress()">
+          delEthAddress
+        </ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size-xs>
+        <bip39-handler></bip39-handler>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size-xs>
+        <eth-provider-maker></eth-provider-maker>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button>Restore Wallet</ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <eth-wallet-manager [defaultCheckSignedIn]="true" [defaultFilteredWalletsByUserInfo]="true"
+        (walletSelect)="onWalletSelected()"></eth-wallet-manager>
+    </ion-row>
+  </ion-grid>
+
+
+  <ion-list>
+    <ion-item>
+      <user-state-checker *ngIf="showChecker">
+      </user-state-checker>
+      <ion-button (click)="showChecker = true">
+        _On
+      </ion-button>
+      <ion-button (click)="showChecker = false">
+        _Off
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+
+</ion-content>

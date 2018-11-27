@@ -16,24 +16,16 @@
         </div>
 
         <div style="margin-bottom:5px;">
-          <ion-input [placeholder]="'InputEmail' | translate"></ion-input>
+          <ion-input #userEmail [placeholder]="'InputEmail' | translate"></ion-input>
         </div>
         <div style="margin-bottom:5px;">
-          <ion-input
-            clearOnEdit="true"
-            type="password"
-            [placeholder]="'InputPassword' | translate"
-          ></ion-input>
+          <ion-input #userPasswd clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
         </div>
         <div margin-bottom>
-          <ion-input
-            clearOnEdit="true"
-            type="password"
-            [placeholder]="'ConfigmPasswd' | translate"
-          ></ion-input>
+          <ion-input #userPasswdConfirm clearOnEdit="true" type="password" [placeholder]="'ConfigmPasswd' | translate"></ion-input>
         </div>
         <div margin-bottom>
-          <ion-button expand="block" color="continue" href="/signup-profile">{{
+          <ion-button expand="block" color="continue" (click)="signup(userEmail.value,userPasswd.value,userPasswdConfirm.value)">{{
             'Continue' | translate
           }}</ion-button>
         </div>

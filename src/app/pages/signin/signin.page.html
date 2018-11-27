@@ -13,10 +13,10 @@
           <ion-label>{{ 'SigninComment' | translate }}</ion-label>
         </div>
         <div style="margin-bottom:5px;">
-          <ion-input [placeholder]="'InputUserId' | translate"></ion-input>
+          <ion-input #userEmail [placeholder]="'InputUserEmail' | translate"></ion-input>
         </div>
         <div>
-          <ion-input clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
+          <ion-input #userPasswd clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
         </div>
         <div>
           <ion-button btnStyle expand="block" fill="clear" href="/signup">
@@ -24,20 +24,21 @@
           </ion-button>
         </div>
         <div margin-bottom>
-          <ion-button expand="block" color="continue" href="/pc-edit">{{ 'Login' | translate }}</ion-button>
+          <!-- href="/pc-edit" -->
+          <ion-button expand="block" color="continue" (click)="signin(userEmail.value, userPasswd.value)">{{ 'Login' | translate }}</ion-button>
         </div>
 
         <div>
           <span>{{ 'OrSigninWith' | translate }}</span>
         </div>
         <div>
-          <ion-button expand="block">{{ 'Facebook' | translate }}</ion-button>
+          <ion-button expand="block" (click)="signinWithFacebook()">{{ 'Facebook' | translate }}</ion-button>
         </div>
         <div>
-          <ion-button expand="block">{{ 'Twitter' | translate }}</ion-button>
+          <ion-button expand="block" (click)="signinWithTwitter()">{{ 'Twitter' | translate }}</ion-button>
         </div>
         <div margin-bottom>
-          <ion-button expand="block">{{ 'Google' | translate }}</ion-button>
+          <ion-button expand="block" (click)="signinWithGoogle()">{{ 'Google' | translate }}</ion-button>
         </div>
         <div>
           <ion-button btnStyle expand="block" fill="clear" href="/signup">

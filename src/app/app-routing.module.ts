@@ -1,11 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-const startPath = '/ew-main/sub';
-// const startPath = 'signin';
-
 const routes: Routes = [
-  { path: '', redirectTo: startPath, pathMatch: 'full' },
+  //this app has customized route handing. dont use default path.
+  //{ path: '', redirectTo: '/signup', pathMatch: 'full' },
   {
     path: 'ethtest',
     loadChildren: './pages/ethtest/ethtest.module#EthtestPageModule'
@@ -85,6 +83,10 @@ const routes: Routes = [
   {
     path: 'tw-main',
     loadChildren: './pages/tedn-wallet/tw-main/tw-main.module#TwMainPageModule'
+  },
+  {
+    path: 'ednapitest',
+    loadChildren: './pages/apitest/apitest.module#ApitestPageModule'
   }
 ];
 

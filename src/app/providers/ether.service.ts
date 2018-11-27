@@ -1,11 +1,17 @@
-import { InjectionToken, Injectable, Inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  InjectionToken,
+  Injectable,
+  Inject,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
 
 // https://github.com/ethereum/wiki/wiki/JavaScript-API / for 0.2.x
 // https://web3js.readthedocs.io/en/1.0/web3.html / for 1.0
 import Web3 from 'web3';
 
 // https://github.com/ethers-io/ethers.js/
-import { Observable, bindNodeCallback, of , Subject, interval } from 'rxjs';
+import { Observable, bindNodeCallback, of, Subject, interval } from 'rxjs';
 import { tap, map, catchError, timeInterval } from 'rxjs/operators';
 import { NGXLogger } from 'ngx-logger';
 
@@ -21,7 +27,6 @@ let commonLogger: NGXLogger;
 let indexNum = 0;
 
 export namespace EthProviders {
-
   export function createInstanceFrom(info: Info) {
     if (info.type === Type.KnownNetwork) {
       return new EthProviders.KnownProvider(info);
@@ -32,12 +37,12 @@ export namespace EthProviders {
 
   export enum KnownNetworkType {
     homestead = 'homestead',
-      ropsten = 'ropsten'
+    ropsten = 'ropsten'
   }
 
   export enum Type {
     KnownNetwork = 'KnownNetwork',
-      JsonRpc = 'JsonRpc'
+    JsonRpc = 'JsonRpc'
   }
 
   export interface Info {
@@ -65,13 +70,19 @@ export namespace EthProviders {
     }
 
     public isEqual(otherProvider: EthProviders.Base): boolean {
-      if (otherProvider.info.type === this.info.type && otherProvider.info.connectionInfo === this.info.connectionInfo) {
+      if (
+        otherProvider.info.type === this.info.type &&
+        otherProvider.info.connectionInfo === this.info.connectionInfo
+      ) {
         return true;
       }
     }
 
     public isEqualInfo(info: EthProviders.Info): boolean {
-      if (info.type === this.info.type && info.connectionInfo === this.info.connectionInfo) {
+      if (
+        info.type === this.info.type &&
+        info.connectionInfo === this.info.connectionInfo
+      ) {
         return true;
       }
     }
@@ -80,12 +91,19 @@ export namespace EthProviders {
   }
 
   export class KnownProvider extends EthProviders.Base {
-    constructor(info: EthProviders.Info = { type: Type.KnownNetwork, connectionInfo: 'homestead' }) {
+    constructor(
+      info: EthProviders.Info = {
+        type: Type.KnownNetwork,
+        connectionInfo: 'homestead'
+      }
+    ) {
       super(info);
     }
 
     public getEthersJSProvider(): Provider {
-      if (!this.provider) { this.connect(); }
+      if (!this.provider) {
+        this.connect();
+      }
       return this.provider;
     }
 
@@ -101,18 +119,27 @@ export namespace EthProviders {
   }
 
   export class JsonProvider extends EthProviders.Base {
-    constructor(info: EthProviders.Info = { type: Type.JsonRpc, connectionInfo: 'http://localhost:8545' }) {
+    constructor(
+      info: EthProviders.Info = {
+        type: Type.JsonRpc,
+        connectionInfo: 'http://localhost:8545'
+      }
+    ) {
       super(info);
     }
 
     public getEthersJSProvider(): Provider {
-      if (!this.provider) { this.connect(); }
+      if (!this.provider) {
+        this.connect();
+      }
       return this.provider;
     }
 
     public connect() {
       if (!this.provider) {
-        this.provider = new ethers.providers.JsonRpcProvider(this.info.connectionInfo);
+        this.provider = new ethers.providers.JsonRpcProvider(
+          this.info.connectionInfo
+        );
       }
     }
 
@@ -126,7 +153,7 @@ export namespace EthProviders {
   providedIn: 'root'
 })
 export class EthService {
-  providers: Array < EthProviders.Base > = [];
+  providers: Array<EthProviders.Base> = [];
 
   constructor(private logger: NGXLogger) {
     commonLogger = logger;

@@ -6,20 +6,30 @@ import { ethers, Wallet, Contract } from 'ethers';
 import { ConfigService } from '../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
+import {
+  getJsonWalletAddress,
+  BigNumber,
+  AbiCoder,
+  Transaction
+} from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
 import { Observable, interval } from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
-import { WalletService, ContractInfo, ContractType, WalletInfo } from '../../providers/wallet.service';
+import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { Input } from '@ionic/angular';
 import { KyberNetworkService } from '../../providers/kybernetwork.service';
 import { EtherApiService } from '../../providers/etherApi.service';
+import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
+import {
+  AppStorageTypes,
+  AppStorageService
+} from '../../providers/appStorage.service';
 
 interface WalletRow {
   /** just index */
   id: number;
-  data: WalletInfo;
+  data: WalletTypes.WalletInfo;
   contractsExpanded: boolean;
   transactionsExpanded: boolean;
   ethBalanceWei: BigNumber;
@@ -31,14 +41,14 @@ interface WalletRow {
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
-  styleUrls: ['./home.page.scss'],
+  styleUrls: ['./home.page.scss']
 })
 export class HomePage implements OnInit {
+  wallets: Array<WalletRow> = [];
 
-  wallets: Array < WalletRow > = [];
-  @LocalStorage() insecureWallets = [];
-
-  constructor(public cfg: ConfigService,
+  constructor(
+    private rs: RouterService,
+    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,
@@ -46,16 +56,28 @@ export class HomePage implements OnInit {
     private etherData: EtherDataService,
     private walletService: WalletService,
     private kyberNetworkService: KyberNetworkService,
-    private etherApi: EtherApiService) {}
+    private etherApi: EtherApiService,
+    private ednApi: EdnRemoteApiService,
+    private storage: AppStorageService
+  ) {}
 
   ngOnInit() {}
 
-  onEdnWalletClick() {
-
-  }
+  onEdnWalletClick() {}
 
   ionViewWillEnter() {
     this.refreshList();
+  }
+
+  gotoApiTest() {
+    this.rs.goTo('/ednapitest');
+  }
+
+  signout() {
+    this.ednApi.signoutFirebase().then(result => {
+      this.storage.wipeData();
+      this.ednApi.signout();
+    });
   }
 
   refreshList() {
@@ -67,8 +89,8 @@ export class HomePage implements OnInit {
       }
     }
 
-    this.insecureWallets.forEach((item, index) => {
-      const result = this.wallets.find((obj) => {
+    [].forEach((item, index) => {
+      const result = this.wallets.find(obj => {
         return obj.data.id === item.id;
       });
 
@@ -128,15 +150,17 @@ export class HomePage implements OnInit {
 
     const delay = 3000;
 
-    this.etherApi.getEthBalance(walletRow.data).then((val) => {
-      walletRow.ethBalanceWei = val;
-      walletRow.ethBalanceEther = ethers.utils.formatEther(val);
+    this.etherApi.getEthBalance(walletRow.data).then(
+      val => {
+        walletRow.ethBalanceWei = val;
+        walletRow.ethBalanceEther = ethers.utils.formatEther(val);
 
-      restartWork();
-    }, (err) => {
-      this.logger.debug(err);
-      restartWork();
-    });
+        restartWork();
+      },
+      err => {
+        this.logger.debug(err);
+        restartWork();
+      }
+    );
   }
-
 }

@@ -13,8 +13,12 @@ import { Location } from '@angular/common';
   providedIn: 'root'
 })
 export class RouterService {
-  constructor(private navCtl: NavController, private loc: Location, private router: Router,
-    private actRoute: ActivatedRoute) {}
+  constructor(
+    private navCtl: NavController,
+    private loc: Location,
+    private router: Router,
+    private actRoute: ActivatedRoute
+  ) {}
 
   goBack() {
     this.navCtl.goBack(true);
@@ -25,6 +29,7 @@ export class RouterService {
   }
 
   goTo(url: string) {
-    this.navCtl.navigateForward(url);
+    //this.navCtl.navigateForward(url);
+    this.router.navigateByUrl(url);
   }
 }
