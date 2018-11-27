@@ -233,6 +233,15 @@ function run() {
   if (config.firebase) {
     if (fs.existsSync(configXmlPath)) {
 
+      if (config.firebase.srcList) {
+        config.firebase.srcList.forEach((item) => {
+          printComment(item);
+          if (item.path && item.dest) {
+            copyDir(item.path, item.dest);
+          }
+        });
+      }
+
       if (config.firebase.auth && config.firebase.auth.FIREBASE_AUTH_VERSION) {
         const authPluginId = 'cordova-plugin-firebase-authentication';
 

@@ -51,6 +51,15 @@
   ],
 
   "firebase": {
+    "srcList": [{
+      "_COMMENT": "Set Firebase global config file for all",
+      "path": {
+        "type": "relative",
+        "value": "project-root/src/environments/firebase.config.ts"
+      },
+      "dest": "../src/environments/firebase.config.ts"
+    }],
+
     "auth": {
       "FIREBASE_AUTH_VERSION": "16.0.+"
     },
