@@ -178,12 +178,12 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <ion-button>Restore Wallet</ion-button>
+        <ion-button (click)="restoreWallet()">Restore Wallet</ion-button>
       </ion-col>
     </ion-row>
 
     <ion-row>
-      <eth-wallet-manager [defaultCheckSignedIn]="true" [defaultFilteredWalletsByUserInfo]="true"
+      <eth-wallet-manager [defaultCheckSignedIn]="true" [defaultFilteredWalletsByUserInfo]="false"
         (walletSelect)="onWalletSelected()"></eth-wallet-manager>
     </ion-row>
   </ion-grid>

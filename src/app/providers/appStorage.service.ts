@@ -151,24 +151,19 @@ export class AppStorageService {
       return false;
     }
 
-    if (!this.userInfo.display_name) {
-      return false;
+    if (env.config.signinWithEdnUserInfo) {
+      if (!this.userInfo.display_name) {
+        return false;
+      }
     }
-    // if (!this.userInfo.phone_number) {
+
+    // const additionalInfo = this.additionalInfo;
+    // if (!additionalInfo.termsAndConditionsAllowed) {
     //   return false;
     // }
-
-    // if (!this.hasPinNumber) {
+    // if (!additionalInfo.privacyAllowed) {
     //   return false;
     // }
-
-    const additionalInfo = this.additionalInfo;
-    if (!additionalInfo.termsAndConditionsAllowed) {
-      return false;
-    }
-    if (!additionalInfo.privacyAllowed) {
-      return false;
-    }
 
     return true;
   }
@@ -247,8 +242,14 @@ export class AppStorageService {
 
   get isSignedIn(): boolean {
     // if (this._fbUser) {
-    if (this.fbUser && this.userInfo) {
-      return true;
+    if (env.config.signinWithEdnUserInfo) {
+      if (this.fbUser && this.userInfo) {
+        return true;
+      }
+    } else {
+      if (this.fbUser) {
+        return true;
+      }
     }
 
     return false;

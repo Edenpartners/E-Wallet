@@ -15,7 +15,8 @@ export const environment = {
     alterStartPath: '',
 
     /** this is the ethereum network information which edn server running. */
-    ednEthNetwork: EthProviders.KnownNetworkType.ropsten
+    ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
+    signinWithEdnUserInfo: true
   }
 };
 

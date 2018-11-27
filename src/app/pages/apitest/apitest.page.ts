@@ -135,15 +135,10 @@ export class ApitestPage implements OnInit, OnDestroy {
   }
 
   signoutFirebase() {
-    this.ednApi.signoutFirebase().then(() => {
-      this.ednApi.signout().then(
-        result => {
-          this.logger.debug('signout success!');
-        },
-        error => {
-          this.logger.debug('signout failed!');
-        }
-      );
+    this.ednApi.signout().finally(() => {
+      this.ednApi.signoutFirebase().then(() => {
+        this.storage.wipeData();
+      });
     });
   }
 

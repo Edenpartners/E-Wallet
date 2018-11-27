@@ -4,7 +4,7 @@
   "regexes": [{
     "_COMMENT": "Apply comment for ignoring build error",
     "dest": "../platforms/android/cordova-support-google-services/ewallet-build.gradle",
-    "source": "([\\s]*apply plugin: com.google.gms.googleservices.GoogleServicesPlugin)",
+    "source": "(apply plugin: com.google.gms.googleservices.GoogleServicesPlugin)",
     "replace": "// $1"
   }],
   "jsons": [],

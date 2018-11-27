@@ -38,7 +38,7 @@ export class SigninPage implements OnInit {
 
     this.ednApi.signinFirebaseUser(userEmail, password).then(
       result => {
-        this.runEdnSignin();
+        this.runEdnSignup();
       },
       error => {
         alert(error);
@@ -49,7 +49,7 @@ export class SigninPage implements OnInit {
     this.ednApi.signinFirebaseUserWithFacebook().then(
       result => {
         this.logger.debug(result);
-        this.runEdnSignin();
+        this.runEdnSignup();
       },
       error => {}
     );
@@ -58,7 +58,7 @@ export class SigninPage implements OnInit {
   signinWithTwitter() {
     this.ednApi.signinFirebaseUserWithTwitter().then(
       result => {
-        this.runEdnSignin();
+        this.runEdnSignup();
       },
       error => {}
     );
@@ -68,9 +68,23 @@ export class SigninPage implements OnInit {
     this.ednApi.signinFirebaseUserWithGoogle().then(
       result => {
         this.logger.debug(result);
-        this.runEdnSignin();
+        this.runEdnSignup();
       },
       error => {}
+    );
+  }
+
+  runEdnSignup() {
+    this.logger.debug('run edn signup');
+    this.ednApi.signup().then(
+      userInfoResult => {
+        if (userInfoResult.data) {
+          this.storage.userInfo = userInfoResult.data;
+        }
+      },
+      ednError => {
+        alert(ednError);
+      }
     );
   }
 

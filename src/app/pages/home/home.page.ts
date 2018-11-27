@@ -74,9 +74,10 @@ export class HomePage implements OnInit {
   }
 
   signout() {
-    this.ednApi.signoutFirebase().then(result => {
-      this.storage.wipeData();
-      this.ednApi.signout();
+    this.ednApi.signout().finally(() => {
+      this.ednApi.signoutFirebase().then(() => {
+        this.storage.wipeData();
+      });
     });
   }
 
