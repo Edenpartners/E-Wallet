@@ -9,8 +9,12 @@ const shell = require('shelljs');
 console.log(process.argv);
 const configDir = process.argv[2];
 
+const PRIORITY_ONLY_CONFIG = 1000;
+const PRIORITY_ONLY_NORMAL = 0;
+
 var dryRun = false;
 var runOnlyConfigs = false;
+var currentMinPriority = PRIORITY_ONLY_NORMAL;
 
 function resolveDryRun(v) {
   if (v !== undefined && typeof v === 'string' &&
@@ -23,6 +27,7 @@ function resolveOnlyRootConfigs(v) {
   if (v !== undefined && typeof v === 'string' &&
     v.toUpperCase() === 'ONLY-CONFIG') {
     runOnlyConfigs = true;
+    currentMinPriority = PRIORITY_ONLY_CONFIG;
   }
 }
 
@@ -62,7 +67,19 @@ if (!config) {
   return;
 }
 
-function deleteDir(path) {
+function getPriority(item) {
+  if (item.priority) {
+    return parseInt(item.priority, 0);
+  }
+
+  return PRIORITY_ONLY_NORMAL;
+}
+
+function deleteDir(p, path) {
+  if (p < currentMinPriority) {
+    return;
+  }
+
   if (!path) return;
   path = resolvePath(path);
   if (fs.existsSync(path)) {
@@ -73,11 +90,11 @@ function deleteDir(path) {
   }
 }
 
-function isExists(path) {
-  return fs.existsSync(resolvePath(path));
-}
+function copyDir(p, from, to, removeIfDestExists = true) {
+  if (p < currentMinPriority) {
+    return;
+  }
 
-function copyDir(from, to, removeIfDestExists = true) {
   if (from === undefined || to === undefined) return;
 
   from = resolvePath(from);
@@ -104,6 +121,10 @@ function copyDir(from, to, removeIfDestExists = true) {
 }
 
 function printComment(obj) {
+  if (getPriority(obj) < currentMinPriority) {
+    return;
+  }
+
   if (obj._COMMENT) {
     console.log('* ' + obj._COMMENT);
   }
@@ -134,7 +155,11 @@ function resolvePath(pathItem) {
   return path.join(pathItem.value);
 }
 
-function runReplaceInFile(pathItem, source, replaceText) {
+function runReplaceInFile(p, pathItem, source, replaceText) {
+  if (p < currentMinPriority) {
+    return;
+  }
+
   try {
     var path = resolvePath(pathItem);
 
@@ -155,38 +180,42 @@ function runReplaceInFile(pathItem, source, replaceText) {
   }
 }
 
-function runReplaceCordovaPluginVariable(pathItem, pluginId, varName, valueOfVar) {
+function runReplaceCordovaPluginVariable(p, pathItem, pluginId, varName, valueOfVar) {
   // runReplaceInFile(pathItem,
   //   '(<plugin[\\s]+name="' + pluginId +
   //   '".*[\\r\\n\\s]+.*<variable name="' + varName +
   //   '"[\\s]+value=")(.*)("[\\r\\n\\s]*/>[\\r\\n\\s.]+</plugin>)',
   //   '$1' + valueOfVar + '$2');
 
-  runReplaceInFile(pathItem,
+  runReplaceInFile(p, pathItem,
     '(<variable name="' + varName + '"[\\s]+value=")(.*)("[\\r\\n\\s]*/>)',
     '$1' + valueOfVar + '$3');
 }
 
-function runReplaceCordovaPreferenceVariable(pathItem, varName, valueOfVar) {
-  runReplaceInFile(
+function runReplaceCordovaPreferenceVariable(p, pathItem, varName, valueOfVar) {
+  runReplaceInFile(p,
     pathItem,
     '(<preference[\\s]+name="' + varName + '"[\\s]+value=")(.*)("[\\r\\n\\s]*/>)',
     '$1' + valueOfVar + '$3'
   );
 }
 
-function runReplaceCordovaAndroidString(pathItem, varName, valueOfVar) {
-  runReplaceInFile(
+function runReplaceCordovaAndroidString(p, pathItem, varName, valueOfVar) {
+  runReplaceInFile(p,
     pathItem,
     '(<string[\\s]+name="' + varName + '"[\\s]*>)(.*)(</string>)',
     '$1' + valueOfVar + '$3'
   );
 }
 
-function runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, pluginId,
+function runReplaceCordovaAndPackagePluginVariable(p, configPathItem, packageJson, pluginId,
   varName, valueOfVar) {
-  runReplaceCordovaPluginVariable(configPathItem, pluginId,
+  runReplaceCordovaPluginVariable(p, configPathItem, pluginId,
     varName, valueOfVar);
+
+  if (p < currentMinPriority) {
+    return;
+  }
 
   try {
     if (packageJson.cordova.plugins[pluginId]) {
@@ -198,54 +227,63 @@ function runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, 
   }
 }
 
+function runReplaceAndroidBuildGradlePackageVersion(p, pathItem, packageId, version) {
+  runReplaceInFile(p,
+    pathItem,
+    "(\"" + packageId + ":)(.*)(\")",
+    '$1' + version + '$3'
+  );
+}
+
 function run() {
-  if (!runOnlyConfigs && config.deletes) {
+  if (config.deletes) {
     config.deletes.forEach((item) => {
       printComment(item);
       if (item.path) {
-        deleteDir(item.path);
+        deleteDir(getPriority(item), item.path);
       }
     });
   }
 
-  if (!runOnlyConfigs && config.copies) {
+  if (config.copies) {
     config.copies.forEach((item) => {
       printComment(item);
       if (item.path && item.dest) {
-        copyDir(item.path, item.dest);
+        copyDir(getPriority(item), item.path, item.dest);
       }
     });
   }
 
-  if (!runOnlyConfigs && config.regexes) {
+  if (config.regexes) {
     config.regexes.forEach((item) => {
       printComment(item);
       if (item.dest && item.source && typeof item.replace === 'string') {
-        runReplaceInFile(item.dest, item.source, item.replace);
+        runReplaceInFile(getPriority(item), item.dest, item.source, item.replace);
       }
     });
   }
 
-  if (!runOnlyConfigs && config.jsons) {
+  if (config.jsons) {
     config.jsons.forEach((item) => {});
+  }
+
+  if (config.androidBuildGradleVersions) {
+    config.androidBuildGradleVersions.forEach((item) => {
+      printComment(item);
+      if (item.dest && item.package && item.version) {
+        runReplaceAndroidBuildGradlePackageVersion(getPriority(item), item.dest, item.package,
+          item.version);
+      }
+    });
   }
 
   if (config.firebase) {
     if (fs.existsSync(configXmlPath)) {
-
-      if (config.firebase.srcList) {
-        config.firebase.srcList.forEach((item) => {
-          printComment(item);
-          if (item.path && item.dest) {
-            copyDir(item.path, item.dest);
-          }
-        });
-      }
-
       if (config.firebase.auth && config.firebase.auth.FIREBASE_AUTH_VERSION) {
         const authPluginId = 'cordova-plugin-firebase-authentication';
 
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, authPluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          authPluginId,
           'FIREBASE_AUTH_VERSION', config.firebase.auth.FIREBASE_AUTH_VERSION);
       }
 
@@ -253,38 +291,50 @@ function run() {
         const twitterPluginId = 'twitter-connect-plugin';
         const twitter = config.firebase.twitter;
 
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, twitterPluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          twitterPluginId,
           'FABRIC_KEY', twitter.FABRIC_KEY);
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, twitterPluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          twitterPluginId,
           'TWITTER_KEY', twitter.TWITTER_KEY);
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, twitterPluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          twitterPluginId,
           'TWITTER_SECRET', twitter.TWITTER_SECRET);
-        runReplaceCordovaPreferenceVariable(configPathItem, 'FABRIC_KEY', twitter.FABRIC_KEY);
-        runReplaceCordovaPreferenceVariable(configPathItem, 'TwitterConsumerKey', twitter.TWITTER_KEY);
-        runReplaceCordovaPreferenceVariable(configPathItem, 'TwitterConsumerSecret', twitter.TWITTER_SECRET);
+        runReplaceCordovaPreferenceVariable(PRIORITY_ONLY_CONFIG, configPathItem, 'FABRIC_KEY',
+          twitter.FABRIC_KEY);
+        runReplaceCordovaPreferenceVariable(PRIORITY_ONLY_CONFIG, configPathItem,
+          'TwitterConsumerKey', twitter.TWITTER_KEY);
+        runReplaceCordovaPreferenceVariable(PRIORITY_ONLY_CONFIG, configPathItem,
+          'TwitterConsumerSecret', twitter.TWITTER_SECRET);
       }
 
       if (config.firebase.facebook) {
         const facebookPluginId = 'cordova-plugin-facebook4';
         const facebook = config.firebase.facebook;
 
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, facebookPluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          facebookPluginId,
           'APP_ID', facebook.APP_ID);
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, facebookPluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          facebookPluginId,
           'APP_NAME', facebook.APP_NAME);
-        runReplaceCordovaAndroidString(configPathItem, 'fb_app_id', facebook.APP_ID);
-        runReplaceCordovaAndroidString(configPathItem, 'fb_app_name', facebook.APP_NAME);
+        runReplaceCordovaAndroidString(PRIORITY_ONLY_CONFIG, configPathItem, 'fb_app_id', facebook.APP_ID);
+        runReplaceCordovaAndroidString(PRIORITY_ONLY_CONFIG, configPathItem, 'fb_app_name',
+          facebook.APP_NAME);
       }
 
       if (config.firebase.google) {
         const googlePluginId = 'cordova-plugin-googleplus';
         const google = config.firebase.google;
 
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, googlePluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          googlePluginId,
           'PLAY_SERVICES_VERSION', google.PLAY_SERVICES_VERSION);
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, googlePluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          googlePluginId,
           'REVERSED_CLIENT_ID', google.REVERSED_CLIENT_ID);
-        runReplaceCordovaAndPackagePluginVariable(configPathItem, packageJson, googlePluginId,
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          googlePluginId,
           'WEB_APPLICATION_CLIENT_ID', google.WEB_APPLICATION_CLIENT_ID);
       }
     }
