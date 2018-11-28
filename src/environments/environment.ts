@@ -12,6 +12,7 @@ export const environment = {
   config: {
     handleUserState: true,
     //alterStartPath: 'ednapitest',
+    //alterStartPath: 'backup-wallet',
     alterStartPath: '',
 
     /** this is the ethereum network information which edn server running. */
@@ -19,6 +20,8 @@ export const environment = {
     signinWithEdnUserInfo: true
   }
 };
+
+export const env = environment;
 
 /*
  * In development mode, to ignore zone related error stack frames such as

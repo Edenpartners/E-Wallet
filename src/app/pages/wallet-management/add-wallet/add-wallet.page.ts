@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
@@ -20,13 +20,14 @@ import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { Input } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
+import { env } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-add-wallet',
   templateUrl: './add-wallet.page.html',
   styleUrls: ['./add-wallet.page.scss']
 })
-export class AddWalletPage implements OnInit {
+export class AddWalletPage implements OnInit, OnDestroy {
   constructor(
     private rs: RouterService,
     public cfg: ConfigService,
@@ -41,31 +42,9 @@ export class AddWalletPage implements OnInit {
 
   ngOnInit() {}
 
+  ngOnDestroy() {}
+
   onCreateBtnClick() {
-    const mWords = ethers.Wallet.createRandom().mnemonic;
-
-    const path = this.etherData.getBIP39DerivationPath(String(0));
-    const wallet = ethers.Wallet.fromMnemonic(mWords, path);
-
-    const walletInfo: WalletTypes.WalletInfo = {
-      id: UUID.UUID(),
-      address: wallet.address,
-      info: {
-        mnemonic: mWords,
-        path: path,
-        privateKey: wallet.privateKey
-      },
-      contracts: [],
-      provider: {
-        type: EthProviders.Type.KnownNetwork,
-        connectionInfo: 'ropsten'
-      }
-    };
-
-    [].push(walletInfo);
-
-    //this.rs.goBack();
-
     this.rs.goTo('/backup-notice');
   }
   onImportBtnClick() {

@@ -10,8 +10,8 @@
         <ion-select-option>Kyber Networks</ion-select-option>
       </ion-select>
       <ion-label>{{ 'AddEdnTo' | translate }}</ion-label>
-      <ion-select>
-        <ion-select-option>My Wallet</ion-select-option>
+      <ion-select [ngModel]="selectedWallet">
+        <ion-select-option *ngFor="let item of wallets; let idx = index;">{{item.address}}</ion-select-option>
       </ion-select>
       <ion-label>{{ 'Amount' | translate }}</ion-label>
       <ion-item no-padding>

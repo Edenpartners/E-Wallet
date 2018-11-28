@@ -35,7 +35,7 @@
               odd: isOdd
             }">
             <ion-button btnStyle href="/ew-main/sub">{{
-              'EDN Wallet : ' + i + ' / 0 EDN'
+              'EDN Wallet [' + i + '] ' + item.ethBalanceEther +' ETH / '+ item.ednBalanceAdjusted +' EDN'
             }}</ion-button>
             <!-- <span>{{ ' / 0 EDN' }}</span> -->
             <!-- item.data.address + -->
@@ -61,7 +61,7 @@
       <ion-content class="content">
         <ion-grid>
           <ion-row class="odd">
-            <ion-button btnStyle href="/tw-main">Garden of eden</ion-button>
+            <ion-button btnStyle href="/tw-main">Garden of eden : {{ tednBalance }} TEDN</ion-button>
             <ion-button fill="clear" color="dark">
               <ion-icon name="menu"></ion-icon>
             </ion-button>

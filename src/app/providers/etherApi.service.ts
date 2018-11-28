@@ -196,12 +196,10 @@ export class EtherApiService {
       }
 
       const decimal = await contract.decimals();
-      logger.debug('got decimal : ' + decimal);
       const balanceBn: BigNumber = await contract.balanceOf(walletInfo.address);
       const adjustedBalanceBn = balanceBn.div(
         ethers.utils.bigNumberify(10).pow(decimal)
       );
-      logger.debug('got balance : ' + balanceBn + ' -> ' + adjustedBalanceBn);
 
       getInfoComplete = true;
       const result = {

@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService } from 'ngx-clipboard';
 import { EtherDataService } from '../../providers/etherData.service';
+import { env } from '../../../environments/environment';
 
 @Component({
   selector: 'eth-provider-maker',
@@ -62,8 +63,10 @@ export class EthProviderMaker implements OnInit, OnDestroy {
 
   selectedWalletProviderType: EthProviders.Type =
     EthProviders.Type.KnownNetwork;
-  selectedWalletConnectionInfo: string =
-    EthProviders.KnownNetworkType.homestead;
+  //selectedWalletConnectionInfo: string =
+  //EthProviders.KnownNetworkType.homestead;
+
+  selectedWalletConnectionInfo: string = env.config.ednEthNetwork;
 
   constructor(
     public eths: EthService,

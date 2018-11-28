@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterService } from '../../providers/router.service';
 
 import { EthService, EthProviders } from '../../providers/ether.service';
@@ -14,7 +14,7 @@ import {
 } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
-import { Observable, interval } from 'rxjs';
+import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { Input } from '@ionic/angular';
@@ -26,26 +26,31 @@ import {
   AppStorageService
 } from '../../providers/appStorage.service';
 
+import {
+  DataTrackerService,
+  ValueTracker
+} from '../../providers/dataTracker.service';
+
+import { SubscriptionPack } from '../../utils/listutil';
+
 interface WalletRow {
   /** just index */
   id: number;
   data: WalletTypes.WalletInfo;
-  contractsExpanded: boolean;
-  transactionsExpanded: boolean;
   ethBalanceWei: BigNumber;
   ethBalanceEther: string;
-  etherBalanceGetter: any;
+  ednBalance: BigNumber;
+  ednBalanceAdjusted: BigNumber;
   deleted: boolean;
 }
 
+const TDEN_BALANCE_TRACKER_KEY = 'tedn_balance';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss']
 })
-export class HomePage implements OnInit {
-  wallets: Array<WalletRow> = [];
-
+export class HomePage implements OnInit, OnDestroy {
   constructor(
     private rs: RouterService,
     public cfg: ConfigService,
@@ -58,15 +63,60 @@ export class HomePage implements OnInit {
     private kyberNetworkService: KyberNetworkService,
     private etherApi: EtherApiService,
     private ednApi: EdnRemoteApiService,
-    private storage: AppStorageService
+    private storage: AppStorageService,
+    private dataTracker: DataTrackerService
   ) {}
+  wallets: Array<WalletRow> = [];
+  subscriptionPack: SubscriptionPack = new SubscriptionPack();
+  tednBalance = '-';
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.subscriptionPack.addSubscription(() => {
+      return this.storage.userStateObserver.subscribe(user => {
+        this.refreshList();
+      });
+    });
+  }
+
+  ngOnDestroy() {
+    this.logger.debug('destroy home');
+    this.subscriptionPack.clear();
+  }
 
   onEdnWalletClick() {}
 
   ionViewWillEnter() {
     this.refreshList();
+
+    const tednTracker = this.dataTracker.getTracker(TDEN_BALANCE_TRACKER_KEY);
+    tednTracker.valueGetter = () => {
+      return new Promise((finalResolve, finalReject) => {
+        this.ednApi.getTEDNBalance().then(
+          resultData => {
+            finalResolve(resultData.data.amount);
+          },
+          resultErr => {
+            finalReject(resultErr);
+          }
+        );
+      });
+    };
+    tednTracker.startTracking();
+
+    //subscribe tedn tracking
+    this.subscriptionPack.addSubscription(() => {
+      return tednTracker.trackObserver.subscribe(balance => {
+        this.tednBalance = balance;
+      });
+    });
+  }
+
+  ionViewDidEnter() {
+    this.logger.debug('view did enter');
+  }
+  ionViewWillLeave() {
+    this.logger.debug('view will leave');
+    this.dataTracker.stopTracker(TDEN_BALANCE_TRACKER_KEY);
   }
 
   gotoApiTest() {
@@ -84,84 +134,60 @@ export class HomePage implements OnInit {
   refreshList() {
     for (let i = 0; i < this.wallets.length; i++) {
       const item = this.wallets[i];
-      if (item.deleted === true) {
-        this.wallets.splice(i, 1);
-        i -= 1;
-      }
+      this.subscriptionPack.removeSubscriptionsByKey(item);
+      this.dataTracker.stopEtherBalanceTracking(item.data);
+
+      this.wallets.splice(i, 1);
+      i -= 1;
     }
 
-    [].forEach((item, index) => {
-      const result = this.wallets.find(obj => {
-        return obj.data.id === item.id;
-      });
+    const allWallet = this.storage.getWallets(true, false);
+    this.logger.debug('refresh list : ' + allWallet.length);
+    this.logger.debug('refresh list : ' + this.wallets.length);
 
-      if (!result) {
-        const walletRow: WalletRow = {
-          id: index,
-          data: item,
-          contractsExpanded: false,
-          transactionsExpanded: false,
-          ethBalanceWei: null,
-          ethBalanceEther: null,
-          etherBalanceGetter: null,
-          deleted: false
-        };
+    allWallet.forEach((item, index) => {
+      this.logger.debug('add new wallet row');
+      const walletRow: WalletRow = {
+        id: index,
+        data: item,
+        ethBalanceWei: null,
+        ethBalanceEther: null,
+        ednBalance: null,
+        ednBalanceAdjusted: null,
+        deleted: false
+      };
 
-        this.startEtherBalanceRetrieving(walletRow);
-        this.wallets.push(walletRow);
-      }
+      const tracker = this.dataTracker.startEtherBalanceTracking(
+        walletRow.data
+      );
+
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletRow.data.provider
+      );
+      const ednContractInfo = this.etherData.contractResolver.getEDNContractInfo(
+        p
+      );
+      const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(
+        walletRow.data,
+        ednContractInfo
+      );
+
+      this.subscriptionPack.addSubscription(() => {
+        return ednTracker.trackObserver.subscribe(
+          (value: { balance: BigNumber; adjustedBalance: BigNumber }) => {
+            walletRow.ednBalance = value.balance;
+            walletRow.ednBalanceAdjusted = value.adjustedBalance;
+          }
+        );
+      }, walletRow);
+
+      this.subscriptionPack.addSubscription(() => {
+        return tracker.trackObserver.subscribe(value => {
+          walletRow.ethBalanceWei = value.wei;
+          walletRow.ethBalanceEther = value.ether;
+        });
+      }, walletRow);
+      this.wallets.push(walletRow);
     });
-  }
-
-  startEtherBalanceRetrieving(walletRow: WalletRow, forced = false) {
-    if (walletRow.etherBalanceGetter !== null && forced === false) {
-      this.logger.debug('balance already getting');
-      return;
-    }
-
-    if (walletRow.etherBalanceGetter !== null) {
-      window.clearTimeout(walletRow.etherBalanceGetter);
-      walletRow.etherBalanceGetter = null;
-    }
-    walletRow.etherBalanceGetter = window.setTimeout(() => {
-      this.retrieveEtherBalance(walletRow);
-    }, 0);
-  }
-
-  retrieveEtherBalance(walletRow: WalletRow) {
-    const clearWork = () => {
-      if (walletRow.etherBalanceGetter !== null) {
-        window.clearTimeout(walletRow.etherBalanceGetter);
-        walletRow.etherBalanceGetter = null;
-      }
-    };
-
-    const restartWork = () => {
-      clearWork();
-      walletRow.etherBalanceGetter = window.setTimeout(() => {
-        this.retrieveEtherBalance(walletRow);
-      }, delay);
-    };
-
-    if (walletRow.deleted === true) {
-      clearWork();
-      this.logger.debug('wallet deleted');
-      return;
-    }
-
-    const delay = 3000;
-
-    this.etherApi.getEthBalance(walletRow.data).then(
-      val => {
-        walletRow.ethBalanceWei = val;
-        walletRow.ethBalanceEther = ethers.utils.formatEther(val);
-
-        restartWork();
-      },
-      err => {
-        this.logger.debug(err);
-        restartWork();
-      }
-    );
   }
 }

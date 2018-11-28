@@ -14,3 +14,5 @@ export const environment = {
     signinWithEdnUserInfo: true
   }
 };
+
+export const env = environment;

@@ -94,7 +94,12 @@ const routes: Routes = [
 const traceRouting = false;
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { enableTracing: traceRouting })],
+  imports: [
+    RouterModule.forRoot(routes, {
+      enableTracing: traceRouting,
+      onSameUrlNavigation: 'reload'
+    })
+  ],
   exports: [RouterModule]
 })
 export class AppRoutingModule {}

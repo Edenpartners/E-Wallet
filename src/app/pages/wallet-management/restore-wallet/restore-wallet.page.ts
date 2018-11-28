@@ -20,6 +20,12 @@ import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { Input } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
+import { env } from '../../../../environments/environment';
+import {
+  AppStorageTypes,
+  AppStorageService
+} from '../../../providers/appStorage.service';
+import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
 
 @Component({
   selector: 'app-restore-wallet',
@@ -34,44 +40,67 @@ export class RestoreWalletPage implements OnInit {
     public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
-    private store: LocalStorageService,
     private logger: NGXLogger,
     private etherData: EtherDataService,
     private walletService: WalletService,
-    private etherApi: EtherApiService
+    private etherApi: EtherApiService,
+    private storage: AppStorageService,
+    private ednApi: EdnRemoteApiService
   ) {}
 
   ngOnInit() {}
 
   restoreWallet() {
     if (this.userInputMnemonic.length < 1) {
+      alert('invalid value!');
+      return;
+    }
+    this.logger.debug(this.userInputMnemonic);
+
+    let walletInfo: WalletTypes.WalletInfo = null;
+
+    try {
+      const mWords = this.userInputMnemonic.trim();
+      const path = this.etherData.getBIP39DerivationPath(String(0));
+      const wallet = ethers.Wallet.fromMnemonic(mWords, path);
+
+      walletInfo = {
+        id: UUID.UUID(),
+        address: wallet.address,
+        info: {
+          mnemonic: mWords,
+          path: path,
+          privateKey: wallet.privateKey
+        },
+        contracts: [],
+        provider: {
+          type: EthProviders.Type.KnownNetwork,
+          connectionInfo: env.config.ednEthNetwork
+        }
+      };
+    } catch (e) {
+      this.logger.debug(e);
+      alert(e);
+    }
+
+    if (!walletInfo) {
       return;
     }
 
-    this.logger.debug(this.userInputMnemonic);
+    if (this.storage.findWalletByInfo(walletInfo)) {
+      alert('the wallet already using!');
+      return;
+    }
 
-    const mWords = ethers.Wallet.createRandom().mnemonic;
-
-    const path = this.etherData.getBIP39DerivationPath(String(0));
-    const wallet = ethers.Wallet.fromMnemonic(mWords, path);
-
-    const walletInfo: WalletTypes.WalletInfo = {
-      id: UUID.UUID(),
-      address: wallet.address,
-      info: {
-        mnemonic: mWords,
-        path: path,
-        privateKey: wallet.privateKey
+    this.ednApi.addEthAddress(walletInfo.address).then(
+      result => {
+        this.storage.addWallet(walletInfo);
+        alert('wallet restored');
+        this.rs.goTo('/home');
       },
-      contracts: [],
-      provider: {
-        type: EthProviders.Type.KnownNetwork,
-        connectionInfo: 'ropsten'
+      error => {
+        alert(error);
       }
-    };
-
-    [].push(walletInfo);
-
-    this.rs.goBack();
+    );
   }
 }

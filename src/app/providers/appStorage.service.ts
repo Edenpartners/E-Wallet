@@ -12,7 +12,7 @@ import { Observable, Subscriber } from 'rxjs';
 import { WalletTypes } from './wallet.service';
 import { EthProviders } from '../providers/ether.service';
 import { environment as env } from '../../environments/environment';
-
+import { listutil } from '../utils/listutil';
 export namespace AppStorageTypes {
   export interface User {
     fbUser: firebase.User;
@@ -90,19 +90,27 @@ export class AppStorageService {
     private afAuth: AngularFireAuth,
     private appVersion: AppVersion,
     private store: LocalStorageService
-  ) {
+  ) {}
+
+  startFirebaseSigninCheck() {
     //listen firebase auth state
-    this.afAuth.user.subscribe((user: firebase.User) => {
+    const handler = (user: firebase.User) => {
+      this.logger.debug('user state change');
       const wasSignedIn = this.isSignedIn;
       this._fbUser = user;
       if (!this._fbUser) {
         this.userInfo = null;
       }
+
+      const isFirstAuthCallback = this.firebaseAuthEventFired ? false : true;
       this.firebaseAuthEventFired = true;
-      if (this.isSignedIn !== wasSignedIn) {
+      if (isFirstAuthCallback || this.isSignedIn !== wasSignedIn) {
         this.notifyToUserStateObservers();
       }
-    });
+    };
+
+    //this.afAuth.user.subscribe(handler);
+    this.afAuth.authState.subscribe(handler);
 
     //or use authState? 'this.afAuth.user' is faster one step.
     //this.afAuth.authState.subscribe((user: firebase.User) => {
@@ -199,45 +207,20 @@ export class AppStorageService {
     const thisRef = this;
 
     return new Observable(observer => {
-      this.userStateSubscribers.push(observer);
-      thisRef.addItemToList(thisRef.userStateSubscribers, observer);
+      listutil.addItemToList(thisRef.userStateSubscribers, observer);
 
       //observe first
-      //if (this.firebaseAuthEventFired) {
-      observer.next(this.user);
-      //}
+      if (this.firebaseAuthEventFired) {
+        observer.next(this.user);
+      }
 
       // When the consumer unsubscribes, clean up data ready for next subscription.
       return {
         unsubscribe() {
-          thisRef.logger.debug('consumer called unsubscribe');
-          thisRef.removeItemFromList(thisRef.userStateSubscribers, observer);
+          listutil.removeItemFromList(thisRef.userStateSubscribers, observer);
         }
       };
     });
-  }
-
-  private addItemToList(list, item) {
-    let itemExists = false;
-    for (let i = 0; i < list.length; i++) {
-      if (Object.is(list[i], item)) {
-        itemExists = true;
-        break;
-      }
-    }
-    if (itemExists === false) {
-      list.push(item);
-    }
-  }
-
-  private removeItemFromList(list, item) {
-    for (let i = 0; i < list.length; i++) {
-      if (Object.is(list[i], item)) {
-        this.logger.debug('remove item on : ' + i);
-        list.splice(i, 1);
-        break;
-      }
-    }
   }
 
   get isSignedIn(): boolean {
@@ -256,13 +239,8 @@ export class AppStorageService {
   }
 
   notifyToUserStateObservers() {
-    this.notifyToObservers(this.userStateSubscribers, this.user);
-  }
-
-  private notifyToObservers(list, item?: any) {
-    list.forEach(subscriber => {
-      subscriber.next(item);
-    });
+    this.logger.debug('notify user state change');
+    listutil.notifyToObservers(this.userStateSubscribers, this.user);
   }
 
   private getExtractedUserEthAddresses(): Array<string> {
@@ -293,15 +271,14 @@ export class AppStorageService {
     const thisRef = this;
 
     return new Observable(observer => {
-      thisRef.addItemToList(thisRef.walletsSubscribers, observer);
+      listutil.addItemToList(thisRef.walletsSubscribers, observer);
       //observe first
       observer.next();
 
       // When the consumer unsubscribes, clean up data ready for next subscription.
       return {
         unsubscribe() {
-          thisRef.logger.debug('consumer called unsubscribe');
-          thisRef.removeItemFromList(thisRef.walletsSubscribers, observer);
+          listutil.removeItemFromList(thisRef.walletsSubscribers, observer);
         }
       };
     });
@@ -371,7 +348,7 @@ export class AppStorageService {
     });
 
     if (notifyChange) {
-      this.notifyToObservers(this.walletsSubscribers);
+      listutil.notifyToObservers(this.walletsSubscribers);
     }
   }
 
@@ -399,7 +376,7 @@ export class AppStorageService {
   addWallet(walletInfo: WalletTypes.WalletInfo) {
     if (!this.findWalletByInfo(walletInfo)) {
       this.insecureWallets.push(walletInfo);
-      this.notifyToObservers(this.walletsSubscribers);
+      listutil.notifyToObservers(this.walletsSubscribers);
     }
   }
 
@@ -409,7 +386,7 @@ export class AppStorageService {
         const item: WalletTypes.WalletInfo = this.insecureWallets[i];
         if (item.address === walletInfo.address) {
           this.insecureWallets.splice(i, 1);
-          this.notifyToObservers(this.walletsSubscribers);
+          listutil.notifyToObservers(this.walletsSubscribers);
           break;
         }
       }

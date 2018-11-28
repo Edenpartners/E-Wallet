@@ -18,8 +18,12 @@
   width: 100%;
 }
 
+ion-button.selected {
+  opacity: 0.5;
+}
+
 .user-input-container {
-  margin-Top: 80px;
+  margin-Top: 40px;
   padding: 20px;
   border: 1px black solid;
   min-height: 150px;

@@ -133,7 +133,6 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     if (this.walletsSubscription && this.walletsSubscription.closed === false) {
-      this.logger.debug('Wallet Manager call unsubscribe');
       this.walletsSubscription.unsubscribe();
       this.walletsSubscription = null;
     }
@@ -158,8 +157,6 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   }
 
   refreshList() {
-    this.logger.debug('refresh list');
-
     const walletInfoList = this.storage.getWallets(
       this.checkSignedInBox.checked,
       this.filteredWalletsByUserInfoBox.checked

@@ -20,6 +20,10 @@ export class RouterService {
     private actRoute: ActivatedRoute
   ) {}
 
+  getRouter(): Router {
+    return this.router;
+  }
+
   goBack() {
     this.navCtl.goBack(true);
   }
@@ -31,5 +35,6 @@ export class RouterService {
   goTo(url: string) {
     //this.navCtl.navigateForward(url);
     this.router.navigateByUrl(url);
+    this.router.navigateByUrl(url, {});
   }
 }
