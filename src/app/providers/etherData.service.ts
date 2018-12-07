@@ -148,7 +148,8 @@ const contractTable = {
     kyberNetwork: '0x91a502C678605fbCe581eae053319747482276b9',
     KyberNetworkProxy: '0x818E6FECD516Ecc3849DAf6845e3EC868087B755',
 
-    EDN: '0x05860d453C7974CbF46508c06CBA14e211c629Ce'
+    EDN: '0x05860d453C7974CbF46508c06CBA14e211c629Ce',
+    AST: '0x27054b13b1b798b345b591a4d22e6562d47ea75a'
   },
   ropsten: {
     ETH: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
@@ -156,7 +157,8 @@ const contractTable = {
     kyberNetwork: '0x91a502C678605fbCe581eae053319747482276b9',
     KyberNetworkProxy: '0x818E6FECD516Ecc3849DAf6845e3EC868087B755',
 
-    EDN: '0x7dfc9ab6f39f2162c13acf660107203889c8113e'
+    EDN: '0x7dfc9ab6f39f2162c13acf660107203889c8113e',
+    AST: '0xef06f410c26a0ff87b3a43927459cce99268a2ef'
   }
 };
 
@@ -172,6 +174,15 @@ const ethErc20TokenContractTable: {
         symbol: 'EDN',
         decimal: 18
       }
+    },
+    AST: {
+      address: contractTable.homestead.AST,
+      type: WalletTypes.ContractType.ERC20,
+      contractInfo: {
+        name: 'AirSwap',
+        symbol: 'AST',
+        decimal: 4
+      }
     }
   },
   ropsten: {
@@ -182,6 +193,15 @@ const ethErc20TokenContractTable: {
         name: 'EDN',
         symbol: 'EDN',
         decimal: 18
+      }
+    },
+    AST: {
+      address: contractTable.ropsten.AST,
+      type: WalletTypes.ContractType.ERC20,
+      contractInfo: {
+        name: 'AirSwap',
+        symbol: 'AST',
+        decimal: 4
       }
     }
   }

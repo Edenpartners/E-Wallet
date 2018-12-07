@@ -2,16 +2,6 @@
   <div margin-top class="logo-wrapper header">
     <div class="logo-img"></div>
   </div>
-  <ion-toolbar>
-    <ion-buttons slot="end">
-      <ion-button (click)="signout()">
-        Signout
-      </ion-button>
-      <ion-button (click)="gotoApiTest()">
-        ApiTest
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
   <div padding class="content lists-wrapper">
     <div padding-bottom class="hcf-layout edn-wallet-container">
       <ion-toolbar class="header" color="main2">
@@ -23,27 +13,39 @@
         </ion-buttons>
       </ion-toolbar>
       <ion-content class="content">
-        <ion-grid>
-          <ion-row *ngFor="
-              let item of wallets;
-              let i = index;
-              let isOdd = odd;
-              let isEven = even
-            "
+        <ion-list no-margin padding class="content-list">
+          <ion-item lines="none" no-margin (click)="onWalletItemClick(item)" *ngFor="
+          let item of wallets;
+          let i = index;
+          let isOdd = odd;
+          let isEven = even
+        "
             [ngClass]="{
-              even: isEven,
-              odd: isOdd
-            }">
-            <ion-button btnStyle href="/ew-main/sub">{{
-              'EDN Wallet [' + i + '] ' + item.ethBalanceEther +' ETH / '+ item.ednBalanceAdjusted +' EDN'
-            }}</ion-button>
-            <!-- <span>{{ ' / 0 EDN' }}</span> -->
-            <!-- item.data.address + -->
-            <ion-button fill="clear" color="dark">
+          even: isEven,
+          odd: isOdd
+        }">
+
+            <div class="row-icon-content">
+              <div class="icon-area">
+                <div [ngStyle]="{ 'background-color': item.data.profile.color }"></div>
+              </div>
+              <div class="inner-content">
+                <ion-label color="info-dark" class="title">
+                  {{ item.data.profile.alias }}
+                </ion-label>
+                <ion-label text-right color="info-subtitle" class="sub-title">
+                  {{ item.ethBalanceEther | number: '.0-5' }} ETH /
+                  {{ item.ednBalanceDisplay  | number: '.0-5' }}
+                  EDN
+                </ion-label>
+              </div>
+            </div>
+
+            <ion-button fill="clear" color="dark" *ngIf="showWalletsOrderIcon">
               <ion-icon name="menu"></ion-icon>
             </ion-button>
-          </ion-row>
-        </ion-grid>
+          </ion-item>
+        </ion-list>
       </ion-content>
       <ion-toolbar class="footer">
         <ion-buttons slot="end">
@@ -59,17 +61,41 @@
         <ion-title>{{ 'MyTEDNWalletsTitle' | translate }}</ion-title>
       </ion-toolbar>
       <ion-content class="content">
-        <ion-grid>
-          <ion-row class="odd">
-            <ion-button btnStyle href="/tw-main">Garden of eden : {{ tednBalance }} TEDN</ion-button>
-            <ion-button fill="clear" color="dark">
+        <ion-list no-margin padding class="content-list">
+          <ion-item lines="none" no-margin *ngFor="
+              let item of tednWallets;
+              let i = index;
+              let isOdd = odd;
+              let isEven = even
+            "
+            [ngClass]="{
+              even: isEven,
+              odd: isOdd
+            }">
+
+            <div class="row-icon-content">
+              <div class="icon-area">
+                <div [ngStyle]="{ 'background-color': item.color }"></div>
+              </div>
+              <div class="inner-content">
+                <ion-label color="info-dark" class="title">
+                  Garden of eden
+                </ion-label>
+                <ion-label text-right color="info-subtitle" class="sub-title">
+                  {{ item.tednBalanceParsed === null ? '-' : (item.tednBalanceParsed | number: '.0-5') }}
+                  TEDN
+                </ion-label>
+              </div>
+            </div>
+
+            <ion-button fill="clear" color="dark" *ngIf="showTednWalletsOrderIcon">
               <ion-icon name="menu"></ion-icon>
             </ion-button>
-          </ion-row>
-        </ion-grid>
+          </ion-item>
+        </ion-list>
       </ion-content>
       <ion-toolbar class="footer">
-        <div class="flex-h-direction">
+        <div class="flex-h-dir">
           <div class="flex-item-fill flex-ch-centered">
             <ion-button btnStyle>{{ 'Deposit' | translate }}</ion-button>
           </div>

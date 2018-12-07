@@ -1,6 +1,14 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {
+  Router,
+  Routes,
+  ActivatedRoute,
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterModule
+} from '@angular/router';
 import { SharedPageModule } from '../../../modules/shared.page.module';
+import { Injectable } from '@angular/core';
 
 import { EwMainPage } from './ew-main.page';
 import { EwTxListPage } from '../ew-tx-list/ew-tx-list.page';
@@ -10,16 +18,15 @@ import { EwQrcodePageModule } from '../ew-qrcode/ew-qrcode.module';
 import { EwSendtoPage } from '../ew-sendto/ew-sendto.page';
 import { EwSendtoPageModule } from '../ew-sendto/ew-sendto.module';
 
-const routes: Routes = [{
+const routes: Routes = [
+  {
     path: 'sub',
+    component: EwMainPage
+  },
+  {
+    path: 'sub/:id',
     component: EwMainPage,
     children: [
-      /** '/me/tabs' -> '/me/tabs/(home:home) */
-      {
-        path: '',
-        redirectTo: '/ew-main/sub/(sub:list)',
-        pathMatch: 'full',
-      },
       {
         path: 'list',
         outlet: 'sub',
@@ -36,12 +43,6 @@ const routes: Routes = [{
         component: EwSendtoPage
       }
     ]
-  },
-  /**  '/me' -> '/me/tabs/(home:home) */
-  {
-    path: '',
-    redirectTo: '/ew-main/sub/(sub:list)',
-    pathMatch: 'full'
   }
 ];
 
@@ -53,6 +54,7 @@ const routes: Routes = [{
     EwQrcodePageModule,
     EwSendtoPageModule
   ],
-  declarations: [EwMainPage]
+  declarations: [EwMainPage],
+  providers: []
 })
 export class EwMainPageModule {}

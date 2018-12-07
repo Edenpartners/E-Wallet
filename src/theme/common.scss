@@ -27,8 +27,14 @@
 }
 
 .fill {
-  width:100%;
-  height:100%;
+  width: 100%;
+  height: 100%;
+}
+.fill-width {
+  width: 100%;
+}
+.fill-height {
+  height: 100%;
 }
 
 .flex-ch-centered {
@@ -44,9 +50,38 @@
   align-items: center; //center horizontally
 }
 
-.flex-h-direction {
+.flex-h-dir {
   display: flex;
   flex-direction: row;
+}
+
+.flex-h-dir-centered {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center; 
+}
+
+.flex-h-dir-v-centered {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-item-fill {
+  flex:1;
+}
+.flex-item-auto {
+  flex:none;
+}
+
+.icon-space-left-margin {
+  margin-left: 6px;
+}
+
+.ellipsis-overflow {
+  text-overflow: ellipsis; 
+  overflow: hidden;
 }
 
 /** <ion-button color="favorite">... */
@@ -80,20 +115,29 @@
 
 .ion-color-info {
   --ion-color-base: #888888;
-  --ion-color-base-rgb: 136,136,136;
+  --ion-color-base-rgb: 136, 136, 136;
   --ion-color-contrast: #ffffff;
-  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-contrast-rgb: 255, 255, 255;
   --ion-color-shade: #787878;
   --ion-color-tint: #949494;
 }
 
 .ion-color-info-dark {
   --ion-color-base: #444444;
-  --ion-color-base-rgb: 68,68,68;
+  --ion-color-base-rgb: 68, 68, 68;
   --ion-color-contrast: #ffffff;
-  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-contrast-rgb: 255, 255, 255;
   --ion-color-shade: #3c3c3c;
   --ion-color-tint: #575757;
+}
+
+.ion-color-info-subtitle {
+  --ion-color-base: #666666;
+  --ion-color-base-rgb: 102, 102, 102;
+  --ion-color-contrast: #ffffff;
+  --ion-color-contrast-rgb: 255, 255, 255;
+  --ion-color-shade: #5a5a5a;
+  --ion-color-tint: #757575;
 }
 
 .ion-color-main1 {
@@ -104,6 +148,7 @@
   --ion-color-shade: #c2762d;
   --ion-color-tint: #e09247;
 }
+
 .ion-color-main2 {
   --ion-color-base: #524689;
   --ion-color-base-rgb: 82, 70, 137;
@@ -130,5 +175,39 @@
 
   .footer {
     height: auto;
+  }
+}
+
+/** Horizontal Field - Label & Value */
+
+.field-label {
+  flex: none;
+  margin-right: 13px;
+}
+
+
+/** Row Item */
+.row-icon-content {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .icon-area {
+    flex:none; 
+  }
+
+  .inner-content {
+    flex: 1;
+    margin-left: 16px;
+
+    .title {
+      font-weight: 500;
+    }
+
+    .sub-title {
+      font-weight: 500;
+      font-size: .95em;
+    }
   }
 }

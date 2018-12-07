@@ -1,16 +1,48 @@
 <div class="page-wrapper fill" padding>
   <div class="hcf-layout fill">
-    <div class="content">
-    </div>
+    <ion-content class="content">
+      <ion-list *ngIf="txList.length > 0">
+        <ion-item *ngFor="let item of txList" no-padding>
+          <div class="row-icon-content">
+            <div class="icon-area">
+              <ion-icon name="arrow-round-up" *ngIf="isSendTx(item)"></ion-icon>
+              <ion-icon name="arrow-round-down" *ngIf="!isSendTx(item)"></ion-icon>
+            </div>
+            <div class="inner-content">
+              <div class="flex-h-dir">
+                <ion-label class="label flex-item-auto">
+                  {{ item.info.amount }} EDN
+                </ion-label>
+              </div>
+              <div class="flex-h-dir">
+                <ion-label class="flex-item-fill address" color="info">
+                  {{ item.info.to }}
+                </ion-label>
+                <ion-label class="flex-item-auto">
+                  {{ getDateString(item.cDate) }}
+                </ion-label>
+              </div>
+            </div>
+          </div>
+        </ion-item>
+      </ion-list>
+      <div class="flex-ch-centered fill" *ngIf="txList.length < 1">
+        <div class="flex-h-dir-centered">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <ion-label class="icon-space-left-margin">No transactions found</ion-label>
+        </div>
+
+      </div>
+    </ion-content>
 
     <div class="footer">
-      <ion-toolbar class="footer">
-        <div class="flex-h-direction">
+      <ion-toolbar>
+        <div class="flex-h-dir">
           <div class="flex-item-fill flex-ch-centered">
-            <ion-button btnStyle href="/ew-main/sub/(sub:qrcode)">{{ "Receive" | translate }}</ion-button>
+            <ion-button btnStyle (click)="onReceiveClick()">{{ "Receive" | translate }}</ion-button>
           </div>
           <div class="flex-item-fill flex-ch-centered">
-            <ion-button btnStyle href="/ew-main/sub/(sub:send)">{{ "Send" | translate }}</ion-button>
+            <ion-button btnStyle (click)="onSendClick()">{{ "Send" | translate }}</ion-button>
           </div>
         </div>
       </ion-toolbar>

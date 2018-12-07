@@ -36,7 +36,7 @@ import { Checkbox } from '@ionic/angular';
 export interface WalletRow {
   /** just index */
   id: number;
-  data: WalletTypes.WalletInfo;
+  data: WalletTypes.EthWalletInfo;
   contractsExpanded: boolean;
   transactionsExpanded: boolean;
   ethBalanceWei: BigNumber;
@@ -45,7 +45,6 @@ export interface WalletRow {
   deleted: boolean;
 
   selectedContract: WalletTypes.ContractInfo | null;
-  transactionHistory: Array<any>;
 
   extraData: {
     selectedContractType: WalletTypes.ContractType.UNKNOWN;
@@ -192,7 +191,6 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
           ethBalanceWei: null,
           ethBalanceEther: null,
           etherBalanceGetter: null,
-          transactionHistory: txHistory === null ? [] : txHistory,
           deleted: false,
           selectedContract: null,
           extraData: {
@@ -230,7 +228,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
 
   refreshContractWorkers(walletRow: WalletRow) {
     // add work which not in workers
-    walletRow.data.contracts.forEach(contractInfo => {
+    walletRow.data.info.contracts.forEach(contractInfo => {
       const contractAddr = contractInfo.address;
 
       let addWorker = true;
@@ -260,9 +258,9 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     ) {
       const worker = walletRow.contractWorkers[workerIndex];
       let removeDeletedWorker = true;
-      for (let i = 0; i < walletRow.data.contracts.length; i++) {
+      for (let i = 0; i < walletRow.data.info.contracts.length; i++) {
         const contractInfo: WalletTypes.ContractInfo =
-          walletRow.data.contracts[i];
+          walletRow.data.info.contracts[i];
         if (worker.id === contractInfo.address) {
           removeDeletedWorker = false;
           break;
@@ -393,11 +391,11 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    if (walletRow.data.contracts === undefined) {
-      walletRow.data.contracts = [];
+    if (walletRow.data.info.contracts === undefined) {
+      walletRow.data.info.contracts = [];
     }
 
-    const oldContract = walletRow.data.contracts.find(item => {
+    const oldContract = walletRow.data.info.contracts.find(item => {
       if (item.address === addr) {
         return true;
       }
@@ -411,7 +409,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     }
 
     walletRow.extraData.contractAddressToAdd = '';
-    walletRow.data.contracts.push({ address: addr, type: type });
+    walletRow.data.info.contracts.push({ address: addr, type: type });
     this.syncDataToLocalStorage(walletRow);
     this.refreshContractWorkers(walletRow);
   }
@@ -442,18 +440,18 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     walletRow: WalletRow,
     contract: WalletTypes.ContractInfo
   ) {
-    if (walletRow.data.contracts === undefined) {
-      walletRow.data.contracts = [];
+    if (walletRow.data.info.contracts === undefined) {
+      walletRow.data.info.contracts = [];
     }
 
     if (this.isSelectedContract(walletRow, contract)) {
       walletRow.selectedContract = null;
     }
 
-    for (let i = 0; i < walletRow.data.contracts.length; i++) {
-      const item = walletRow.data.contracts[i];
+    for (let i = 0; i < walletRow.data.info.contracts.length; i++) {
+      const item = walletRow.data.info.contracts[i];
       if (item.address === contract.address) {
-        walletRow.data.contracts.splice(i, 1);
+        walletRow.data.info.contracts.splice(i, 1);
         this.syncDataToLocalStorage(walletRow);
         this.refreshContractWorkers(walletRow);
         break;

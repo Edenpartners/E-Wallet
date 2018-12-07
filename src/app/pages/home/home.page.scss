@@ -27,6 +27,29 @@
   flex-direction: column;
 }
 
+.content-list {
+  padding: 4px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+
+  ion-item {
+    --inner-padding-end: 2px;
+  }
+
+  .row-icon-content {
+    margin-right: 13px;
+    --margin-right: 13px;
+
+    .icon-area>* {
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+    }
+  }
+}
+
 .edn-wallet-container {
   flex: 0.55;
 }
@@ -35,18 +58,12 @@
   flex: 0.45;
 }
 
-.hcf-layout .header .content ion-card {
-  color: red;
-}
 
-.flex-h-direction .flex-item-fill {
-  flex: 1;
-}
 
 .even {
-  background-color: #dddddd;
+  background-color: #fdfdfd;
 }
 
 .odd {
-  background-color: #eeeeee;
+  background-color: #ffffff;
 }

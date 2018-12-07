@@ -35,6 +35,7 @@ import { EtherApiService } from '../../providers/etherApi.service';
 import { EtherDataService } from '../../providers/etherData.service';
 
 import { EthService, EthProviders } from '../../providers/ether.service';
+import { env } from '../../../environments/environment';
 
 // https://github.com/angular/angularfire2/blob/master/docs/ionic/v3.md
 // https://beta.ionicframework.com/docs/native/facebook
@@ -49,7 +50,7 @@ import { EthService, EthProviders } from '../../providers/ether.service';
 export class ApitestPage implements OnInit, OnDestroy {
   private userStateSubscription: Subscription;
   private userInfoText = '';
-  private tednBalance = '-';
+  private tednBalance = null;
   private ethaddressToSend = '';
 
   private tdenTransactionList = [];
@@ -183,7 +184,14 @@ export class ApitestPage implements OnInit, OnDestroy {
   }
 
   runEdnSignin() {
-    this.ednApi.signin().then(
+    let signinPromise;
+    if (env.config.patches.useSignupForSignin) {
+      signinPromise = this.ednApi.signup();
+    } else {
+      signinPromise = this.ednApi.signin();
+    }
+
+    signinPromise.then(
       ednResult => {
         this.logger.debug('edn signin success !');
 
@@ -304,7 +312,7 @@ export class ApitestPage implements OnInit, OnDestroy {
     this.ednApi.getTEDNBalance().then(
       resultData => {
         this.logger.debug(resultData);
-        this.tednBalance = resultData.data.amount;
+        this.tednBalance = ethers.utils.formatUnits(resultData.data.amount, 18);
       },
       resultErr => {
         this.logger.debug(resultErr);
@@ -348,8 +356,12 @@ export class ApitestPage implements OnInit, OnDestroy {
     }
 
     const walletInfo = walletRow.data;
-    const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
-    const ednContractInfo = this.etherData.contractResolver.getEDNContractInfo(
+    const p: EthProviders.Base = this.eths.getProvider(
+      walletInfo.info.provider
+    );
+
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
+      env.config.ednCoinKey,
       p
     );
 
@@ -361,9 +373,15 @@ export class ApitestPage implements OnInit, OnDestroy {
       this.storage.addTx(
         walletInfo,
         AppStorageTypes.TxType.EthERC20Transfer,
+        AppStorageTypes.TxSubType.Send,
         tx.hash,
         AppStorageTypes.TxState.Created,
         new Date(),
+        {
+          from: walletInfo.address,
+          to: this.storage.coinHDAddress,
+          amount: amount
+        },
         null
       );
     };
@@ -431,18 +449,19 @@ export class ApitestPage implements OnInit, OnDestroy {
     }
 
     const walletInfo = walletRow.data;
-    const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
-    const ednContractInfo = this.etherData.contractResolver.getEDNContractInfo(
+    const p: EthProviders.Base = this.eths.getProvider(
+      walletInfo.info.provider
+    );
+
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
+      env.config.ednCoinKey,
       p
     );
 
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = await this.etherApi.convertToBigNumber(
-        amount,
-        ednContractInfo
-      );
+      adjustedAmount = ethers.utils.parseUnits(amount, 18); //tedn to edn
     } catch (e) {
       alert(e);
       return;
@@ -476,6 +495,7 @@ export class ApitestPage implements OnInit, OnDestroy {
             (txReceipt: ethers.providers.TransactionReceipt) => {},
             err => {
               this.logger.debug(err);
+              alert(err);
             }
           );
         },
@@ -565,7 +585,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletInfo = this.walletService.createWalletInfoToStore(
+    const walletInfo = this.walletService.createEthWalletInfoToStore(
       mWords,
       path,
       this.ethProviderMaker.selectedWalletProviderType,

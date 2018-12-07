@@ -13,6 +13,7 @@ import {
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 
 import { RouterService } from '../../providers/router.service';
+import { env } from '../../../environments/environment';
 
 @Component({
   selector: 'app-signin',
@@ -89,7 +90,13 @@ export class SigninPage implements OnInit {
   }
 
   runEdnSignin() {
-    this.ednApi.signin().then(
+    let signinPromise;
+    if (env.config.patches.useSignupForSignin) {
+      signinPromise = this.ednApi.signup();
+    } else {
+      signinPromise = this.ednApi.signin();
+    }
+    signinPromise.then(
       ednResult => {
         this.logger.debug('edn signin success !');
 

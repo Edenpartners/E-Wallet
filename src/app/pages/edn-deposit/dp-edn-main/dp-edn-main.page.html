@@ -3,28 +3,33 @@
 </ion-header>
 
 <ion-content no-padding no-bounce>
-  <div class="page-wrapper" padding ion-fixed>
-    <div class="inner-content">
+  <div class="page-wrapper hcf-layout fill" padding ion-fixed>
+    <div class="content fill-width">
       <ion-label>{{ 'Exchange' | translate }}</ion-label>
-      <ion-select [ngModel]="selectedTrader">
+      <ion-select [(ngModel)]="selectedTrader">
         <ion-select-option>Kyber Networks</ion-select-option>
       </ion-select>
       <ion-label>{{ 'AddEdnTo' | translate }}</ion-label>
-      <ion-select [ngModel]="selectedWallet">
-        <ion-select-option *ngFor="let item of wallets; let idx = index;">{{item.address}}</ion-select-option>
+      <ion-select [(ngModel)]="selectedWalletId" (ionChange)="onWalletChange(this)">
+        <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
       </ion-select>
       <ion-label>{{ 'Amount' | translate }}</ion-label>
       <ion-item no-padding>
-        <ion-input> </ion-input>
+        <ion-input #ethAmountInput type="number" [(ngModel)]="ethAmount" (ionChange)="getRateByLocally()"></ion-input>
         <ion-label>ETH</ion-label>
       </ion-item>
 
       <ion-item no-padding margin-top>
-        <ion-input> </ion-input>
+        <ion-input [readonly]="true" [(ngModel)]="ednFromEthEstimatedText"></ion-input>
         <ion-label>EDN</ion-label>
       </ion-item>
+    </div>
 
-      <ion-button>{{ 'Add' | translate }}</ion-button>
+    <div class="footer fill-width">
+      <ion-toolbar>
+        <ion-button btnStyle expand="full" (click)="tradeEthToEdn()">{{ 'Add' | translate }}</ion-button>
+      </ion-toolbar>
     </div>
   </div>
+
 </ion-content>

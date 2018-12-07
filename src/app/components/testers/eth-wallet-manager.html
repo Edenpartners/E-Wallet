@@ -27,17 +27,17 @@
       <ion-row>
         <!-- Default wallet information -->
         <ion-col align-self-center size="1">{{ i }}</ion-col>
-        <ion-col align-self-center size="auto">{{ item.data.provider.type }} / {{ item.data.provider.connectionInfo }}</ion-col>
+        <ion-col align-self-center size="auto">{{ item.data.info.provider.type }} / {{ item.data.info.provider.connectionInfo }}</ion-col>
         <ion-col size="auto">
           <ion-button color="light" class="small-font" (click)="copyToClipboard(item.data.address)">Address
             : {{ item.data.address }}</ion-button>
         </ion-col>
         <ion-col size="auto">
-          <ion-button color="light" (click)="copyToClipboard(item.data.info.privateKey)">Private
+          <ion-button color="light" (click)="copyToClipboard(item.data.info.data.privateKey)">Private
             Key</ion-button>
         </ion-col>
         <ion-col size="auto">
-          <ion-button color="light" (click)="copyToClipboard(item.data.info.mnemonic)">Mnemonic</ion-button>
+          <ion-button color="light" (click)="copyToClipboard(item.data.info.data.mnemonic)">Mnemonic</ion-button>
         </ion-col>
         <ion-col size="auto">
           <ion-button color="primary" (click)="selectWallet(item)">Select</ion-button>
@@ -98,7 +98,7 @@
             </ion-row>
             <!-- Contract List -->
             <ion-row *ngFor="
-                  let contract of item.data.contracts;
+                  let contract of item.data.info.contracts;
                   let contIndex = index;
                   let isContractRowOdd = odd;
                   let isContractRowEven = even

@@ -57,8 +57,9 @@ export class ValueTracker {
   private _repeatTime = 0;
   private _interval = 3000;
 
+  private _tracking = false;
   private _cancelled = false;
-  private _valueGetter: any = null;
+  private _valueGetter: () => Promise<any> = null;
 
   private subscribers: Array<Subscriber<void>> = [];
 
@@ -77,7 +78,7 @@ export class ValueTracker {
     });
   }
 
-  set valueGetter(getter: any) {
+  set valueGetter(getter: () => Promise<any>) {
     this._valueGetter = getter;
   }
 
@@ -95,12 +96,21 @@ export class ValueTracker {
   startTracking(startImmediateley = true) {
     this.logger.debug('start tracking : ' + this.id);
     this._cancelled = false;
+    this._tracking = true;
     this._startTime = new Date().getTime();
     if (startImmediateley) {
       this.resumeTracking(0);
     } else {
       this.resumeTracking(this._interval);
     }
+  }
+
+  get isTracking() {
+    return this._tracking;
+  }
+
+  get isCancelled() {
+    return this._cancelled;
   }
 
   cancel() {
@@ -113,6 +123,7 @@ export class ValueTracker {
     this.logger.debug('cancel tracking' + this.id);
     this.pauseTracking();
     this._cancelled = true;
+    this._tracking = false;
     listutil.removeSubscribers(this.subscribers);
   }
 
@@ -162,6 +173,22 @@ export class ValueTracker {
 
     return this.children[childId];
   }
+
+  startChildTracker(childId, valueGetter: () => Promise<any>): ValueTracker {
+    const tracker = this.getChildTracker(childId);
+    if (tracker.isTracking === false) {
+      tracker.valueGetter = valueGetter;
+      tracker.startTracking();
+    }
+
+    return tracker;
+  }
+
+  stopChildTracker(childId) {
+    if (this.children[childId]) {
+      this.children[childId].cancel();
+    }
+  }
 }
 
 const PREFIX_WALLET = 'wal_';
@@ -193,15 +220,26 @@ export class DataTrackerService {
     return this.trackers[id];
   }
 
+  startTracker(id: string, valueGetter: () => Promise<any>): ValueTracker {
+    const tracker = this.getTracker(id);
+    if (tracker.isTracking === false) {
+      tracker.valueGetter = valueGetter;
+      tracker.startTracking();
+    }
+
+    return tracker;
+  }
+
   stopTracker(id: string) {
     if (this.trackers[id]) {
       this.trackers[id].cancel();
     }
   }
 
-  startEtherBalanceTracking(walletInfo: WalletTypes.WalletInfo): ValueTracker {
-    const tracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
-    tracker.valueGetter = () => {
+  startEtherBalanceTracking(
+    walletInfo: WalletTypes.EthWalletInfo
+  ): ValueTracker {
+    const valueGetter = () => {
       return new Promise((finalResolve, finalReject) => {
         this.etherApi.getEthBalance(walletInfo).then(
           val => {
@@ -217,25 +255,20 @@ export class DataTrackerService {
       });
     };
 
-    tracker.startTracking();
-    return tracker;
+    return this.startTracker(PREFIX_WALLET + walletInfo.id, valueGetter);
   }
 
-  stopEtherBalanceTracking(walletInfo: WalletTypes.WalletInfo) {
-    const tracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
-    tracker.cancel();
+  stopEtherBalanceTracking(walletInfo: WalletTypes.EthWalletInfo) {
+    this.stopTracker(PREFIX_WALLET + walletInfo.id);
   }
 
   startERC20ContractBalanceTracking(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     ctInfo: WalletTypes.ContractInfo
   ): ValueTracker {
     const walletTracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
-    const contractBalanceTracker = walletTracker.getChildTracker(
-      PREFIX_CONTRACT + ctInfo.address
-    );
-
-    contractBalanceTracker.valueGetter = () => {
+    const contractBalanceTrackerKey = PREFIX_CONTRACT + ctInfo.address;
+    const contractBalanceGetter = () => {
       return new Promise((finalResolve, finalReject) => {
         this.etherApi.getERC20TokenBalance(walletInfo, ctInfo).then(
           (result: { balance: BigNumber; adjustedBalance: BigNumber }) => {
@@ -248,20 +281,18 @@ export class DataTrackerService {
       });
     };
 
-    contractBalanceTracker.startTracking();
-    return contractBalanceTracker;
+    return walletTracker.startChildTracker(
+      contractBalanceTrackerKey,
+      contractBalanceGetter
+    );
   }
 
   stopERC20ContractBalanceTracker(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     ctInfo: WalletTypes.ContractInfo
   ) {
     const walletTracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
-    const contractBalanceTracker = walletTracker.getChildTracker(
-      PREFIX_CONTRACT + ctInfo.address
-    );
-
-    contractBalanceTracker.cancel();
+    walletTracker.stopChildTracker(PREFIX_CONTRACT + ctInfo.address);
   }
 
   trackAllWalletsBalance() {}

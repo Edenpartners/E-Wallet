@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
+import {
+  Router,
+  ActivatedRoute,
+  CanActivate,
+  ActivatedRouteSnapshot
+} from '@angular/router';
 import { Location } from '@angular/common';
 
 // https://beta.ionicframework.com/docs/api/nav-pop/
@@ -35,6 +40,18 @@ export class RouterService {
   goTo(url: string) {
     //this.navCtl.navigateForward(url);
     this.router.navigateByUrl(url);
-    this.router.navigateByUrl(url, {});
+    //this.router.navigateByUrl(url, {});
+  }
+}
+
+@Injectable()
+export class ForwarderGuard implements CanActivate {
+  constructor(private router: Router) {}
+
+  canActivate(route: ActivatedRouteSnapshot) {
+    this.router.navigate([
+      `myroute/${route.params['id']}/${route.params['value']}`
+    ]);
+    return false;
   }
 }

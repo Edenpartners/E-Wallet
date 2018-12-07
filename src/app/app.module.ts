@@ -11,7 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { LoggerModule, NgxLoggerLevel, LoggerConfig } from 'ngx-logger';
 import { ClipboardModule } from 'ngx-clipboard';
 import { WebStorageModule } from 'ngx-store';
-import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { QRCodeModule } from 'angularx-qrcode';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -53,11 +53,10 @@ export function createTranslateLoader(http: HttpClient) {
 
     ClipboardModule,
     WebStorageModule,
-    NgxQRCodeModule,
-
+    QRCodeModule,
     // Logging
     LoggerModule.forRoot({
-      disableConsoleLogging: false,
+      disableConsoleLogging: true,
       level: NgxLoggerLevel.DEBUG,
       serverLoggingUrl: null,
       serverLogLevel: NgxLoggerLevel.ERROR
@@ -71,7 +70,7 @@ export function createTranslateLoader(http: HttpClient) {
       }
     })
   ],
-  exports: [ClipboardModule, NgxQRCodeModule],
+  exports: [ClipboardModule, QRCodeModule],
   providers: [
     StatusBar,
     SplashScreen,

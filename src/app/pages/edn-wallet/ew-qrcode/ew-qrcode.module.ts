@@ -3,19 +3,17 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedPageModule } from '../../../modules/shared.page.module';
 
 import { EwQrcodePage } from './ew-qrcode.page';
-import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { QRCodeModule } from 'angularx-qrcode';
 
-const routes: Routes = [{
-  path: '',
-  component: EwQrcodePage
-}];
+const routes: Routes = [
+  {
+    path: '',
+    component: EwQrcodePage
+  }
+];
 
 @NgModule({
-  imports: [
-    SharedPageModule,
-    RouterModule.forChild(routes),
-    NgxQRCodeModule
-  ],
+  imports: [SharedPageModule, RouterModule.forChild(routes), QRCodeModule],
   declarations: [EwQrcodePage]
 })
 export class EwQrcodePageModule {}

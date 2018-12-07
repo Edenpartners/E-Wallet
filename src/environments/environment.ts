@@ -17,7 +17,12 @@ export const environment = {
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
-    signinWithEdnUserInfo: true
+    signinWithEdnUserInfo: true,
+    useSideMenu: true,
+    patches: {
+      useSignupForSignin: true
+    },
+    ednCoinKey: 'EDN'
   }
 };
 

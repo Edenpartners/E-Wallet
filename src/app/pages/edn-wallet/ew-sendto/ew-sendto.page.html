@@ -1,20 +1,34 @@
-<ion-content no-bounce>
-  <div class="page-wrapper fill" padding>
-    <ion-label>
-      {{ 'Sendto' | translate }}
-    </ion-label>
-    <ion-item style="--background: transparent;">
-      <ion-input></ion-input>
-    </ion-item>
+<ion-content class="page-wrapper" no-bounce no-padding>
+  <div class="hcf-layout fill">
+    <div class="content" no-bounce no-padding>
+      <ion-list>
+        <ion-item>
+          <ion-label>
+            {{ 'Sendto' | translate }}
+          </ion-label>
+        </ion-item>
 
-    <div margin-top>
+        <ion-item>
+          <ion-input #toAddr></ion-input>
+        </ion-item>
 
+        <ion-item>
+          <ion-label>
+            {{ 'Amount' | translate }}
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-input #amount></ion-input>
+        </ion-item>
+      </ion-list>
     </div>
-    <ion-label>
-      {{ 'Amount' | translate }}
-    </ion-label>
-    <ion-item style="--background: transparent;">
-      <ion-input></ion-input>
-    </ion-item>
+
+    <div class="footer">
+      <ion-toolbar>
+        <ion-button btnStyle (click)="transferERC20Token(toAddr,amount)" expand="full">{{ "Send" | translate }}</ion-button>
+      </ion-toolbar>
+    </div>
+
   </div>
 </ion-content>

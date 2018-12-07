@@ -1,3 +1,45 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-menu side="start" *ngIf="env.config.useSideMenu">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Left Menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-item *ngFor="let item of rPaths.paths">
+          <ion-button [href]="item">
+            {{item}}
+          </ion-button>
+        </ion-item>
+        <ion-item *ngFor="let item of rPaths.customPaths">
+          <ion-button [href]="item">
+            {{item}}
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-textarea placeholder="" rows="10" [(ngModel)]="envConfigText"></ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-button (click)="resetEnvConfigText()">
+            Get Env Config
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-button (click)="chagngeEnvConfig()">
+            Change Env Config
+          </ion-button>
+        </ion-item>
+
+
+        <ion-item>
+          <ion-button color="danger" (click)="signout()">
+            Signout
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet main></ion-router-outlet>
 </ion-app>

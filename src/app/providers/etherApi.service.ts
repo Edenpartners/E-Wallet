@@ -21,9 +21,11 @@ export class EtherApiService {
     private etherData: EtherDataService
   ) {}
 
-  getEthBalance(walletInfo: WalletTypes.WalletInfo): Promise<any> {
+  getEthBalance(walletInfo: WalletTypes.EthWalletInfo): Promise<any> {
     return new Promise((finalResolve, finalReject) => {
-      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletInfo.info.provider
+      );
       const w: Wallet = this.walletService.walletInstance(
         walletInfo,
         p.getEthersJSProvider()
@@ -42,7 +44,7 @@ export class EtherApiService {
   }
 
   sendEth(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     sendEthTo: string,
     sendWeiAmount: BigNumber,
     timeout = -1,
@@ -55,9 +57,11 @@ export class EtherApiService {
         return;
       }
 
-      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletInfo.info.provider
+      );
       const w: Wallet = new ethers.Wallet(
-        walletInfo.info.privateKey,
+        walletInfo.info.data.privateKey,
         p.getEthersJSProvider()
       );
 
@@ -94,7 +98,7 @@ export class EtherApiService {
   }
 
   getERC20TokenInfo(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     ctInfo: WalletTypes.ContractInfo,
     timeout = -1
   ): Promise<any> {
@@ -104,7 +108,9 @@ export class EtherApiService {
         return;
       }
 
-      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletInfo.info.provider
+      );
       const w: Wallet = this.walletService.walletInstance(
         walletInfo,
         p.getEthersJSProvider()
@@ -155,7 +161,7 @@ export class EtherApiService {
   }
 
   async getERC20TokenBalance(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     ctInfo: WalletTypes.ContractInfo,
     timeout = -1
   ): Promise<any> {
@@ -165,7 +171,9 @@ export class EtherApiService {
         return;
       }
 
-      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletInfo.info.provider
+      );
       const w: Wallet = this.walletService.walletInstance(
         walletInfo,
         p.getEthersJSProvider()
@@ -197,9 +205,7 @@ export class EtherApiService {
 
       const decimal = await contract.decimals();
       const balanceBn: BigNumber = await contract.balanceOf(walletInfo.address);
-      const adjustedBalanceBn = balanceBn.div(
-        ethers.utils.bigNumberify(10).pow(decimal)
-      );
+      const adjustedBalanceBn = ethers.utils.formatUnits(balanceBn, decimal);
 
       getInfoComplete = true;
       const result = {
@@ -210,27 +216,6 @@ export class EtherApiService {
     });
   }
 
-  convertToBigNumber(
-    amount: BigNumberish,
-    ctInfo: WalletTypes.ContractInfo
-  ): Promise<BigNumber> {
-    return new Promise<BigNumber>((resolve, reject) => {
-      // convert to
-      let adjustedAmount: BigNumber = null;
-      try {
-        adjustedAmount = ethers.utils.bigNumberify(amount);
-        adjustedAmount = adjustedAmount.mul(
-          ethers.utils.bigNumberify(10).pow(ctInfo.contractInfo.decimal)
-        );
-      } catch (e) {
-        this.logger.debug(e);
-        reject(e);
-        return;
-      }
-
-      resolve(adjustedAmount);
-    });
-  }
   /**
    *
    * @param walletInfo
@@ -240,7 +225,7 @@ export class EtherApiService {
    * @param timeout -1 : disable watching timeout or set to 0 ~
    */
   async transferERC20Token(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     ctInfo: WalletTypes.ContractInfo,
     toAddress: string,
     sendingAmount: string,
@@ -262,7 +247,10 @@ export class EtherApiService {
       // convert to
       let adjustedAmount: BigNumber = null;
       try {
-        adjustedAmount = await this.convertToBigNumber(sendingAmount, ctInfo);
+        adjustedAmount = await ethers.utils.parseUnits(
+          sendingAmount,
+          ctInfo.contractInfo.decimal
+        );
       } catch (e) {
         finalReject(e);
         return;
@@ -281,7 +269,9 @@ export class EtherApiService {
         return;
       }
 
-      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletInfo.info.provider
+      );
       const w: Wallet = this.walletService.walletInstance(
         walletInfo,
         p.getEthersJSProvider()
@@ -510,27 +500,25 @@ export class EtherApiService {
    * ERC 20 sol : https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol
    */
   async kyberNetworkTradeEthToErc20Token(
-    walletInfo: WalletTypes.WalletInfo,
-    tradeTargetAddress: string,
-    srcEthAmount: string,
+    walletInfo: WalletTypes.EthWalletInfo,
+    targetErc20ContractAddres: string,
+    srcEthAmount: BigNumberish,
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ) {
     return new Promise(async (finalResolve, finalReject) => {
-      const targetErc20ContractAddres = tradeTargetAddress;
-
       if (targetErc20ContractAddres.length < 1) {
         finalReject(new Error('set target address'));
         return;
       }
 
-      const p: EthProviders.Base = this.eths.getProvider(walletInfo.provider);
-      const rp: Provider = p.getEthersJSProvider();
-      const w: Wallet = new ethers.Wallet(walletInfo.info.privateKey, rp);
-
-      const ethWeiAmount: BigNumber = ethers.utils.parseEther(
-        String(srcEthAmount)
+      const p: EthProviders.Base = this.eths.getProvider(
+        walletInfo.info.provider
       );
+      const rp: Provider = p.getEthersJSProvider();
+      const w: Wallet = new ethers.Wallet(walletInfo.info.data.privateKey, rp);
+
+      const ethWeiAmount: BigNumber = ethers.utils.bigNumberify(srcEthAmount);
 
       this.logger.debug('start trade ETH -> erc-20 token');
       const kyberProxyAbi = this.etherData.abiResolver.getKyberNetworkProxy(p);
@@ -638,18 +626,52 @@ export class EtherApiService {
     });
   }
 
+  kyberNetworkGetExpectedTradeRateWithWallet(
+    walletInfo: WalletTypes.EthWalletInfo,
+    srcTokenAddress: string,
+    destTokenAddress: string,
+    srcQty: BigNumberish
+  ): Promise<any> {
+    const p: EthProviders.Base = this.eths.getProvider(
+      walletInfo.info.provider
+    );
+    const rp: Provider = p.getEthersJSProvider();
+    const kyberProxyAbi = this.etherData.abiResolver.getKyberNetworkProxy(p);
+
+    const contract = new Contract(
+      this.etherData.contractResolver.getKyberNetworkProxy(p),
+      kyberProxyAbi,
+      rp
+    );
+
+    return this.kyberNetworkGetExpectedTradeRate(
+      contract,
+      srcTokenAddress,
+      destTokenAddress,
+      srcQty
+    );
+  }
+
   kyberNetworkGetExpectedTradeRate(
     contract: Contract,
     srcTokenAddress: string,
     destTokenAddress: string,
-    srcQty: BigNumber
+    srcQty: BigNumberish
   ): Promise<any> {
     return new Promise((finalResolve, finalReject) => {
+      let srcQtyBn = null;
+      try {
+        srcQtyBn = ethers.utils.bigNumberify(srcQty);
+      } catch (e) {
+        finalReject(e);
+        return;
+      }
+
       // Expecting Rate
       const expectedRateResult = contract.functions.getExpectedRate(
         srcTokenAddress, //srcAddress
         destTokenAddress,
-        srcQty
+        srcQtyBn
       );
 
       // function getExpectedRate(ERC20 src, ERC20 dest, uint srcQty)
@@ -662,14 +684,9 @@ export class EtherApiService {
           let slippageRate: BigNumber = null;
 
           result.forEach((element, index) => {
-            this.logger.debug('result : ' + index);
-
             if (element['_hex']) {
               const hexVal = element['_hex'];
-              // this.logger.debug('hexlify : ' + ethers.utils.hexlify(hexVal));
-              // this.logger.debug('hexval : ' + hexVal);
               const num: BigNumber = ethers.utils.bigNumberify(hexVal);
-              this.logger.debug('bn : ' + num);
 
               if (index === 0) {
                 expectedRate = num;

@@ -33,7 +33,7 @@ import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
   styleUrls: ['./backup-wallet.page.scss']
 })
 export class BackupWalletPage implements OnInit {
-  currentWallet: WalletTypes.WalletInfo = null;
+  currentWallet: WalletTypes.EthWalletInfo = null;
   mnemonic = '';
   step = 0;
 
@@ -64,15 +64,23 @@ export class BackupWalletPage implements OnInit {
     this.currentWallet = {
       id: UUID.UUID(),
       address: wallet.address,
-      info: {
-        mnemonic: mWords,
-        path: path,
-        privateKey: wallet.privateKey
+      type: WalletTypes.WalletType.Ethereum,
+      profile: {
+        alias: '',
+        color: '',
+        order: -1
       },
-      contracts: [],
-      provider: {
-        type: EthProviders.Type.KnownNetwork,
-        connectionInfo: env.config.ednEthNetwork
+      info: {
+        data: {
+          mnemonic: mWords,
+          path: path,
+          privateKey: wallet.privateKey
+        },
+        contracts: [],
+        provider: {
+          type: EthProviders.Type.KnownNetwork,
+          connectionInfo: env.config.ednEthNetwork
+        }
       }
     };
 

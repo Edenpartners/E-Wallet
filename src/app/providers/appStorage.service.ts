@@ -13,6 +13,7 @@ import { WalletTypes } from './wallet.service';
 import { EthProviders } from '../providers/ether.service';
 import { environment as env } from '../../environments/environment';
 import { listutil } from '../utils/listutil';
+import { Wallet } from 'ethers';
 export namespace AppStorageTypes {
   export interface User {
     fbUser: firebase.User;
@@ -43,6 +44,11 @@ export namespace AppStorageTypes {
     EthERC20Transfer = 'EthERC20Transfer'
   }
 
+  export enum TxSubType {
+    Send = 'Send',
+    Receive = 'Receive'
+  }
+
   export interface TxLog {
     state: TxState;
     date: number;
@@ -51,8 +57,12 @@ export namespace AppStorageTypes {
 
   export interface TxData {
     type: TxType;
+    subType: TxSubType;
     hash: string;
     logs: Array<TxLog>;
+    info: any;
+    cDate: number;
+    mDate: number;
   }
 }
 
@@ -299,7 +309,9 @@ export class AppStorageService {
     const result: Array<WalletTypes.WalletInfo> = [];
     if (filteredWalletsByUserInfo === false) {
       this.insecureWallets.forEach(item => {
-        result.push(item);
+        if (item.type === WalletTypes.WalletType.Ethereum) {
+          result.push(item);
+        }
       });
       return result;
     }
@@ -307,6 +319,7 @@ export class AppStorageService {
     const userEthAddressses = this.getExtractedUserEthAddresses();
     userEthAddressses.filter((val, idx) => {
       const foundStoredWallet = this.findWallet(
+        WalletTypes.WalletType.Ethereum,
         val,
         EthProviders.Type.KnownNetwork,
         env.config.ednEthNetwork
@@ -320,11 +333,30 @@ export class AppStorageService {
   }
 
   findWalletByInfo(
-    walletInfo: WalletTypes.WalletInfo
+    walletInfo: WalletTypes.EthWalletInfo
   ): WalletTypes.WalletInfo | null {
-    const address = walletInfo.address;
-    const provider = walletInfo.provider;
-    return this.findWallet(address, provider.type, provider.connectionInfo);
+    const provider = walletInfo.info.provider;
+    return this.findWallet(
+      walletInfo.type,
+      walletInfo.address,
+      provider.type,
+      provider.connectionInfo
+    );
+  }
+
+  syncDataToLocalStorage(wallet: WalletTypes.WalletInfo, notifyChange = false) {
+    this.insecureWallets.forEach((item, index) => {
+      if (item.id === wallet.id) {
+        item.profile.alias = wallet.profile.alias;
+        if (wallet.type === WalletTypes.WalletType.Ethereum) {
+          item.info.contracts = wallet.info.contracts;
+        }
+      }
+    });
+
+    if (notifyChange) {
+      listutil.notifyToObservers(this.walletsSubscribers);
+    }
   }
 
   findWalletById(walletId: string): WalletTypes.WalletInfo | null {
@@ -340,29 +372,19 @@ export class AppStorageService {
     return foundStoredWallet;
   }
 
-  syncDataToLocalStorage(wallet: WalletTypes.WalletInfo, notifyChange = false) {
-    this.insecureWallets.forEach((item, index) => {
-      if (item.id === wallet.id) {
-        item.contracts = wallet.contracts;
-      }
-    });
-
-    if (notifyChange) {
-      listutil.notifyToObservers(this.walletsSubscribers);
-    }
-  }
-
   findWallet(
+    type: WalletTypes.WalletType,
     walletAddress: string,
     providerType: EthProviders.Type,
     providerConnectionInfo: string
-  ): WalletTypes.WalletInfo | null {
+  ): WalletTypes.EthWalletInfo | null {
     const foundStoredWallet = this.insecureWallets.find(
       (item: WalletTypes.WalletInfo) => {
         if (
+          type === item.type &&
           walletAddress === item.address &&
-          providerType === item.provider.type &&
-          providerConnectionInfo === item.provider.connectionInfo
+          providerType === item.info.provider.type &&
+          providerConnectionInfo === item.info.provider.connectionInfo
         ) {
           return true;
         }
@@ -375,16 +397,61 @@ export class AppStorageService {
 
   addWallet(walletInfo: WalletTypes.WalletInfo) {
     if (!this.findWalletByInfo(walletInfo)) {
+      if (walletInfo.profile.order === null || walletInfo.profile.order < 0) {
+        walletInfo.profile.order = this.getNewWalletOrderIndex();
+      }
+      if (!walletInfo.profile.alias) {
+        walletInfo.profile.alias = this.getNewWalletAlias();
+      }
+      if (!walletInfo.profile.color) {
+        walletInfo.profile.color = this.getNewWalletColor();
+      }
       this.insecureWallets.push(walletInfo);
       listutil.notifyToObservers(this.walletsSubscribers);
     }
+  }
+
+  getNewWalletAlias(): string {
+    let result = '';
+    let num = 0;
+    const wallets = this.insecureWallets;
+    while (true) {
+      num += 1;
+      const alias = 'Wallet ' + num;
+      const sameAliasWallet = wallets.find((item: WalletTypes.WalletInfo) => {
+        if (item.profile.alias.trim() === alias) {
+          return true;
+        }
+        return false;
+      });
+      if (!sameAliasWallet) {
+        result = alias;
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  getNewWalletOrderIndex(): number {
+    return this.insecureWallets.length;
+  }
+  getNewWalletColor(): string {
+    const colors = ['#f6d9d9', '#cfe6f8', '#d9f2ca'];
+    const max = colors.length - 1;
+    const min = 0;
+    const randIdx = Math.floor(Math.random() * (max - min + 1)) + min;
+    return colors[randIdx];
   }
 
   removeWallet(walletInfo: WalletTypes.WalletInfo) {
     if (this.findWalletByInfo(walletInfo)) {
       for (let i = 0; i < this.insecureWallets.length; i++) {
         const item: WalletTypes.WalletInfo = this.insecureWallets[i];
-        if (item.address === walletInfo.address) {
+        if (
+          walletInfo.type === item.type &&
+          item.address === walletInfo.address
+        ) {
           this.insecureWallets.splice(i, 1);
           listutil.notifyToObservers(this.walletsSubscribers);
           break;
@@ -403,13 +470,23 @@ export class AppStorageService {
   addTx(
     walletInfo: WalletTypes.WalletInfo,
     type: AppStorageTypes.TxType,
+    subType: AppStorageTypes.TxSubType,
     hash: string,
     state: AppStorageTypes.TxState,
     date: Date,
+    info: any,
     data?: any
   ) {
     const txList = this.getTxList(walletInfo);
-    const txData: AppStorageTypes.TxData = { type: type, hash: hash, logs: [] };
+    const txData: AppStorageTypes.TxData = {
+      type: type,
+      subType: subType,
+      hash: hash,
+      info: info,
+      logs: [],
+      cDate: date.getTime(),
+      mDate: date.getTime()
+    };
     const txLog: AppStorageTypes.TxLog = {
       state: state,
       date: date.getTime()
@@ -447,6 +524,7 @@ export class AppStorageService {
         txLog.data = data;
       }
       txData.logs.push(txLog);
+      txData.mDate = date.getTime();
     }
     this.setTxList(walletInfo, txList);
   }
@@ -479,12 +557,28 @@ export class AppStorageService {
     this.store.set(key, list);
   }
 
-  getTxList(walletInfo: WalletTypes.WalletInfo): Array<AppStorageTypes.TxData> {
+  getTxList(
+    walletInfo: WalletTypes.WalletInfo,
+    listFilter?: (item: AppStorageTypes.TxData) => boolean,
+    listSorter?: (
+      a: AppStorageTypes.TxData,
+      b: AppStorageTypes.TxData
+    ) => number
+  ): Array<AppStorageTypes.TxData> {
     const key = this.getTxKey(walletInfo);
-    let txList = this.store.get(key);
+    let txList: Array<AppStorageTypes.TxData> = this.store.get(key);
     if (!txList) {
       txList = [];
     }
+
+    if (listFilter) {
+      txList = txList.filter(listFilter);
+    }
+
+    if (listSorter) {
+      txList.sort(listSorter);
+    }
+
     return txList;
   }
 }

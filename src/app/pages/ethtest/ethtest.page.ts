@@ -128,7 +128,7 @@ export class EthtestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletInfo = this.walletService.createWalletInfoToStore(
+    const walletInfo = this.walletService.createEthWalletInfoToStore(
       mWords,
       path,
       this.ethProviderMaker.selectedWalletProviderType,
@@ -172,13 +172,7 @@ export class EthtestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const onTxCreate = tx => {
-      this.selectedWallet.transactionHistory.push(tx);
-      this.store.set(
-        'tx_' + this.selectedWallet.data.id,
-        this.selectedWallet.transactionHistory
-      );
-    };
+    const onTxCreate = tx => {};
 
     this.etherApi
       .sendEth(
@@ -217,11 +211,31 @@ export class EthtestPage implements OnInit, OnDestroy {
 
     const onTransactionCreate = tx => {
       /** transaction info */
-      walletRow.transactionHistory.push(tx);
-      this.store.set('tx_' + walletRow.data.id, walletRow.transactionHistory);
+      this.storage.addTx(
+        walletRow.data,
+        AppStorageTypes.TxType.EthERC20Transfer,
+        AppStorageTypes.TxSubType.Send,
+        tx.hash,
+        AppStorageTypes.TxState.Created,
+        new Date(),
+        {
+          from: walletRow.data.address,
+          to: toAddressInput.value,
+          amount: sendingAmountInput.value
+        },
+        null
+      );
     };
     const onTransactionReceipt = txReceipt => {
       this.logger.log('transaction receipt');
+
+      this.storage.addTxLog(
+        walletRow.data,
+        txReceipt.transactionHash,
+        AppStorageTypes.TxState.Receipted,
+        new Date(),
+        null
+      );
     };
 
     const onSuccess = data => {};
@@ -260,11 +274,6 @@ export class EthtestPage implements OnInit, OnDestroy {
 
     const onTxCreate = txData => {
       this.logger.debug('on tx create');
-      this.selectedWallet.transactionHistory.push(txData);
-      this.store.set(
-        'tx_' + this.selectedWallet.data.id,
-        this.selectedWallet.transactionHistory
-      );
     };
     const onTxReceipt = txReceiptData => {
       this.logger.debug('on tx receipt');
@@ -276,11 +285,15 @@ export class EthtestPage implements OnInit, OnDestroy {
     const onError = error => {
       alert(error);
     };
+
+    const etherAmountBn = ethers.utils.parseEther(
+      kyberTradeEthToErcAmountInput.value
+    );
     this.etherApi
       .kyberNetworkTradeEthToErc20Token(
         this.selectedWallet.data,
         kyberTradeEthToErcTargetAddressInput.value,
-        kyberTradeEthToErcAmountInput.value,
+        etherAmountBn,
         onTxCreate,
         onTxReceipt
       )

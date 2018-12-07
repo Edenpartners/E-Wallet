@@ -14,6 +14,9 @@ import { RouterService } from './providers/router.service';
 import { environment as env } from '../environments/environment';
 import { AppStorageService } from './providers/appStorage.service';
 import { Subscription } from 'rxjs';
+import { RouterPathsService } from './providers/routerPaths.service';
+import { EdnRemoteApiService } from './providers/ednRemoteApi.service';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +24,9 @@ import { Subscription } from 'rxjs';
 })
 export class AppComponent {
   private userStateSubscription: Subscription;
+
+  private env: any;
+  private envConfigText = '';
 
   constructor(
     private platform: Platform,
@@ -31,11 +37,16 @@ export class AppComponent {
     private logger: NGXLogger,
     private afAuth: AngularFireAuth,
     private rs: RouterService,
-    private storage: AppStorageService
+    private storage: AppStorageService,
+    private rPaths: RouterPathsService,
+    private ednApi: EdnRemoteApiService
   ) {
+    this.env = env;
+    this.resetEnvConfigText();
     translate.setDefaultLang('en');
     // translate.use('en');
     this.initializeApp();
+    this.rPaths.addConfig(this.router);
   }
 
   initializeApp() {
@@ -102,6 +113,31 @@ export class AppComponent {
       if (r.children && r.path) {
         this.printRoute(parent + '/' + r.path, r.children);
       }
+    }
+  }
+
+  signout() {
+    this.ednApi.signout().finally(() => {
+      this.ednApi.signoutFirebase().then(() => {
+        this.storage.wipeData();
+      });
+    });
+  }
+
+  resetEnvConfigText() {
+    try {
+      this.envConfigText = JSON.stringify(this.env.config);
+    } catch (e) {
+      this.logger.debug(e);
+    }
+  }
+
+  chagngeEnvConfig() {
+    try {
+      const envConfig = JSON.parse(this.envConfigText);
+      env.config = envConfig;
+    } catch (e) {
+      this.logger.debug(e);
     }
   }
 }

@@ -10,6 +10,10 @@ export namespace WalletTypes {
     ERC20 = 'ERC20'
   }
 
+  export enum WalletType {
+    Ethereum = 'Ethereum'
+  }
+
   export interface ContractInfo {
     address: string;
     type: ContractType;
@@ -25,13 +29,26 @@ export namespace WalletTypes {
   export interface WalletInfo {
     id: string;
     address: string;
-    info: {
-      mnemonic?: string;
-      path?: string;
-      privateKey: string;
+    type: WalletType;
+
+    profile: {
+      alias: string | null;
+      color: string | null;
+      order: number | null;
     };
-    contracts: Array<ContractInfo>;
-    provider: EthProviders.Info;
+    info: any;
+  }
+
+  export interface EthWalletInfo extends WalletInfo {
+    info: {
+      data: {
+        mnemonic?: string;
+        path?: string;
+        privateKey: string;
+      };
+      contracts: Array<ContractInfo>;
+      provider: EthProviders.Info;
+    };
   }
 }
 
@@ -44,10 +61,10 @@ export class WalletService {
   toETHWallet() {}
 
   walletInstance(
-    walletInfo: WalletTypes.WalletInfo,
+    walletInfo: WalletTypes.EthWalletInfo,
     provider: Provider
   ): Wallet {
-    return new ethers.Wallet(walletInfo.info.privateKey, provider);
+    return new ethers.Wallet(walletInfo.info.data.privateKey, provider);
   }
 
   /**
@@ -58,27 +75,35 @@ export class WalletService {
    * @param providerType
    * @param connectionInfo
    */
-  createWalletInfoToStore(
+  createEthWalletInfoToStore(
     mWords,
     path,
     providerType: EthProviders.Type,
     connectionInfo: string,
     password: string | null
-  ) {
+  ): WalletTypes.EthWalletInfo {
     const wallet = ethers.Wallet.fromMnemonic(mWords, path);
 
-    const walletInfo: WalletTypes.WalletInfo = {
+    const walletInfo: WalletTypes.EthWalletInfo = {
       id: UUID.UUID(),
       address: wallet.address,
-      info: {
-        mnemonic: mWords,
-        path: path,
-        privateKey: wallet.privateKey
+      type: WalletTypes.WalletType.Ethereum,
+      profile: {
+        alias: '',
+        color: '',
+        order: -1
       },
-      contracts: [],
-      provider: {
-        type: providerType,
-        connectionInfo: connectionInfo
+      info: {
+        data: {
+          mnemonic: mWords,
+          path: path,
+          privateKey: wallet.privateKey
+        },
+        contracts: [],
+        provider: {
+          type: providerType,
+          connectionInfo: connectionInfo
+        }
       }
     };
 
