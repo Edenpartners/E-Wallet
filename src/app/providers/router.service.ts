@@ -4,7 +4,8 @@ import {
   Router,
   ActivatedRoute,
   CanActivate,
-  ActivatedRouteSnapshot
+  ActivatedRouteSnapshot,
+  NavigationExtras
 } from '@angular/router';
 import { Location } from '@angular/common';
 
@@ -37,10 +38,14 @@ export class RouterService {
     return this.actRoute.url;
   }
 
-  goTo(url: string) {
+  navigateByUrl(url: string, extras?: NavigationExtras) {
     //this.navCtl.navigateForward(url);
-    this.router.navigateByUrl(url);
+    this.router.navigateByUrl(url, extras);
     //this.router.navigateByUrl(url, {});
+  }
+
+  navigate(urls: Array<string>, extras?: NavigationExtras) {
+    this.router.navigate(urls, extras);
   }
 }
 

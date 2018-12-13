@@ -13,6 +13,8 @@ import {
 } from '../../../providers/appStorage.service';
 
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
+import { FeedbackUIService } from '../../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-pc-confirm',
@@ -26,7 +28,9 @@ export class PcConfirmPage implements OnInit {
     private rs: RouterService,
     private storage: AppStorageService,
     private logger: NGXLogger,
-    private ednApi: EdnRemoteApiService
+    private ednApi: EdnRemoteApiService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {}
@@ -43,7 +47,7 @@ export class PcConfirmPage implements OnInit {
         this.storage.tempPinNumber = null;
         this.storage.notifyToUserStateObservers();
       } else {
-        alert('invalid input!');
+        this.feedbackUI.showErrorDialog('invalid input!');
       }
     }
   }

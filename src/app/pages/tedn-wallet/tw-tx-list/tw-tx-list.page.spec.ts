@@ -1,21 +1,22 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EthtestPage } from './ethtest.page';
+import { TwTxListPage } from './tw-tx-list.page';
 
-describe('EthtestPage', () => {
-  let component: EthtestPage;
-  let fixture: ComponentFixture<EthtestPage>;
+describe('TwTxListPage', () => {
+  let component: TwTxListPage;
+  let fixture: ComponentFixture<TwTxListPage>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [EthtestPage],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
-    }).compileComponents();
+      declarations: [ TwTxListPage ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    })
+    .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EthtestPage);
+    fixture = TestBed.createComponent(TwTxListPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

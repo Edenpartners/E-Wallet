@@ -1,12 +1,14 @@
 <ion-app>
-  <ion-menu side="start" *ngIf="env.config.useSideMenu">
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Left Menu</ion-title>
-      </ion-toolbar>
-    </ion-header>
+  <ion-menu #sideMenu side="start" [hidden]="!env.config.useSideMenu">
     <ion-content>
       <ion-list>
+        <ion-item>
+          <ion-button color="danger" (click)="signout()">
+            Signout
+          </ion-button>
+        </ion-item>
+      </ion-list>
+      <ion-list *ngIf="env.config.useSideMenuForDebug">
         <ion-item *ngFor="let item of rPaths.paths">
           <ion-button [href]="item">
             {{item}}
@@ -29,13 +31,6 @@
         <ion-item>
           <ion-button (click)="chagngeEnvConfig()">
             Change Env Config
-          </ion-button>
-        </ion-item>
-
-
-        <ion-item>
-          <ion-button color="danger" (click)="signout()">
-            Signout
           </ion-button>
         </ion-item>
       </ion-list>

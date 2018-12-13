@@ -1,4 +1,4 @@
-import { Subscription, Subscriber } from 'rxjs';
+import { Subscription, Subscriber, Observable } from 'rxjs';
 
 class ListUtil {
   addItemToList(list, item) {
@@ -41,6 +41,36 @@ class ListUtil {
 
 export const listutil = new ListUtil();
 
+export class SubscriptionHandler<T> {
+  subscribers: Array<Subscriber<T>> = [];
+  onObserverCreated: (observer: Subscriber<T>) => void;
+
+  createObserver(): Observable<T> {
+    const thisRef = this;
+    return new Observable(observer => {
+      listutil.addItemToList(thisRef.subscribers, observer);
+
+      if (this.onObserverCreated) {
+        this.onObserverCreated(observer);
+      }
+
+      return {
+        unsubscribe() {
+          listutil.removeItemFromList(thisRef.subscribers, observer);
+        }
+      };
+    });
+  }
+
+  notifyToSubscribers(data: T) {
+    listutil.notifyToObservers(this.subscribers, data);
+  }
+
+  clean() {
+    listutil.removeSubscribers(this.subscribers);
+  }
+}
+
 interface SubscriptionKeyValue {
   key: any;
   subscription: Subscription;
@@ -49,6 +79,7 @@ interface SubscriptionKeyValue {
 
 export class SubscriptionPack {
   list: Array<SubscriptionKeyValue> = [];
+
   addSubscription(subscriptionCreator: () => Subscription, key: any = null) {
     this.list.push({
       key: null,
@@ -76,19 +107,24 @@ export class SubscriptionPack {
         item.subscription.unsubscribe();
         this.list.splice(i, 1);
         i -= 1;
+        console.log('remove subscription by key');
+        console.log(key);
       }
     }
   }
+
   pause() {
     this.list.forEach(item => {
       item.subscription.unsubscribe();
     });
   }
+
   resume() {
     this.list.forEach(item => {
       item.subscription = item.subscriptionCreator();
     });
   }
+
   clear() {
     this.list.forEach(item => {
       item.subscription.unsubscribe();

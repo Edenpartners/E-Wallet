@@ -3,7 +3,6 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
@@ -27,6 +26,9 @@ import {
 } from '../../../providers/appStorage.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
 
+import { FeedbackUIService } from '../../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-restore-wallet',
   templateUrl: './restore-wallet.page.html',
@@ -37,7 +39,6 @@ export class RestoreWalletPage implements OnInit {
 
   constructor(
     private rs: RouterService,
-    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private logger: NGXLogger,
@@ -45,14 +46,16 @@ export class RestoreWalletPage implements OnInit {
     private walletService: WalletService,
     private etherApi: EtherApiService,
     private storage: AppStorageService,
-    private ednApi: EdnRemoteApiService
+    private ednApi: EdnRemoteApiService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {}
 
   restoreWallet() {
     if (this.userInputMnemonic.length < 1) {
-      alert('invalid value!');
+      this.feedbackUI.showErrorDialog('invalid value!');
       return;
     }
     this.logger.debug(this.userInputMnemonic);
@@ -89,7 +92,7 @@ export class RestoreWalletPage implements OnInit {
       };
     } catch (e) {
       this.logger.debug(e);
-      alert(e);
+      this.feedbackUI.showErrorDialog(e);
     }
 
     if (!walletInfo) {
@@ -97,18 +100,18 @@ export class RestoreWalletPage implements OnInit {
     }
 
     if (this.storage.findWalletByInfo(walletInfo)) {
-      alert('the wallet already using!');
+      this.feedbackUI.showErrorDialog('the wallet already using!');
       return;
     }
 
     this.ednApi.addEthAddress(walletInfo.address).then(
       result => {
         this.storage.addWallet(walletInfo);
-        alert('wallet restored');
-        this.rs.goTo('/home');
+        this.feedbackUI.showErrorDialog('wallet restored');
+        this.rs.navigateByUrl('/home');
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }

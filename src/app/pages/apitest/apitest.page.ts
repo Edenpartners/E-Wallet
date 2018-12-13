@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FirebaseService } from 'src/app/providers/firebase.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase';
 import { NGXLogger } from 'ngx-logger';
@@ -36,6 +35,10 @@ import { EtherDataService } from '../../providers/etherData.service';
 
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { env } from '../../../environments/environment';
+import { Consts } from '../../../environments/constants';
+
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 // https://github.com/angular/angularfire2/blob/master/docs/ionic/v3.md
 // https://beta.ionicframework.com/docs/native/facebook
@@ -68,7 +71,9 @@ export class ApitestPage implements OnInit, OnDestroy {
     private appVersion: AppVersion,
     private etherApi: EtherApiService,
     private etherData: EtherDataService,
-    private eths: EthService
+    private eths: EthService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {
     if (this.platform.is('mobile') && this.platform.is('cordova')) {
       appVersion.getAppName().then(ver => {
@@ -150,7 +155,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       },
       fbError => {
         if (fbError.message) {
-          alert(fbError.message);
+          this.feedbackUI.showErrorDialog(fbError.message);
         }
       }
     );
@@ -163,7 +168,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       },
       fbError => {
         if (fbError.message) {
-          alert(fbError.message);
+          this.feedbackUI.showErrorDialog(fbError.message);
         }
       }
     );
@@ -225,7 +230,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       },
       fbError => {
         if (fbError.message) {
-          alert(fbError.message);
+          this.feedbackUI.showErrorDialog(fbError.message);
         }
       }
     );
@@ -242,7 +247,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       },
       error => {
         if (error.message) {
-          alert(error.message);
+          this.feedbackUI.showErrorDialog(error.message);
         }
       }
     );
@@ -259,7 +264,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       },
       error => {
         if (error.message) {
-          alert(error.message);
+          this.feedbackUI.showErrorDialog(error.message);
         }
       }
     );
@@ -270,7 +275,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       result => {},
       error => {
         if (error.message) {
-          alert(error.message);
+          this.feedbackUI.showErrorDialog(error.message);
         }
       }
     );
@@ -301,7 +306,7 @@ export class ApitestPage implements OnInit, OnDestroy {
 
     this.ednApi.updateUserInfo(userInfoObj).then(
       userInfoResult => {
-        alert('ok');
+        this.feedbackUI.showErrorDialog('ok');
       },
       userInfoErr => {
         this.logger.debug(userInfoErr);
@@ -312,7 +317,10 @@ export class ApitestPage implements OnInit, OnDestroy {
     this.ednApi.getTEDNBalance().then(
       resultData => {
         this.logger.debug(resultData);
-        this.tednBalance = ethers.utils.formatUnits(resultData.data.amount, 18);
+        this.tednBalance = ethers.utils.formatUnits(
+          resultData.data.amount,
+          Consts.TEDN_DECIMAL
+        );
       },
       resultErr => {
         this.logger.debug(resultErr);
@@ -326,7 +334,7 @@ export class ApitestPage implements OnInit, OnDestroy {
         this.getTEDNBalance();
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }
@@ -334,16 +342,16 @@ export class ApitestPage implements OnInit, OnDestroy {
   depositTEDN(amount: string) {
     const walletRow = this.ethWalletManager.getSelectedWallet();
     if (!walletRow) {
-      alert('select wallet first!');
+      this.feedbackUI.showErrorDialog('select wallet first!');
       return;
     }
     if (!this.storage.coinHDAddress) {
-      alert('coin hd address not exists!');
+      this.feedbackUI.showErrorDialog('coin hd address not exists!');
       return;
     }
 
     if (!amount) {
-      alert('invalid amount !');
+      this.feedbackUI.showErrorDialog('invalid amount !');
       return;
     }
 
@@ -351,100 +359,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       ethers.utils.bigNumberify(amount);
     } catch (e) {
       this.logger.debug(e);
-      alert('invalid amount !');
-      return;
-    }
-
-    const walletInfo = walletRow.data;
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
-
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
-
-    this.logger.debug('========= DEPOSIT ========== ');
-    this.logger.debug(ednContractInfo);
-    this.logger.debug(amount);
-    const onTransactionCreate = tx => {
-      /** transaction info */
-      this.storage.addTx(
-        walletInfo,
-        AppStorageTypes.TxType.EthERC20Transfer,
-        AppStorageTypes.TxSubType.Send,
-        tx.hash,
-        AppStorageTypes.TxState.Created,
-        new Date(),
-        {
-          from: walletInfo.address,
-          to: this.storage.coinHDAddress,
-          amount: amount
-        },
-        null
-      );
-    };
-
-    const onTransactionReceipt = txReceipt => {
-      this.logger.log('transaction receipt');
-      this.logger.log(txReceipt);
-
-      this.storage.addTxLog(
-        walletInfo,
-        txReceipt.transactionHash,
-        AppStorageTypes.TxState.Receipted,
-        new Date(),
-        null
-      );
-    };
-
-    const onSuccess = data => {
-      this.logger.debug('event : transfer success!');
-
-      if (data.result && data.result.transactionHash) {
-        this.runDepositTEDNApi(data.result.transactionHash);
-      }
-    };
-
-    const onError = error => {
-      this.logger.debug('event : transfer failed!');
-      this.logger.debug(error);
-    };
-    this.etherApi
-      .transferERC20Token(
-        walletRow.data,
-        ednContractInfo,
-        this.storage.coinHDAddress,
-        amount,
-        -1,
-        onTransactionCreate,
-        onTransactionReceipt
-      )
-      .then(onSuccess, onError);
-  }
-
-  async withdrawTEDN(amount: string) {
-    const walletRow = this.ethWalletManager.getSelectedWallet();
-    if (!walletRow) {
-      alert('select wallet first!');
-      return;
-    }
-    if (!this.storage.coinHDAddress) {
-      alert('coin hd address not exists!');
-      return;
-    }
-
-    if (!amount) {
-      alert('invalid amount !');
-      return;
-    }
-
-    try {
-      ethers.utils.bigNumberify(amount);
-    } catch (e) {
-      this.logger.debug(e);
-      alert('invalid amount !');
+      this.feedbackUI.showErrorDialog('invalid amount !');
       return;
     }
 
@@ -461,9 +376,93 @@ export class ApitestPage implements OnInit, OnDestroy {
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = ethers.utils.parseUnits(amount, 18); //tedn to edn
+      adjustedAmount = ethers.utils.parseUnits(
+        amount,
+        ednContractInfo.contractInfo.decimal
+      );
     } catch (e) {
-      alert(e);
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
+
+    this.logger.debug('========= DEPOSIT ========== ');
+    this.logger.debug(ednContractInfo);
+    this.logger.debug(amount);
+    const onTransactionCreate = tx => {};
+
+    const onTransactionReceipt = txReceipt => {
+      this.logger.log('transaction receipt');
+      this.logger.log(txReceipt);
+    };
+
+    const onSuccess = data => {
+      this.logger.debug('event : transfer success!');
+
+      if (data.result && data.result.transactionHash) {
+        this.runDepositTEDNApi(data.result.transactionHash);
+      }
+    };
+
+    const onError = error => {
+      this.logger.debug('event : transfer failed!');
+      this.logger.debug(error);
+    };
+    this.etherApi
+      .transferERC20Token(
+        {
+          walletInfo: walletRow.data,
+          ctInfo: ednContractInfo,
+          toAddress: this.storage.coinHDAddress,
+          srcAmount: adjustedAmount
+        },
+        onTransactionCreate,
+        onTransactionReceipt
+      )
+      .then(onSuccess, onError);
+  }
+
+  async withdrawTEDN(amount: string) {
+    const walletRow = this.ethWalletManager.getSelectedWallet();
+    if (!walletRow) {
+      this.feedbackUI.showErrorDialog('select wallet first!');
+      return;
+    }
+    if (!this.storage.coinHDAddress) {
+      this.feedbackUI.showErrorDialog('coin hd address not exists!');
+      return;
+    }
+
+    if (!amount) {
+      this.feedbackUI.showErrorDialog('invalid amount !');
+      return;
+    }
+
+    try {
+      ethers.utils.bigNumberify(amount);
+    } catch (e) {
+      this.logger.debug(e);
+      this.feedbackUI.showErrorDialog('invalid amount !');
+      return;
+    }
+
+    const walletInfo = walletRow.data;
+    const p: EthProviders.Base = this.eths.getProvider(
+      walletInfo.info.provider
+    );
+
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
+      env.config.ednCoinKey,
+      p
+    );
+
+    // convert to
+    let adjustedAmount: BigNumber = null;
+    try {
+      adjustedAmount = ethers.utils.parseUnits(amount, Consts.TEDN_DECIMAL); //tedn to edn
+    } catch (e) {
+      this.feedbackUI.showErrorDialog(e);
       return;
     }
 
@@ -495,12 +494,12 @@ export class ApitestPage implements OnInit, OnDestroy {
             (txReceipt: ethers.providers.TransactionReceipt) => {},
             err => {
               this.logger.debug(err);
-              alert(err);
+              this.feedbackUI.showErrorDialog(err);
             }
           );
         },
         error => {
-          alert(error);
+          this.feedbackUI.showErrorDialog(error);
         }
       );
   }
@@ -525,7 +524,7 @@ export class ApitestPage implements OnInit, OnDestroy {
   }
   addEthAddress() {
     if (this.ethaddressToSend.trim().length < 1) {
-      alert('input address to add');
+      this.feedbackUI.showErrorDialog('input address to add');
       return;
     }
 
@@ -541,7 +540,7 @@ export class ApitestPage implements OnInit, OnDestroy {
 
   delEthAddress() {
     if (this.ethaddressToSend.trim().length < 1) {
-      alert('input address to remove');
+      this.feedbackUI.showErrorDialog('input address to remove');
       return;
     }
 
@@ -569,19 +568,19 @@ export class ApitestPage implements OnInit, OnDestroy {
   restoreWallet() {
     const mWords = this.bip39Handler.getTrimmedMWords();
     if (mWords.length < 1) {
-      alert('input mnemonic words!');
+      this.feedbackUI.showErrorDialog('input mnemonic words!');
       return;
     }
 
     const path = this.bip39Handler.getBIP39DerivationPath();
 
     if (!this.ethProviderMaker.selectedWalletProviderType) {
-      alert('select wallet provider!');
+      this.feedbackUI.showErrorDialog('select wallet provider!');
       return;
     }
 
     if (!this.ethProviderMaker.selectedWalletConnectionInfo) {
-      alert('input wallet provider connection info!');
+      this.feedbackUI.showErrorDialog('input wallet provider connection info!');
       return;
     }
 

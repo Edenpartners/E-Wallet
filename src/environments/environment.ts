@@ -1,5 +1,6 @@
 import { EthProviders } from '../app/providers/ether.service';
 import { firebaseConfig } from './firebase.config';
+import { TimeoutError } from 'rxjs';
 
 // The file contents for the current environment will overwrite these during build.
 // The build system defaults to the dev environment which uses `environment.ts`, but if you do
@@ -10,19 +11,22 @@ export const environment = {
   firebase: firebaseConfig,
 
   config: {
-    handleUserState: true,
+    handleUserState: false,
     //alterStartPath: 'ednapitest',
     //alterStartPath: 'backup-wallet',
     alterStartPath: '',
+    disableConsoleLogging: false,
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
     signinWithEdnUserInfo: true,
     useSideMenu: true,
+    useSideMenuForDebug: true,
     patches: {
       useSignupForSignin: true
     },
-    ednCoinKey: 'EDN'
+    ednCoinKey: 'EDN',
+    showDebugToast: true
   }
 };
 

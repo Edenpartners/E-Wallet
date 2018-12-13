@@ -11,6 +11,8 @@ import { ethers } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService } from 'ngx-clipboard';
 import { EtherDataService } from '../../providers/etherData.service';
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'bip39-handler',
@@ -62,7 +64,9 @@ export class Bip39Handler implements OnInit, OnDestroy {
     public eths: EthService,
     private cbService: ClipboardService,
     private logger: NGXLogger,
-    private etherData: EtherDataService
+    private etherData: EtherDataService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {}
@@ -94,7 +98,7 @@ export class Bip39Handler implements OnInit, OnDestroy {
   restoreWallet() {
     const mWords = this.getTrimmedMWords();
     if (mWords.length < 1) {
-      alert('input mnemonic words!');
+      this.feedbackUI.showErrorDialog({ message: 'mnemonic words required' });
       return;
     }
 

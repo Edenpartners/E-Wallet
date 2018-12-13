@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
@@ -36,7 +35,11 @@ import { SubscriptionPack } from '../../../utils/listutil';
 import { DecimalPipe } from '@angular/common';
 import { env } from '../../../../environments/environment';
 
-import { ToastController } from '@ionic/angular';
+import {
+  FeedbackUIService,
+  LoadingHandler
+} from '../../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ew-sendto',
@@ -52,7 +55,6 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
-    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,
@@ -63,7 +65,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     private ednApi: EdnRemoteApiService,
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
-    private toastController: ToastController
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -86,21 +89,15 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     const amount = sendingAmountInput.value;
 
     if (!toAddress) {
-      alert('address required!');
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.address.required')
+      );
       return;
     }
     if (!amount) {
-      alert('amount required!');
-      return;
-    }
-    let amountNum: number = null;
-    try {
-      amountNum = parseFloat(amount);
-    } catch (e) {
-      this.logger.debug(e);
-    }
-    if (!amountNum) {
-      alert('amount required!');
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.required')
+      );
       return;
     }
 
@@ -111,6 +108,21 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       env.config.ednCoinKey,
       p
     );
+
+    // convert to
+    let adjustedAmount: BigNumber = null;
+    try {
+      adjustedAmount = ethers.utils.parseUnits(
+        amount,
+        ednContractInfo.contractInfo.decimal
+      );
+    } catch (e) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
+
     const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(
       this.wallet,
       ednContractInfo
@@ -121,58 +133,32 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       const ednAdjustedBalance = ednTracker.value.adjustedBalance;
     }
 
+    const loadingHandler: LoadingHandler = this.feedbackUI.createLoading();
     const onTransactionCreate = tx => {
       /** transaction info */
-      this.showToast('transaction created');
-      this.storage.addTx(
-        this.wallet,
-        AppStorageTypes.TxType.EthERC20Transfer,
-        AppStorageTypes.TxSubType.Send,
-        tx.hash,
-        AppStorageTypes.TxState.Created,
-        new Date(),
-        { from: this.wallet.address, to: toAddress, amount: amount },
-        null
-      );
+      loadingHandler.hide();
     };
 
-    const onTransactionReceipt = txReceipt => {
-      this.showToast('transaction receipted');
-      this.storage.addTxLog(
-        this.wallet,
-        txReceipt.transactionHash,
-        AppStorageTypes.TxState.Receipted,
-        new Date(),
-        null
-      );
-    };
+    const onTransactionReceipt = txReceipt => {};
 
-    const onSuccess = data => {
-      this.showToast('sending succeed!');
-    };
+    const onSuccess = data => {};
+
     const onError = error => {
-      this.logger.debug('event : transfer failed!');
-      alert(error);
+      loadingHandler.hide();
+      this.feedbackUI.showErrorDialog(error);
     };
 
     this.etherApi
       .transferERC20Token(
-        this.wallet,
-        ednContractInfo,
-        toAddress,
-        amount,
-        -1,
+        {
+          walletInfo: this.wallet,
+          ctInfo: ednContractInfo,
+          toAddress: toAddress,
+          srcAmount: adjustedAmount
+        },
         onTransactionCreate,
         onTransactionReceipt
       )
       .then(onSuccess, onError);
-  }
-
-  async showToast(msg) {
-    const toast = await this.toastController.create({
-      message: msg,
-      duration: 3000
-    });
-    toast.present();
   }
 }

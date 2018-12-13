@@ -1,4 +1,50 @@
 {
+  "______________COMMON":"",
+  "ETH":"ETH",
+  "EDN":"EDN",
+  "TEDN":"TEDN",
+  "OK":"OK",
+  "Alert":"Alert",
+  "Warning":"Warning",
+  "EmailRequired":"Enter your email",
+  "PasswdRequired":"Enter your password",
+
+  "Retry":"Retry",
+  "Cancel":"Cancel",
+
+  "valid.username.required": "Username is required",
+  "valid.username.minlength": "Username must be at least 5 characters long",
+  "valid.username.maxlength": "Username cannot be more than 25 characters long",
+  "valid.username.pattern": "Your username must contain only numbers and letters",
+  "valid.username.validUsername": "Your username has already been taken",
+
+  "valid.email.required": "Email is required",
+  "valid.email.pattern": "Enter a valid email",
+  
+  "valid.password.required": "Password is required",
+  "valid.password.minlength": "Password must be at least 8 characters long",
+  "valid.password.maxlength": "Password cannot be more than 12 characters long",
+  "valid.password.pattern": "Your password must contain at least one uppercase, one lowercase, and one number",
+
+  "valid.confirm-password.required": "Confirm password is required",
+  "valid.confirm-password.areEqual": "Password mismatch",
+
+  "valid.terms.pattern": "You must accept terms and conditions",
+
+  "valid.address.required": "Address is required.",
+  "valid.amount.required": "Amount is required.",
+  "valid.amount.pattern": "Invalid amount.",
+
+  "valid.wallet.required": "Wallet is required.",
+  "valid.tednWallet.required": "TEDN Wallet is required.",
+
+  "error.network.connection": "A network error occured. Please check your internet connection.",
+
+  "transaction.requested": "Tracsaction requested.",
+  "transaction.receipted": "Tracsaction receipted.",
+  "trade.complete": "Trade complete.",
+  
+
   "TEST": "Test {{value}}",
   "______________SIGN_IN": "",
   "Copyright": "Copyright by Eden Partners, Inc. Company Confidential.",
@@ -26,7 +72,7 @@
   "SignupTitle": "Sign-up",
   "SignupComment": "Sign-up into EdenChain",
   "InputEmail": "Email",
-  "ConfigmPasswd": "re-type password",
+  "ConfigmPasswd": "Re-enter password",
   "Continue": "Continue",
 
   "OrSignupWith": "or Sign-up with",
@@ -59,10 +105,7 @@
   "AddEdnTo":"Add EDN to",
 
   "Amount":"Amount",
-  "ETH":"ETH",
-  "EDN":"EDN",
-
-  "Add":"ADD",
+    "Add":"ADD",
 
   "______________CREATE_PIN_CODE": "",
   "CreatePinTitle":"Create PIN",
@@ -115,5 +158,15 @@
   "SendTo":"Send To",
 
   "______________TEDN_WALLET_MAIN": "",
-  "TednWalletMain":"My DApp Wallets"
+  "TednWalletMain":"My TEDN Wallet",
+
+  "______________TEDN_WALLET_TX_LIST": "",
+
+  "______________TEDN_WALLET_TRADES": "",
+  "WithdrawEDNFrom":"Withdraw EDN from",
+  "DepositAsTEDNInto":"Deposit as TEDN into",
+  "WithdrawTEDNFrom":"Withdraw TEDN from",
+  "DepositAsEDNInto":"Deposit as EDN into"
+
+
 }

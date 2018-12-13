@@ -1,7 +1,6 @@
 import { Component, OnInit, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
@@ -29,6 +28,9 @@ import {
   AppStorageService
 } from '../../providers/appStorage.service';
 
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-ethtest',
   templateUrl: './ethtest.page.html',
@@ -43,7 +45,6 @@ export class EthtestPage implements OnInit, OnDestroy {
 
   constructor(
     private storage: AppStorageService,
-    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,
@@ -51,7 +52,9 @@ export class EthtestPage implements OnInit, OnDestroy {
     private etherData: EtherDataService,
     private walletService: WalletService,
     private kyberNetworkService: KyberNetworkService,
-    private etherApi: EtherApiService
+    private etherApi: EtherApiService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   get selectedWallet(): WalletRow {
@@ -112,19 +115,19 @@ export class EthtestPage implements OnInit, OnDestroy {
   restoreWallet() {
     const mWords = this.bip39Handler.getTrimmedMWords();
     if (mWords.length < 1) {
-      alert('input mnemonic words!');
+      this.feedbackUI.showErrorDialog('input mnemonic words!');
       return;
     }
 
     const path = this.bip39Handler.getBIP39DerivationPath();
 
     if (!this.ethProviderMaker.selectedWalletProviderType) {
-      alert('select wallet provider!');
+      this.feedbackUI.showErrorDialog('select wallet provider!');
       return;
     }
 
     if (!this.ethProviderMaker.selectedWalletConnectionInfo) {
-      alert('input wallet provider connection info!');
+      this.feedbackUI.showErrorDialog('input wallet provider connection info!');
       return;
     }
 
@@ -139,7 +142,7 @@ export class EthtestPage implements OnInit, OnDestroy {
   }
 
   encryptWalletToJson(wallet: Wallet) {
-    wallet.encrypt(this.cfg.tempEncPassword).then(
+    wallet.encrypt('1234').then(
       val => {
         console.log('encripted');
         console.log(val);
@@ -155,20 +158,20 @@ export class EthtestPage implements OnInit, OnDestroy {
    */
   sendEth(sendEthToInput: Input, sendEthAmountInput: Input) {
     if (!this.selectedWallet) {
-      alert('select wallet');
+      this.feedbackUI.showErrorDialog('select wallet');
       return;
     }
 
     const sendEthTo = sendEthToInput.value;
     if (sendEthTo.length < 1) {
-      alert('set receiver address');
+      this.feedbackUI.showErrorDialog('set receiver address');
       return;
     }
 
     const sendEthAmount = sendEthAmountInput.value;
     const sendEthAmountBn: BigNumber = ethers.utils.parseEther(sendEthAmount);
     if (!sendEthAmountBn) {
-      alert('set eth amount');
+      this.feedbackUI.showErrorDialog('set eth amount');
       return;
     }
 
@@ -176,67 +179,56 @@ export class EthtestPage implements OnInit, OnDestroy {
 
     this.etherApi
       .sendEth(
-        this.selectedWallet.data,
-        sendEthTo,
-        sendEthAmountBn,
-        -1,
+        {
+          walletInfo: this.selectedWallet.data,
+          sendEthTo: sendEthTo,
+          sendWeiAmount: sendEthAmountBn
+        },
         onTxCreate
       )
       .then(
         txReceipt => {
-          alert('tx complete');
+          this.feedbackUI.showErrorDialog('tx complete');
         },
         error => {
-          alert(error);
+          this.feedbackUI.showErrorDialog(error);
         }
       );
   }
 
   transferERC20Token(toAddressInput: Input, sendingAmountInput: Input) {
     if (!this.selectedWallet) {
-      alert('select wallet');
+      this.feedbackUI.showErrorDialog('select wallet');
       return;
     }
     if (!this.selectedWallet.selectedContract) {
-      alert('select contract');
+      this.feedbackUI.showErrorDialog('select contract');
       return;
     }
     if (!this.selectedWallet.selectedContract.contractInfo) {
-      alert('retrieve contract info');
+      this.feedbackUI.showErrorDialog('retrieve contract info');
       return;
     }
 
     const walletRow = this.selectedWallet;
     const contractInfo: WalletTypes.ContractInfo = walletRow.selectedContract;
 
-    const onTransactionCreate = tx => {
-      /** transaction info */
-      this.storage.addTx(
-        walletRow.data,
-        AppStorageTypes.TxType.EthERC20Transfer,
-        AppStorageTypes.TxSubType.Send,
-        tx.hash,
-        AppStorageTypes.TxState.Created,
-        new Date(),
-        {
-          from: walletRow.data.address,
-          to: toAddressInput.value,
-          amount: sendingAmountInput.value
-        },
-        null
+    // convert to
+    let adjustedAmount: BigNumber = null;
+    try {
+      adjustedAmount = ethers.utils.parseUnits(
+        sendingAmountInput.value,
+        contractInfo.contractInfo.decimal
       );
-    };
-    const onTransactionReceipt = txReceipt => {
-      this.logger.log('transaction receipt');
+    } catch (e) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
 
-      this.storage.addTxLog(
-        walletRow.data,
-        txReceipt.transactionHash,
-        AppStorageTypes.TxState.Receipted,
-        new Date(),
-        null
-      );
-    };
+    const onTransactionCreate = tx => {};
+    const onTransactionReceipt = txReceipt => {};
 
     const onSuccess = data => {};
     const onError = error => {
@@ -245,11 +237,12 @@ export class EthtestPage implements OnInit, OnDestroy {
     };
     this.etherApi
       .transferERC20Token(
-        walletRow.data,
-        contractInfo,
-        toAddressInput.value,
-        sendingAmountInput.value,
-        -1,
+        {
+          walletInfo: walletRow.data,
+          ctInfo: contractInfo,
+          toAddress: toAddressInput.value,
+          srcAmount: adjustedAmount
+        },
         onTransactionCreate,
         onTransactionReceipt
       )
@@ -268,7 +261,7 @@ export class EthtestPage implements OnInit, OnDestroy {
     kyberTradeEthToErcAmountInput: Input
   ) {
     if (!this.selectedWallet) {
-      alert('select an wallet first');
+      this.feedbackUI.showErrorDialog('select an wallet first');
       return;
     }
 
@@ -283,7 +276,7 @@ export class EthtestPage implements OnInit, OnDestroy {
       console.log(data);
     };
     const onError = error => {
-      alert(error);
+      this.feedbackUI.showErrorDialog(error);
     };
 
     const etherAmountBn = ethers.utils.parseEther(
@@ -291,9 +284,11 @@ export class EthtestPage implements OnInit, OnDestroy {
     );
     this.etherApi
       .kyberNetworkTradeEthToErc20Token(
-        this.selectedWallet.data,
-        kyberTradeEthToErcTargetAddressInput.value,
-        etherAmountBn,
+        {
+          walletInfo: this.selectedWallet.data,
+          targetErc20ContractAddres: kyberTradeEthToErcTargetAddressInput.value,
+          srcEthAmount: etherAmountBn
+        },
         onTxCreate,
         onTxReceipt
       )

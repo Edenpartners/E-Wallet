@@ -32,7 +32,9 @@ import { Facebook } from '@ionic-native/facebook/ngx';
 //=====
 
 import { environment } from '../environments/environment';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { env } from '../environments/environment';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -45,6 +47,7 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     IonicModule.forRoot(),
     FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
 
     AngularFireModule.initializeApp(environment.firebase),
@@ -56,7 +59,7 @@ export function createTranslateLoader(http: HttpClient) {
     QRCodeModule,
     // Logging
     LoggerModule.forRoot({
-      disableConsoleLogging: true,
+      disableConsoleLogging: env.config.disableConsoleLogging,
       level: NgxLoggerLevel.DEBUG,
       serverLoggingUrl: null,
       serverLogLevel: NgxLoggerLevel.ERROR

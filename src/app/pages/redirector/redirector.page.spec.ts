@@ -1,21 +1,22 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EthtestPage } from './ethtest.page';
+import { RedirectorPage } from './redirector.page';
 
-describe('EthtestPage', () => {
-  let component: EthtestPage;
-  let fixture: ComponentFixture<EthtestPage>;
+describe('RedirectorPage', () => {
+  let component: RedirectorPage;
+  let fixture: ComponentFixture<RedirectorPage>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [EthtestPage],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
-    }).compileComponents();
+      declarations: [ RedirectorPage ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    })
+    .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EthtestPage);
+    fixture = TestBed.createComponent(RedirectorPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -8,16 +8,18 @@ export const environment = {
   config: {
     handleUserState: true,
     alterStartPath: '',
-
+    disableConsoleLogging: true,
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
     signinWithEdnUserInfo: true,
     useSideMenu: false,
+    useSideMenuForDebug: false,
     patches: {
       useSignupForSignin: true
     },
 
-    ednCoinKey: 'EDN'
+    ednCoinKey: 'EDN',
+    showDebugToast: true
   }
 };
 

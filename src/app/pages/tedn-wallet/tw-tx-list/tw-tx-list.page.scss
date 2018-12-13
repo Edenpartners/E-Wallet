@@ -1,0 +1,30 @@
+// this will also available to use from all pages
+@import '../../../../theme/common.scss';
+
+.page-wrapper {
+  background: var(--tcol-lightest);
+}
+
+.row-icon-content {
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  * {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .icon-area>* {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+  }
+
+  .label {
+    margin-right: 13px;
+  }
+
+  .address {
+    font-size: .9em;
+  }
+}

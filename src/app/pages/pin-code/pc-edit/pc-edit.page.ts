@@ -50,6 +50,6 @@ export class PcEditPage implements OnInit {
     }
 
     this.storage.tempPinNumber = this.userInput;
-    this.rs.goTo('/pc-confirm');
+    this.rs.navigateByUrl('/pc-confirm');
   }
 }

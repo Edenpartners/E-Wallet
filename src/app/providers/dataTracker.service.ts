@@ -41,6 +41,7 @@ import { Subscription, of, Observable } from 'rxjs';
 import { Subscriber } from 'rxjs';
 
 import { listutil } from '../utils/listutil';
+import { EdnRemoteApiService } from '../providers/ednRemoteApi.service';
 
 export class ValueTracker {
   logger: NGXLogger;
@@ -53,9 +54,9 @@ export class ValueTracker {
   private _startTime: number = null;
 
   private _timeout = -1;
-  private _maxRepeatTime = -1;
-  private _repeatTime = 0;
-  private _interval = 3000;
+  private _maxRunCount = -1;
+  private _runCount = 0;
+  private _interval = 7000;
 
   private _tracking = false;
   private _cancelled = false;
@@ -68,6 +69,10 @@ export class ValueTracker {
 
     return new Observable(observer => {
       listutil.addItemToList(thisRef.subscribers, observer);
+
+      if (this.value) {
+        observer.next(this.value);
+      }
 
       // When the consumer unsubscribes, clean up data ready for next subscription.
       return {
@@ -114,13 +119,11 @@ export class ValueTracker {
   }
 
   cancel() {
-    const thisRef = this;
     for (const key of Object.keys(this.children)) {
-      const child = thisRef.children[key];
-      child.cancel();
+      this.stopChildTracker(key);
     }
 
-    this.logger.debug('cancel tracking' + this.id);
+    this.logger.debug(`cancel tracking : ${this.id}`);
     this.pauseTracking();
     this._cancelled = true;
     this._tracking = false;
@@ -136,10 +139,12 @@ export class ValueTracker {
 
     const now = new Date().getTime();
     if (this._timeout >= 0 && now - this._startTime > this._timeout) {
+      this.cancel();
       return;
     }
 
-    if (this._maxRepeatTime >= 0 && this._repeatTime > this._maxRepeatTime) {
+    if (this._maxRunCount >= 0 && this._runCount > this._maxRunCount) {
+      this.cancel();
       return;
     }
 
@@ -153,13 +158,13 @@ export class ValueTracker {
     promise
       .then(
         value => {
+          this._runCount += 1;
           this.value = value;
           listutil.notifyToObservers(this.subscribers, this.value);
         },
         error => {}
       )
       .finally(() => {
-        this._repeatTime += 1;
         this.resumeTracking(this._interval);
       });
   }
@@ -184,15 +189,19 @@ export class ValueTracker {
     return tracker;
   }
 
-  stopChildTracker(childId) {
+  stopChildTracker(childId, removeFromList = false) {
     if (this.children[childId]) {
       this.children[childId].cancel();
+      if (removeFromList) {
+        delete this.children[childId];
+      }
     }
   }
 }
 
 const PREFIX_WALLET = 'wal_';
-const PREFIX_CONTRACT = 'wal_';
+const PREFIX_CONTRACT = 'ctrt_';
+const PREFIX_TEDN_WALLET = 'twal_';
 
 @Injectable({
   providedIn: 'root'
@@ -207,7 +216,8 @@ export class DataTrackerService {
     private etherData: EtherDataService,
     private store: LocalStorageService,
     private etherApi: EtherApiService,
-    private storage: AppStorageService
+    private storage: AppStorageService,
+    private ednApi: EdnRemoteApiService
   ) {}
 
   getTracker(id: string): ValueTracker {
@@ -230,9 +240,12 @@ export class DataTrackerService {
     return tracker;
   }
 
-  stopTracker(id: string) {
+  stopTracker(id: string, removeFromList = false) {
     if (this.trackers[id]) {
       this.trackers[id].cancel();
+      if (removeFromList) {
+        delete this.trackers[id];
+      }
     }
   }
 
@@ -293,6 +306,27 @@ export class DataTrackerService {
   ) {
     const walletTracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
     walletTracker.stopChildTracker(PREFIX_CONTRACT + ctInfo.address);
+  }
+
+  startTEDNBalanceTracker(id: string) {
+    const valueGetter = () => {
+      return new Promise((finalResolve, finalReject) => {
+        this.ednApi.getTEDNBalance().then(
+          resultData => {
+            finalResolve(resultData.data.amount);
+          },
+          resultErr => {
+            finalReject(resultErr);
+          }
+        );
+      });
+    };
+
+    return this.startTracker(PREFIX_TEDN_WALLET + id, valueGetter);
+  }
+
+  stopTEDNBalanceTracker(id: string) {
+    this.stopTracker(PREFIX_TEDN_WALLET + id);
   }
 
   trackAllWalletsBalance() {}

@@ -87,6 +87,10 @@ const routes: Routes = [
   {
     path: 'ednapitest',
     loadChildren: './pages/apitest/apitest.module#ApitestPageModule'
+  },
+  {
+    path: 'redirector/:redirect',
+    loadChildren: './pages/redirector/redirector.module#RedirectorPageModule'
   }
 ];
 

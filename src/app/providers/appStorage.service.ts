@@ -13,7 +13,8 @@ import { WalletTypes } from './wallet.service';
 import { EthProviders } from '../providers/ether.service';
 import { environment as env } from '../../environments/environment';
 import { listutil } from '../utils/listutil';
-import { Wallet } from 'ethers';
+import { Consts } from 'src/environments/constants';
+
 export namespace AppStorageTypes {
   export interface User {
     fbUser: firebase.User;
@@ -34,35 +35,57 @@ export namespace AppStorageTypes {
     tedn_public_key: string | undefined | null;
   }
 
+  export interface TxInfo {
+    startIndex: number;
+    endIndex: number;
+    countPerGroup: number;
+    incompleteSearchIndex: number;
+  }
+
   export enum TxState {
     Created = 'Created',
     Receipted = 'Receipted'
   }
 
   export enum TxType {
-    Default = 'Default',
-    EthERC20Transfer = 'EthERC20Transfer'
+    EthTransfer = 'EthTransfer',
+    EthERC20Transfer = 'EthERC20Transfer',
+    KyberNetworkTrade = 'KyberNetworkTrade'
   }
 
   export enum TxSubType {
     Send = 'Send',
-    Receive = 'Receive'
+    Receive = 'Receive',
+    Trade = 'Trade'
   }
 
-  export interface TxLog {
+  export interface TxPartialLog {
     state: TxState;
     date: number;
     data?: any;
   }
 
-  export interface TxData {
+  export enum TxRowState {
+    Opened = 'Opened',
+    Closed = 'Closed'
+  }
+
+  export interface TxRowData {
     type: TxType;
     subType: TxSubType;
+    state: TxRowState;
     hash: string;
-    logs: Array<TxLog>;
+    logs: Array<TxPartialLog>;
     info: any;
     cDate: number;
     mDate: number;
+    customData?: any;
+  }
+
+  export interface TednWalletInfo {
+    id: string;
+    name: string;
+    color: string;
   }
 }
 
@@ -106,6 +129,9 @@ export class AppStorageService {
     //listen firebase auth state
     const handler = (user: firebase.User) => {
       this.logger.debug('user state change');
+      this.logger.debug('check current user');
+      this.logger.debug(this.afAuth.auth.currentUser);
+
       const wasSignedIn = this.isSignedIn;
       this._fbUser = user;
       if (!this._fbUser) {
@@ -119,15 +145,20 @@ export class AppStorageService {
       }
     };
 
-    //this.afAuth.user.subscribe(handler);
-    this.afAuth.authState.subscribe(handler);
+    this.afAuth.user.subscribe(handler);
+    //this.afAuth.authState.subscribe(handler);
 
+    this.logger.debug('check current user');
+    this.logger.debug(this.afAuth.auth.currentUser);
     //or use authState? 'this.afAuth.user' is faster one step.
     //this.afAuth.authState.subscribe((user: firebase.User) => {
   }
 
   wipeData() {
+    //keep the pinnumber from wipe
+    const pinNumber = this.pinNumber;
     this.store.clear();
+    this.pinNumber = pinNumber;
   }
 
   get hasPinNumber(): boolean {
@@ -174,15 +205,6 @@ export class AppStorageService {
         return false;
       }
     }
-
-    // const additionalInfo = this.additionalInfo;
-    // if (!additionalInfo.termsAndConditionsAllowed) {
-    //   return false;
-    // }
-    // if (!additionalInfo.privacyAllowed) {
-    //   return false;
-    // }
-
     return true;
   }
 
@@ -299,8 +321,8 @@ export class AppStorageService {
    * @param filteredWalletsByUserInfo filter by ethaddress in userInfo from edn server
    */
   getWallets(
-    checkSignedIn,
-    filteredWalletsByUserInfo
+    checkSignedIn = true,
+    filteredWalletsByUserInfo = false
   ): Array<WalletTypes.WalletInfo> {
     if (checkSignedIn === true && !this.isSignedIn) {
       return [];
@@ -436,8 +458,35 @@ export class AppStorageService {
   getNewWalletOrderIndex(): number {
     return this.insecureWallets.length;
   }
-  getNewWalletColor(): string {
-    const colors = ['#f6d9d9', '#cfe6f8', '#d9f2ca'];
+
+  getColorPallete(): Array<string> {
+    return [
+      '#f6d9d9',
+      '#cfe6f8',
+      '#d9f2ca',
+      '#98abec',
+      '#cec29b',
+      '#d2dad5',
+      '#d7cdf8',
+      '#c1d69d',
+      '#bcc9f1',
+      '#e6d3e0',
+      '#98dcd5',
+      '#92be9c',
+      '#b9cfde',
+      '#b8bddb',
+      '#9da48b',
+      '#e8e2c5',
+      '#f3dce0',
+      '#69f1e4'
+    ];
+  }
+
+  getNewWalletColor(atIndex: number = null): string {
+    const colors = this.getColorPallete();
+    if (atIndex !== null && atIndex < colors.length) {
+      return colors[atIndex];
+    }
     const max = colors.length - 1;
     const min = 0;
     const randIdx = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -460,34 +509,104 @@ export class AppStorageService {
     }
   }
 
+  /** TEDN Features */
+  getTednWallets(checkSignedIn = true): Array<AppStorageTypes.TednWalletInfo> {
+    if (checkSignedIn === true && !this.isSignedIn) {
+      return [];
+    }
+
+    const result: Array<AppStorageTypes.TednWalletInfo> = [];
+    for (let i = 0; i < 1; i++) {
+      result.push({
+        id: Consts.TEDN_DEFAULT,
+        name: 'Garden of Eden',
+        color: this.getTednWalletColor(i)
+      });
+    }
+
+    return result;
+  }
+
+  findTednWalletById(id): AppStorageTypes.TednWalletInfo {
+    return this.getTednWallets(false).find(item => {
+      if (item.id === id) {
+        return true;
+      }
+    });
+  }
+
+  getTednWalletColor(atIndex: number = null): string {
+    const colors = this.getColorPallete().reverse();
+    if (atIndex !== null && atIndex < colors.length) {
+      return colors[atIndex];
+    }
+
+    const max = colors.length - 1;
+    const min = 0;
+    const randIdx = Math.floor(Math.random() * (max - min + 1)) + min;
+    return colors[randIdx];
+  }
+
   /**
    * Local Transaction
    */
-  getTxKey(walletInfo: WalletTypes.WalletInfo) {
-    return 'tx_' + walletInfo.id;
+  getTxKey(walletInfo: WalletTypes.WalletInfo, pageIndex: number) {
+    return 'tx_' + walletInfo.id + '_' + String(pageIndex);
+  }
+
+  getTxInfoKey(walletInfo: WalletTypes.WalletInfo) {
+    return 'tx_info_' + walletInfo.id;
+  }
+
+  getTxInfo(walletInfo: WalletTypes.WalletInfo): AppStorageTypes.TxInfo {
+    const key = this.getTxInfoKey(walletInfo);
+    let info: AppStorageTypes.TxInfo = this.store.get(key);
+    if (!info) {
+      info = {
+        startIndex: 0,
+        endIndex: 0,
+        incompleteSearchIndex: 0,
+        countPerGroup: 2
+      };
+      this.store.set(key, info);
+    }
+
+    return info;
+  }
+
+  setTxInfo(walletInfo: WalletTypes.WalletInfo, info: AppStorageTypes.TxInfo) {
+    this.store.set(this.getTxInfoKey(walletInfo), info);
   }
 
   addTx(
-    walletInfo: WalletTypes.WalletInfo,
     type: AppStorageTypes.TxType,
     subType: AppStorageTypes.TxSubType,
+    info: any,
+    customData: any,
+    walletInfo: WalletTypes.WalletInfo,
     hash: string,
     state: AppStorageTypes.TxState,
     date: Date,
-    info: any,
     data?: any
   ) {
-    const txList = this.getTxList(walletInfo);
-    const txData: AppStorageTypes.TxData = {
+    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txList = this.getTxListAtIndex(walletInfo, txInfo.endIndex);
+
+    const txData: AppStorageTypes.TxRowData = {
       type: type,
       subType: subType,
+      state: AppStorageTypes.TxRowState.Opened,
       hash: hash,
       info: info,
       logs: [],
       cDate: date.getTime(),
       mDate: date.getTime()
     };
-    const txLog: AppStorageTypes.TxLog = {
+
+    if (customData) {
+      txData.customData = customData;
+    }
+    const txLog: AppStorageTypes.TxPartialLog = {
       state: state,
       date: date.getTime()
     };
@@ -498,52 +617,137 @@ export class AppStorageService {
     txData.logs.push(txLog);
     txList.push(txData);
 
-    this.setTxList(walletInfo, txList);
+    this.setTxList(walletInfo, txInfo.endIndex, txList);
+    if (txList.length >= txInfo.countPerGroup) {
+      txInfo.endIndex += 1;
+      this.setTxInfo(walletInfo, txInfo);
+      this.setTxList(walletInfo, txInfo.endIndex, []);
+    }
   }
 
   addTxLog(
+    rowState: AppStorageTypes.TxRowState,
     walletInfo: WalletTypes.WalletInfo,
     hash: string,
     state: AppStorageTypes.TxState,
     date: Date,
     data?: any
-  ) {
-    const txList = this.getTxList(walletInfo);
-    const txData: AppStorageTypes.TxData = this.findTxInList(
-      txList,
-      walletInfo,
-      hash
-    );
+  ): AppStorageTypes.TxRowData {
+    let updatedRowData = null;
 
-    if (txData) {
-      const txLog: AppStorageTypes.TxLog = {
+    const foundResult: {
+      txRowData: AppStorageTypes.TxRowData;
+      groupIndex: number;
+      group: Array<AppStorageTypes.TxRowData>;
+    } = this.findTx(walletInfo, hash, true);
+    if (foundResult) {
+      foundResult.txRowData.state = rowState;
+
+      const txLog: AppStorageTypes.TxPartialLog = {
         state: state,
         date: date.getTime()
       };
       if (data) {
         txLog.data = data;
       }
-      txData.logs.push(txLog);
-      txData.mDate = date.getTime();
+      foundResult.txRowData.logs.push(txLog);
+      foundResult.txRowData.mDate = date.getTime();
+
+      this.setTxList(walletInfo, foundResult.groupIndex, foundResult.group);
+      updatedRowData = foundResult.txRowData;
     }
-    this.setTxList(walletInfo, txList);
+
+    return updatedRowData;
+  }
+
+  updateTxCustomData(
+    walletInfo: WalletTypes.WalletInfo,
+    hash: string,
+    customData?: any
+  ) {
+    const foundResult: {
+      txRowData: AppStorageTypes.TxRowData;
+      groupIndex: number;
+      group: Array<AppStorageTypes.TxRowData>;
+    } = this.findTx(walletInfo, hash, true);
+    if (foundResult) {
+      foundResult.txRowData.customData = customData;
+      this.setTxList(walletInfo, foundResult.groupIndex, foundResult.group);
+    }
   }
 
   findTx(
     walletInfo: WalletTypes.WalletInfo,
-    txHash: string
-  ): AppStorageTypes.TxData {
-    const txList = this.getTxList(walletInfo);
-    return txList.find(item => {
-      return item.hash === txHash;
-    });
+    txHash: string,
+    sortByDesc: boolean
+  ): {
+    txRowData: AppStorageTypes.TxRowData;
+    groupIndex: number;
+    group: Array<AppStorageTypes.TxRowData>;
+  } {
+    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+
+    let foundGroupIndex: number = null;
+    let foundGroup: Array<AppStorageTypes.TxRowData> = null;
+    let result: AppStorageTypes.TxRowData = null;
+
+    const startIndex = txInfo.startIndex;
+    const endIndex = txInfo.endIndex;
+    if (sortByDesc) {
+      for (let i = endIndex; i >= startIndex; i--) {
+        const txKey = this.getTxKey(walletInfo, i);
+        const txGroup = this.store.get(txKey);
+        if (txGroup === null || txGroup === undefined) {
+          break;
+        }
+
+        const foundTx = txGroup.find(item => {
+          return item.hash === txHash;
+        });
+
+        if (foundTx) {
+          foundGroupIndex = i;
+          foundGroup = txGroup;
+          result = foundTx;
+          break;
+        }
+      }
+    } else {
+      for (let i = startIndex; i <= endIndex; i++) {
+        const txKey = this.getTxKey(walletInfo, i);
+        const txGroup = this.store.get(txKey);
+        if (txGroup === null || txGroup === undefined) {
+          break;
+        }
+
+        const foundTx = txGroup.find(item => {
+          return item.hash === txHash;
+        });
+
+        if (foundTx) {
+          foundGroupIndex = i;
+          foundGroup = txGroup;
+          result = foundTx;
+          break;
+        }
+      }
+    }
+
+    if (foundGroup && result) {
+      return {
+        groupIndex: foundGroupIndex,
+        group: foundGroup,
+        txRowData: result
+      };
+    }
+
+    return null;
   }
 
   findTxInList(
-    txList: Array<AppStorageTypes.TxData>,
-    walletInfo: WalletTypes.WalletInfo,
+    txList: Array<AppStorageTypes.TxRowData>,
     txHash: string
-  ): AppStorageTypes.TxData {
+  ): AppStorageTypes.TxRowData {
     return txList.find(item => {
       return item.hash === txHash;
     });
@@ -551,32 +755,135 @@ export class AppStorageService {
 
   setTxList(
     walletInfo: WalletTypes.WalletInfo,
-    list: Array<AppStorageTypes.TxData>
+    groupIndex: number,
+    list: Array<AppStorageTypes.TxRowData>
   ) {
-    const key = this.getTxKey(walletInfo);
-    this.store.set(key, list);
+    const txKey = this.getTxKey(walletInfo, groupIndex);
+    this.logger.debug('save tx list at ' + groupIndex);
+    this.logger.debug(list);
+    this.store.set(txKey, list);
   }
 
-  getTxList(
-    walletInfo: WalletTypes.WalletInfo,
-    listFilter?: (item: AppStorageTypes.TxData) => boolean,
-    listSorter?: (
-      a: AppStorageTypes.TxData,
-      b: AppStorageTypes.TxData
-    ) => number
-  ): Array<AppStorageTypes.TxData> {
-    const key = this.getTxKey(walletInfo);
-    let txList: Array<AppStorageTypes.TxData> = this.store.get(key);
+  getTxListAtIndex(walletInfo: WalletTypes.WalletInfo, groupIndex: number) {
+    const txKey = this.getTxKey(walletInfo, groupIndex);
+    let txList: Array<AppStorageTypes.TxRowData> = this.store.get(txKey);
     if (!txList) {
       txList = [];
     }
+    return txList;
+  }
 
-    if (listFilter) {
-      txList = txList.filter(listFilter);
+  getLastTxList(walletInfo: WalletTypes.WalletInfo) {
+    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txKey = this.getTxKey(walletInfo, txInfo.endIndex);
+    let txList: Array<AppStorageTypes.TxRowData> = this.store.get(txKey);
+    if (!txList) {
+      txList = [];
+    }
+    return txList;
+  }
+
+  getIncompleteTxList(
+    walletInfo: WalletTypes.WalletInfo,
+    listFilter?: (item: AppStorageTypes.TxRowData) => boolean
+  ): Array<AppStorageTypes.TxRowData> {
+    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txList = [];
+
+    const limitIndex = txInfo.incompleteSearchIndex;
+    const endIndex = txInfo.endIndex;
+
+    for (let i = endIndex; i >= limitIndex; i--) {
+      const txKey = this.getTxKey(walletInfo, i);
+      const txGroup = this.store.get(txKey);
+      if (txGroup === null || txGroup === undefined) {
+        break;
+      }
+
+      for (let j = txGroup.length - 1; j >= 0; j--) {
+        const item: AppStorageTypes.TxRowData = txGroup[j];
+        if (
+          item.state === AppStorageTypes.TxRowState.Opened ||
+          (listFilter && listFilter(item) === true)
+        ) {
+          txList.push(item);
+        }
+      }
     }
 
-    if (listSorter) {
-      txList.sort(listSorter);
+    return txList;
+  }
+
+  getTxListForPaging(
+    walletInfo: WalletTypes.WalletInfo,
+    pageIndex: number,
+    countPerPage: number,
+    sortByDesc: boolean,
+    listFilter?: (item: AppStorageTypes.TxRowData) => boolean
+  ): Array<AppStorageTypes.TxRowData> {
+    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txList = [];
+
+    let passCount = pageIndex * countPerPage;
+
+    const startIndex = txInfo.startIndex;
+    const endIndex = txInfo.endIndex;
+    if (sortByDesc) {
+      for (let i = endIndex; i >= startIndex; i--) {
+        const txKey = this.getTxKey(walletInfo, i);
+        const txGroup = this.store.get(txKey);
+        if (txGroup === null || txGroup === undefined) {
+          break;
+        }
+
+        for (let j = txGroup.length - 1; j >= 0; j--) {
+          if (passCount > 0) {
+            passCount -= 1;
+            continue;
+          }
+
+          const item = txGroup[j];
+          if (listFilter) {
+            if (listFilter(item)) {
+              txList.push(item);
+            }
+          } else {
+            txList.push(item);
+          }
+        }
+
+        if (txList.length >= countPerPage) {
+          break;
+        }
+      }
+    } else {
+      for (let i = startIndex; i <= endIndex; i++) {
+        const txKey = this.getTxKey(walletInfo, i);
+        const txGroup = this.store.get(txKey);
+        if (txGroup === null || txGroup === undefined) {
+          break;
+        }
+
+        for (let j = 0; j < txGroup.length; j++) {
+          if (passCount > 0) {
+            passCount -= 1;
+            continue;
+          }
+
+          const item = txGroup[j];
+          if (listFilter) {
+            if (listFilter(item)) {
+              txList.push(item);
+            }
+          } else {
+            txList.push(item);
+          }
+        }
+
+        if (txList.length >= countPerPage) {
+          break;
+        }
+      }
     }
 
     return txList;

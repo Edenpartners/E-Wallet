@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
@@ -36,6 +35,8 @@ import {
 import { SubscriptionPack } from '../../utils/listutil';
 import { DecimalPipe } from '@angular/common';
 import { env } from '../../../environments/environment';
+import { Consts } from '../../../environments/constants';
+import { Events } from '@ionic/angular';
 
 interface WalletRow {
   /** just index */
@@ -52,12 +53,11 @@ interface WalletRow {
 interface TEDNWalletRow {
   /** just index */
   id: number;
+  data: AppStorageTypes.TednWalletInfo;
   tednBalance: string;
-  tednBalanceParsed: string;
-  color: string;
+  tednBalanceFormatted: string;
 }
 
-const TDEN_BALANCE_TRACKER_KEY = 'tedn_balance';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -67,7 +67,6 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
-    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,
@@ -77,16 +76,9 @@ export class HomePage implements OnInit, OnDestroy {
     private etherApi: EtherApiService,
     private ednApi: EdnRemoteApiService,
     private storage: AppStorageService,
-    private dataTracker: DataTrackerService
-  ) {
-    this.tednWallets.push({
-      id: 0,
-      tednBalance: null,
-      tednBalanceParsed: null,
-      color: '#69f1e4'
-    });
-    this.showTednWalletsOrderIcon = this.tednWallets.length > 0;
-  }
+    private dataTracker: DataTrackerService,
+    private events: Events
+  ) {}
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
   wallets: Array<WalletRow> = [];
@@ -96,61 +88,70 @@ export class HomePage implements OnInit, OnDestroy {
   showTednWalletsOrderIcon = false;
 
   ngOnInit() {
-    this.subscriptionPack.addSubscription(() => {
-      return this.storage.userStateObserver.subscribe(user => {
-        this.refreshList();
-      });
-    });
+    this.refreshTednList();
+    this.refreshList();
   }
 
   ngOnDestroy() {
-    this.logger.debug('destroy home');
     this.subscriptionPack.clear();
   }
 
   onEdnWalletClick() {}
 
-  ionViewWillEnter() {
-    this.refreshList();
-
-    const tednTracker = this.dataTracker.getTracker(TDEN_BALANCE_TRACKER_KEY);
-    tednTracker.valueGetter = () => {
-      return new Promise((finalResolve, finalReject) => {
-        this.ednApi.getTEDNBalance().then(
-          resultData => {
-            finalResolve(resultData.data.amount);
-          },
-          resultErr => {
-            finalReject(resultErr);
-          }
-        );
-      });
-    };
-    tednTracker.startTracking();
-
-    //subscribe tedn tracking
-    this.subscriptionPack.addSubscription(() => {
-      return tednTracker.trackObserver.subscribe(balance => {
-        this.tednWallets[0].tednBalance = balance;
-        this.tednWallets[0].tednBalanceParsed = ethers.utils.formatUnits(
-          balance,
-          18
-        );
-      });
-    });
-  }
-
-  ionViewDidEnter() {
-    this.logger.debug('view did enter');
-  }
-  ionViewWillLeave() {
-    this.logger.debug('view will leave');
-    this.dataTracker.stopTracker(TDEN_BALANCE_TRACKER_KEY);
+  toggleSideMenu() {
+    this.logger.debug('ui:openSideMenu');
+    this.events.publish('ui:openSideMenu');
   }
 
   onWalletItemClick(walletRow: WalletRow) {
-    //[href]="['/ew-main/sub',item.data.id]"
-    this.rs.goTo(`/ew-main/sub/${walletRow.data.id}/(sub:list)`);
+    this.rs.navigateByUrl(`/ew-main/sub/${walletRow.data.id}/(sub:list)`);
+  }
+
+  onTednWalletItemClick(tednWalletRow: TEDNWalletRow) {
+    this.rs.navigateByUrl(`/tw-main/sub/${tednWalletRow.data.id}/(sub:list)`);
+  }
+
+  refreshTednList() {
+    for (let i = 0; i < this.tednWallets.length; i++) {
+      const item = this.tednWallets[i];
+      this.subscriptionPack.removeSubscriptionsByKey(item);
+      this.dataTracker.stopTEDNBalanceTracker(item.data.id);
+
+      this.tednWallets.splice(i, 1);
+      i -= 1;
+    }
+
+    const allWallet = this.storage.getTednWallets();
+    this.logger.debug('refresh list : ' + allWallet.length);
+    this.logger.debug('refresh list : ' + this.wallets.length);
+
+    allWallet.forEach((item, index) => {
+      this.logger.debug('add new wallet row');
+      const walletRow: TEDNWalletRow = {
+        id: index,
+        tednBalance: null,
+        tednBalanceFormatted: null,
+        data: item
+      };
+
+      this.tednWallets.push(walletRow);
+
+      const tednTracker = this.dataTracker.startTEDNBalanceTracker(
+        walletRow.data.id
+      );
+      //subscribe tedn tracking
+      this.subscriptionPack.addSubscription(() => {
+        return tednTracker.trackObserver.subscribe(balance => {
+          walletRow.tednBalance = balance;
+          walletRow.tednBalanceFormatted = ethers.utils.formatUnits(
+            balance,
+            Consts.TEDN_DECIMAL
+          );
+        });
+      });
+    });
+
+    this.showTednWalletsOrderIcon = this.tednWallets.length > 0;
   }
 
   refreshList() {
@@ -163,7 +164,7 @@ export class HomePage implements OnInit, OnDestroy {
       i -= 1;
     }
 
-    const allWallet = this.storage.getWallets(true, false);
+    const allWallet = this.storage.getWallets();
     this.logger.debug('refresh list : ' + allWallet.length);
     this.logger.debug('refresh list : ' + this.wallets.length);
 

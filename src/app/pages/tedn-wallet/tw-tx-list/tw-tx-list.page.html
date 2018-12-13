@@ -1,6 +1,22 @@
-<div class="page-wrapper fill" padding>
+<div class="page-wrapper fill" no-padding>
   <div class="hcf-layout fill">
-    <ion-content class="content" class="content" [hidden]="txList.length < 1">
+    <div class="header">
+      <ion-list>
+        <ion-item lines="none" [hidden]="!aliasEditing">
+          <ion-input text-center #aliasInput [(ngModel)]="editingAlias" (keyup.enter)="handleAliasEditing()">
+          </ion-input>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
+          </ion-label>
+          <ion-label text-right> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
+            {{ 'TEDN' | translate }}
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <ion-content class="content" [hidden]="txList.length < 1" padding>
       <ion-list *ngIf="txList.length > 0">
         <ion-item *ngFor="let item of txList" no-padding>
           <div class="row-icon-content">
@@ -11,22 +27,21 @@
             <div class="inner-content">
               <div class="flex-h-dir">
                 <ion-label class="label flex-item-auto">
-                  {{ item.info.amount.display }} EDN
+                  {{ item.amount }} TEDN
                 </ion-label>
               </div>
               <div class="flex-h-dir">
                 <ion-label class="flex-item-fill address" color="info">
-                  {{ item.info.to }}
+                  {{ item.to_addr }}
                 </ion-label>
                 <ion-label class="flex-item-auto">
-                  {{ getDateString(item.cDate) }}
+                  {{ item.regdateText }}
                 </ion-label>
               </div>
             </div>
           </div>
         </ion-item>
       </ion-list>
-
       <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
         <ion-infinite-scroll-content></ion-infinite-scroll-content>
       </ion-infinite-scroll>

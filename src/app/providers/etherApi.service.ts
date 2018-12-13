@@ -8,17 +8,42 @@ import { WalletService, WalletTypes } from './wallet.service';
 import { KyberNetworkService } from './kybernetwork.service';
 import { Provider } from 'ethers/providers';
 import { BigNumber, BigNumberish } from 'ethers/utils';
+import {
+  AppStorageTypes,
+  AppStorageService
+} from '../providers/appStorage.service';
+
+import { env } from '../../environments/environment';
+import { FeedbackUIService } from './feedbackUI.service';
+import { Observable, Subscriber } from 'rxjs';
+import { listutil, SubscriptionHandler } from '../utils/listutil';
+
+import { Events } from '@ionic/angular';
+import { Consts } from 'src/environments/constants';
+
+interface Map<T> {
+  [key: string]: T;
+}
+
+class TracsactionReceiptTracker extends SubscriptionHandler<any> {
+  isTracking = true;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class EtherApiService {
+  receiptTrackingHashes: Map<TracsactionReceiptTracker> = {};
+
   constructor(
     public eths: EthService,
     private logger: NGXLogger,
     private walletService: WalletService,
     private kyberNetworkService: KyberNetworkService,
-    private etherData: EtherDataService
+    private etherData: EtherDataService,
+    private storage: AppStorageService,
+    private feedbackUI: FeedbackUIService,
+    private events: Events
   ) {}
 
   getEthBalance(walletInfo: WalletTypes.EthWalletInfo): Promise<any> {
@@ -44,40 +69,50 @@ export class EtherApiService {
   }
 
   sendEth(
-    walletInfo: WalletTypes.EthWalletInfo,
-    sendEthTo: string,
-    sendWeiAmount: BigNumber,
-    timeout = -1,
+    params: {
+      walletInfo: WalletTypes.EthWalletInfo;
+      sendEthTo: string;
+      sendWeiAmount: BigNumber;
+      customLogData?: any;
+    },
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ): Promise<any> {
     return new Promise((finalResolve, finalReject) => {
-      if (sendEthTo.length < 1) {
+      if (params.sendEthTo.length < 1) {
         finalReject(new Error('set receiver address'));
         return;
       }
 
       const p: EthProviders.Base = this.eths.getProvider(
-        walletInfo.info.provider
+        params.walletInfo.info.provider
       );
       const w: Wallet = new ethers.Wallet(
-        walletInfo.info.data.privateKey,
+        params.walletInfo.info.data.privateKey,
         p.getEthersJSProvider()
       );
 
       const txData = {
-        to: sendEthTo,
-        value: sendWeiAmount
+        to: params.sendEthTo,
+        value: params.sendWeiAmount
       };
 
       const sendPromise = w.sendTransaction(txData);
       sendPromise.then(
         tx => {
           this.logger.debug(tx);
+          this.events.publish('eth.send.tx.create', params, tx);
+
+          if (env.config.showDebugToast) {
+            this.feedbackUI.showToast('Tracsaction requested.');
+          }
+
           onTransactionCreate(tx);
 
           this.trackTransactionReceipt(p, tx.hash).then(
             txReceipt => {
+              this.events.publish('eth.send.tx.receipt', params, txReceipt);
+
               if (onTransactionReceipt !== null) {
                 onTransactionReceipt(txReceipt);
               }
@@ -221,59 +256,49 @@ export class EtherApiService {
    * @param walletInfo
    * @param ctInfo
    * @param toAddress
-   * @param sendingAmount
+   * @param srcAmount
    * @param timeout -1 : disable watching timeout or set to 0 ~
    */
   async transferERC20Token(
-    walletInfo: WalletTypes.EthWalletInfo,
-    ctInfo: WalletTypes.ContractInfo,
-    toAddress: string,
-    sendingAmount: string,
-    timeout = -1,
+    params: {
+      walletInfo: WalletTypes.EthWalletInfo;
+      ctInfo: WalletTypes.ContractInfo;
+      toAddress: string;
+      srcAmount: BigNumber;
+      customLogData?: any;
+    },
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ): Promise<any> {
     return new Promise(async (finalResolve, finalReject) => {
-      if (!ctInfo.contractInfo) {
-        finalReject(new Error('no meta data for ERC-20 Token'));
+      if (!params.ctInfo.contractInfo) {
+        finalReject(new Error('No meta data for ERC-20 Token'));
         return;
       }
 
-      if (ctInfo.type !== WalletTypes.ContractType.ERC20) {
-        finalReject(new Error('this is not an ERC-20 Token'));
-        return;
-      }
-
-      // convert to
-      let adjustedAmount: BigNumber = null;
-      try {
-        adjustedAmount = await ethers.utils.parseUnits(
-          sendingAmount,
-          ctInfo.contractInfo.decimal
-        );
-      } catch (e) {
-        finalReject(e);
+      if (params.ctInfo.type !== WalletTypes.ContractType.ERC20) {
+        finalReject(new Error('This is not an ERC-20 Token'));
         return;
       }
 
       this.logger.debug(
-        'checking transfer to : ' + toAddress + ',' + adjustedAmount
+        'checking transfer to : ' + params.toAddress + ',' + params.srcAmount
       );
 
-      if (!toAddress || toAddress.length < 1) {
+      if (!params.toAddress || params.toAddress.length < 1) {
         finalReject(new Error('To address required'));
         return;
       }
-      if (!adjustedAmount) {
+      if (!params.srcAmount) {
         finalReject(new Error('Amount required'));
         return;
       }
 
       const p: EthProviders.Base = this.eths.getProvider(
-        walletInfo.info.provider
+        params.walletInfo.info.provider
       );
       const w: Wallet = this.walletService.walletInstance(
-        walletInfo,
+        params.walletInfo,
         p.getEthersJSProvider()
       );
 
@@ -282,16 +307,14 @@ export class EtherApiService {
       // this.abiStorage.etherERC20
       // last argument as provider = readonly but wallet = r/w
       const contract = new Contract(
-        ctInfo.address,
+        params.ctInfo.address,
         this.etherData.abiResolver.getERC20(p),
         w
       );
 
       const transferEvent = new Promise((eventResolve, eventReject) => {
-        let eventComplete = false;
         // Listen ERC-20 : Transfer Event
         const transferListner = (from, to, amount, result) => {
-          eventComplete = true;
           contract.removeListener('Transfer', transferListner);
           eventResolve({
             from: from,
@@ -303,15 +326,6 @@ export class EtherApiService {
 
         this.logger.debug('Add Transfer Listener');
         contract.addListener('Transfer', transferListner);
-
-        if (timeout >= 0) {
-          setTimeout(() => {
-            if (eventComplete === false) {
-              contract.removeListener('Transfer', transferListner);
-              eventReject(new Error('timeout'));
-            }
-          }, timeout);
-        }
       });
 
       // const resolvedData = await transferEvent;
@@ -321,6 +335,9 @@ export class EtherApiService {
           this.logger.debug('event : transfer complete!');
           this.logger.debug(eventData);
           this.logger.debug('==========================');
+          if (env.config.showDebugToast) {
+            this.feedbackUI.showToast('Trade complete.');
+          }
           finalResolve(eventData);
         },
         eventError => {
@@ -333,8 +350,8 @@ export class EtherApiService {
       let estimatedGasBn = null;
       try {
         estimatedGasBn = await contract.estimate.transfer(
-          toAddress,
-          adjustedAmount
+          params.toAddress,
+          params.srcAmount
         );
       } catch (e) {
         if (e.message) {
@@ -352,10 +369,14 @@ export class EtherApiService {
         'got estimated val : ' + estimatedGasBn + ', gasPrice : ' + gasPrice
       );
 
-      const tp = contract.functions.transfer(toAddress, adjustedAmount, {
-        gasPrice: gasPrice,
-        gasLimit: estimatedGasBn
-      });
+      const tp = contract.functions.transfer(
+        params.toAddress,
+        params.srcAmount,
+        {
+          gasPrice: gasPrice,
+          gasLimit: estimatedGasBn
+        }
+      );
 
       // https://docs.ethers.io/ethers.js/html/api-providers.html?highlight=gettransaction#transaction-response
       tp.then(
@@ -379,24 +400,37 @@ export class EtherApiService {
           this.logger.debug('transaction created');
           this.logger.debug(tx);
           this.logger.debug('==========================');
+
+          this.events.publish('eth.erc20.send.tx.create', params, tx);
+
+          if (env.config.showDebugToast) {
+            this.feedbackUI.showToast('Tracsaction requested.');
+          }
+
           onTransactionCreate(tx);
 
-          if (onTransactionReceipt !== null) {
-            this.trackTransactionReceipt(p, tx.hash).then(
-              txReceipt => {
-                this.logger.debug('==========================');
-                this.logger.debug('transaction receipted');
-                this.logger.debug(txReceipt);
-                this.logger.debug('==========================');
+          this.trackTransactionReceipt(p, tx.hash).then(
+            txReceipt => {
+              this.logger.debug('==========================');
+              this.logger.debug('transaction receipted');
+              this.logger.debug(txReceipt);
+              this.logger.debug('==========================');
 
+              this.events.publish(
+                'eth.erc20.send.tx.receipt',
+                params,
+                txReceipt
+              );
+
+              if (onTransactionReceipt !== null) {
                 onTransactionReceipt(txReceipt);
-              },
-              error => {
-                this.logger.debug('txReceiptError');
-                this.logger.debug(error);
               }
-            );
-          }
+            },
+            error => {
+              this.logger.debug('txReceiptError');
+              this.logger.debug(error);
+            }
+          );
         },
         txError => {
           this.logger.debug('transfer failed');
@@ -412,6 +446,25 @@ export class EtherApiService {
     return ethP.getTransaction(txHash);
   }
 
+  isTransactionReceiptTracking(txHash: string): boolean {
+    if (this.receiptTrackingHashes[txHash]) {
+      return true;
+    }
+    return false;
+  }
+
+  getTransactionReceiptTrackingObserver(txHash: string): Observable<any> {
+    const tracker: TracsactionReceiptTracker = this.receiptTrackingHashes[
+      txHash
+    ];
+
+    if (!tracker) {
+      return null;
+    }
+
+    return tracker.createObserver();
+  }
+
   trackTransactionReceipt(
     p: EthProviders.Base,
     txHash: string,
@@ -419,8 +472,18 @@ export class EtherApiService {
     repeatDelay = 3000,
     timeout = -1
   ): Promise<ethers.providers.TransactionReceipt> {
+    const tracker = new TracsactionReceiptTracker();
+    this.receiptTrackingHashes[txHash] = tracker;
+
     return new Promise<ethers.providers.TransactionReceipt>(
       async (finalResolve, finalReject) => {
+        const trackingFlagRemover = () => {
+          //delete tracking flag from map
+          tracker.isTracking = false;
+          tracker.clean();
+          delete this.receiptTrackingHashes[txHash];
+        };
+
         this.logger.debug('start transaction tracking');
 
         const rp = p.getEthersJSProvider();
@@ -439,6 +502,7 @@ export class EtherApiService {
             clearWorker();
             workerTimer = setTimeout(worker, repeatDelay);
           } else {
+            trackingFlagRemover();
             finalReject(err);
           }
         };
@@ -457,6 +521,13 @@ export class EtherApiService {
                 );
                 this.logger.debug(txReceipt);
                 isComplete = true;
+
+                if (env.config.showDebugToast) {
+                  this.feedbackUI.showToast('Tracsaction receipted.');
+                }
+
+                trackingFlagRemover();
+                tracker.notifyToSubscribers(txReceipt);
                 finalResolve(txReceipt);
               }
             },
@@ -478,6 +549,7 @@ export class EtherApiService {
               intervalId = null;
               if (diffTime >= timeout) {
                 clearWorker();
+                trackingFlagRemover();
                 finalReject(new Error('timeout'));
               }
               return;
@@ -500,25 +572,29 @@ export class EtherApiService {
    * ERC 20 sol : https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol
    */
   async kyberNetworkTradeEthToErc20Token(
-    walletInfo: WalletTypes.EthWalletInfo,
-    targetErc20ContractAddres: string,
-    srcEthAmount: BigNumberish,
+    params: {
+      walletInfo: WalletTypes.EthWalletInfo;
+      targetErc20ContractAddres: string;
+      srcEthAmount: BigNumber;
+      customLogData?: any;
+    },
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ) {
     return new Promise(async (finalResolve, finalReject) => {
-      if (targetErc20ContractAddres.length < 1) {
+      if (params.targetErc20ContractAddres.length < 1) {
         finalReject(new Error('set target address'));
         return;
       }
 
       const p: EthProviders.Base = this.eths.getProvider(
-        walletInfo.info.provider
+        params.walletInfo.info.provider
       );
       const rp: Provider = p.getEthersJSProvider();
-      const w: Wallet = new ethers.Wallet(walletInfo.info.data.privateKey, rp);
-
-      const ethWeiAmount: BigNumber = ethers.utils.bigNumberify(srcEthAmount);
+      const w: Wallet = new ethers.Wallet(
+        params.walletInfo.info.data.privateKey,
+        rp
+      );
 
       this.logger.debug('start trade ETH -> erc-20 token');
       const kyberProxyAbi = this.etherData.abiResolver.getKyberNetworkProxy(p);
@@ -537,32 +613,42 @@ export class EtherApiService {
       this.kyberNetworkGetExpectedTradeRate(
         contract,
         this.etherData.contractResolver.getETH(p),
-        targetErc20ContractAddres,
-        ethWeiAmount
+        params.targetErc20ContractAddres,
+        params.srcEthAmount
       )
         .then(getRateData => {
           return this.kyberNetworkExecuteTrade(
             contract,
             gasPrice,
-            targetErc20ContractAddres,
-            ethWeiAmount,
+            params.targetErc20ContractAddres,
+            params.srcEthAmount,
             getRateData.slippageRate
           );
         })
-        .then(tradeTxData => {
-          onTransactionCreate(tradeTxData);
-
-          if (onTransactionReceipt !== null) {
-            this.trackTransactionReceipt(p, tradeTxData.hash).then(
-              txReceipt => {
-                onTransactionReceipt(txReceipt);
-              },
-              error => {
-                this.logger.debug('txReceiptError');
-                this.logger.debug(error);
-              }
-            );
+        .then(tx => {
+          this.events.publish('exchange.kyber.tx.create', params, tx);
+          if (env.config.showDebugToast) {
+            this.feedbackUI.showToast('Tracsaction requested.');
           }
+
+          onTransactionCreate(tx);
+          this.trackTransactionReceipt(p, tx.hash).then(
+            txReceipt => {
+              this.events.publish(
+                'exchange.kyber.tx.receipt',
+                params,
+                txReceipt
+              );
+
+              if (onTransactionReceipt !== null) {
+                onTransactionReceipt(txReceipt);
+              }
+            },
+            error => {
+              this.logger.debug('txReceiptError');
+              this.logger.debug(error);
+            }
+          );
 
           return this.kyberNetworkHandleExecuteTradeEvent(contract);
         })
@@ -571,6 +657,10 @@ export class EtherApiService {
           this.logger.debug('event : ExecuteTradeEvent complete!');
           this.logger.debug(resolvedData);
           this.logger.debug('==========================');
+
+          if (env.config.showDebugToast) {
+            this.feedbackUI.showToast('Trade complete.');
+          }
           finalResolve(resolvedData);
         })
         .catch(error => {

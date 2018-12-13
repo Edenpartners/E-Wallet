@@ -13,6 +13,8 @@ import {
 } from '../../providers/appStorage.service';
 
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-signup-profile',
@@ -24,7 +26,9 @@ export class SignupProfilePage implements OnInit {
     private rs: RouterService,
     private storage: AppStorageService,
     private logger: NGXLogger,
-    private ednApi: EdnRemoteApiService
+    private ednApi: EdnRemoteApiService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {}
@@ -41,7 +45,7 @@ export class SignupProfilePage implements OnInit {
       !termsAndConditionsChecked ||
       !privacyChecked
     ) {
-      alert('invalidated!');
+      this.feedbackUI.showErrorDialog('invalidated!');
       return;
     }
 
@@ -65,12 +69,12 @@ export class SignupProfilePage implements OnInit {
             }
           },
           userInfoError => {
-            alert(userInfoError);
+            this.feedbackUI.showErrorDialog(userInfoError);
           }
         );
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }

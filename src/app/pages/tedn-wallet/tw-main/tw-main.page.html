@@ -2,29 +2,28 @@
   <common-nav-bar title="{{ 'TednWalletMain' | translate }}"></common-nav-bar>
 </ion-header>
 
+
 <ion-content no-bounce>
   <div class="page-wrapper fill">
     <div class="hcf-layout">
-      <div class="header">
-        <ion-item lines="none">
-          <ion-label> {{ 'CurrentBalance' | translate }} </ion-label>
-        </ion-item>
+      <div class="header" [hidden]="true">
+        <ion-list>
+          <ion-item lines="none" [hidden]="!aliasEditing">
+            <ion-input text-center #aliasInput [(ngModel)]="editingAlias" (keyup.enter)="handleAliasEditing()">
+            </ion-input>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
+            </ion-label>
+            <ion-label text-right> {{ (!tednBalanceAdjusted)?'-': (tednBalanceAdjusted  | number: '.0-5') }}
+              {{ 'TEDN' | translate }}
+            </ion-label>
+          </ion-item>
+        </ion-list>
       </div>
-
-      <div class="content"></div>
-
-      <div class="footer">
-        <ion-toolbar class="footer">
-          <div class="flex-h-dir">
-            <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle>{{ 'Deposit' | translate }}</ion-button>
-            </div>
-            <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle>{{ 'Withdraw' | translate }}</ion-button>
-            </div>
-          </div>
-        </ion-toolbar>
-      </div>
+      <ion-content class="content" no-bounce>
+        <ion-router-outlet name="sub"></ion-router-outlet>
+      </ion-content>
     </div>
   </div>
 </ion-content>

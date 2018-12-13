@@ -371,7 +371,7 @@ export class EdnRemoteApiService {
   getUserAccessToken(): Promise<string> {
     return new Promise((finalResolve, finalReject) => {
       if (!this.storage.user) {
-        finalReject(new Error('not signed in'));
+        finalReject(new Error('Not signed in'));
       } else {
         this.storage.user.fbUser.getIdToken().then(
           token => {

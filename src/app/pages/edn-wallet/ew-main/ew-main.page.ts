@@ -5,7 +5,6 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {

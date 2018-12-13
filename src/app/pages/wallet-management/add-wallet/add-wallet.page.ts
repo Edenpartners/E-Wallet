@@ -3,7 +3,6 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
@@ -30,7 +29,6 @@ import { env } from '../../../../environments/environment';
 export class AddWalletPage implements OnInit, OnDestroy {
   constructor(
     private rs: RouterService,
-    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,
@@ -45,9 +43,9 @@ export class AddWalletPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   onCreateBtnClick() {
-    this.rs.goTo('/backup-notice');
+    this.rs.navigateByUrl('/backup-notice');
   }
   onImportBtnClick() {
-    this.rs.goTo('/restore-wallet');
+    this.rs.navigateByUrl('/restore-wallet');
   }
 }

@@ -1,32 +1,37 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 
-import { Platform, NavController } from '@ionic/angular';
+import { Platform, NavController, Menu } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { Router, Route, UrlSegment } from '@angular/router';
+import { Router, Route, UrlSegment, RouterEvent } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 
 import { AngularFireAuth } from '@angular/fire/auth';
 import { RouterService } from './providers/router.service';
-import { environment as env } from '../environments/environment';
+import { env } from '../environments/environment';
 import { AppStorageService } from './providers/appStorage.service';
 import { Subscription } from 'rxjs';
 import { RouterPathsService } from './providers/routerPaths.service';
 import { EdnRemoteApiService } from './providers/ednRemoteApi.service';
-import { catchError } from 'rxjs/operators';
+import { Events } from '@ionic/angular';
+import { DataTrackerService } from './providers/dataTracker.service';
+import { SubscriptionPack } from './utils/listutil';
+import { TransactionLoggerService } from './providers/transactionLogger.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html'
 })
-export class AppComponent {
-  private userStateSubscription: Subscription;
-
+export class AppComponent implements OnInit, OnDestroy {
   private env: any;
   private envConfigText = '';
+
+  private subscriptionPack: SubscriptionPack = new SubscriptionPack();
+
+  @ViewChild('sideMenu') private sideMenu: Menu;
 
   constructor(
     private platform: Platform,
@@ -39,33 +44,71 @@ export class AppComponent {
     private rs: RouterService,
     private storage: AppStorageService,
     private rPaths: RouterPathsService,
-    private ednApi: EdnRemoteApiService
+    private ednApi: EdnRemoteApiService,
+    private events: Events,
+    private dataTracker: DataTrackerService,
+    private transactionLogger: TransactionLoggerService
   ) {
     this.env = env;
     this.resetEnvConfigText();
     translate.setDefaultLang('en');
     // translate.use('en');
+
     this.initializeApp();
-    this.rPaths.addConfig(this.router);
+
+    //any page can attemp to open sidemenu
+    this.events.subscribe('ui:openSideMenu', () => {
+      this.logger.debug('ui:openSideMenu');
+      this.sideMenu.open();
+    });
+  }
+
+  ngOnInit() {
+    if (!this.env.config.useSideMenuForDebug) {
+      this.sideMenu.swipeGesture = false;
+    } else {
+      this.rPaths.addConfig(this.router);
+      this.sideMenu.swipeGesture = true;
+    }
+
+    this.router.events.subscribe((e: RouterEvent) => {});
+  }
+
+  ngOnDestroy() {
+    this.subscriptionPack.clear();
   }
 
   initializeApp() {
+    this.transactionLogger.initEvents();
+
     this.platform.ready().then(() => {
       this.logger.debug('platform is ready!');
       this.statusBar.styleDefault();
-      this.splashScreen.hide();
 
-      this.logger.debug('current url : ' + this.router.url);
-      if (
-        env.config.handleUserState === false &&
-        env.config.alterStartPath.length > 0
-      ) {
-        this.rs.goTo(env.config.alterStartPath);
-      }
+      this.storage.startFirebaseSigninCheck();
+      this.handleDefaultRoute();
+      this.getBaseValues();
+    });
+  }
 
-      this.userStateSubscription = this.storage.userStateObserver.subscribe(
+  handleDefaultRoute() {
+    this.logger.debug('current url : ' + this.router.url);
+    if (
+      env.config.handleUserState === false &&
+      env.config.alterStartPath.length > 0
+    ) {
+      this.rs.navigateByUrl(env.config.alterStartPath);
+    }
+
+    this.subscriptionPack.addSubscription(() => {
+      return this.storage.userStateObserver.subscribe(
         //next
         userInfo => {
+          //start tracking incomplete tx logs
+          if (this.storage.isSignedIn) {
+            this.transactionLogger.trackUnclosedTxLogs();
+          }
+
           this.logger.debug(userInfo);
           if (env.config.handleUserState) {
             this.logger.debug(window.location);
@@ -75,22 +118,30 @@ export class AppComponent {
                   this.logger.debug(
                     'user signed in but no pincode, goto pincode'
                   );
-                  this.rs.goTo('/pc-edit');
+                  this.rs.navigateByUrl('/pc-edit');
                 } else {
                   this.logger.debug('user signed in, goto home');
-                  this.rs.goTo('/home');
+                  this.rs.navigateByUrl('/home');
                 }
               } else {
                 this.logger.debug(
                   'user signed in but no profile, goto profile'
                 );
-                this.rs.goTo('/signup-profile');
+                this.rs.navigateByUrl('/signup-profile');
               }
             } else {
               this.logger.debug('user signed out, goto signin');
-              this.rs.goTo('/signin');
+              this.rs.navigateByUrl('/signin');
+            }
+          } else {
+            const currentUrl = this.rs.getRouter().url;
+            if (currentUrl !== '/' && currentUrl.indexOf('/redirector') !== 0) {
+              this.logger.debug('reload current url : ' + currentUrl);
+              this.rs.navigate(['redirector', currentUrl]);
             }
           }
+
+          this.splashScreen.hide();
         },
         //error
         error => {},
@@ -98,8 +149,37 @@ export class AppComponent {
         () => {}
       );
     });
+  }
 
-    this.storage.startFirebaseSigninCheck();
+  getBaseValues() {
+    const trackKey = 'coinHDAddress';
+    const coinHDAddressTracker = this.dataTracker.startTracker(trackKey, () => {
+      return new Promise<any>((finalResolve, finalReject) => {
+        this.ednApi.getCoinHDAddress().then(
+          result => {
+            if (result && result.data && result.data.hdaddress) {
+              finalResolve(result.data.hdaddress);
+            } else {
+              finalReject(new Error('unknown error'));
+            }
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      });
+    });
+
+    coinHDAddressTracker.interval = 1000;
+
+    //resolve address only once.
+    this.subscriptionPack.addSubscription(() => {
+      return coinHDAddressTracker.trackObserver.subscribe(hdaddress => {
+        this.storage.coinHDAddress = hdaddress;
+        this.dataTracker.stopTracker(trackKey, true);
+        this.subscriptionPack.removeSubscriptionsByKey(trackKey);
+      });
+    }, trackKey);
   }
 
   dumpRoutes() {
@@ -117,6 +197,7 @@ export class AppComponent {
   }
 
   signout() {
+    this.sideMenu.close();
     this.ednApi.signout().finally(() => {
       this.ednApi.signoutFirebase().then(() => {
         this.storage.wipeData();

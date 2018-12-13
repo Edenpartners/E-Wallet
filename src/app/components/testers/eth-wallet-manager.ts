@@ -32,6 +32,8 @@ import {
 import { Subscription, of, Observable } from 'rxjs';
 
 import { Checkbox } from '@ionic/angular';
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface WalletRow {
   /** just index */
@@ -92,7 +94,9 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     private etherData: EtherDataService,
     private store: LocalStorageService,
     private etherApi: EtherApiService,
-    private storage: AppStorageService
+    private storage: AppStorageService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -387,7 +391,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
 
     this.logger.debug(addr, type);
     if (addr.length < 1) {
-      alert('input contract address!');
+      this.feedbackUI.showErrorDialog('contract address required!');
       return;
     }
 
@@ -404,7 +408,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     });
 
     if (oldContract) {
-      alert('same contract exists!');
+      this.feedbackUI.showErrorDialog('same contract exists!');
       return;
     }
 

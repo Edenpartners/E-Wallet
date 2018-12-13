@@ -13,6 +13,10 @@ import {
 } from '../../providers/appStorage.service';
 
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
+
+import { Validators, FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-signup',
@@ -20,18 +24,26 @@ import { WalletService, WalletTypes } from '../../providers/wallet.service';
   styleUrls: ['./signup.page.scss']
 })
 export class SignupPage implements OnInit {
+  signupForm: FormGroup;
+  signupFormData = {
+    email: { value: '' },
+    password: { value: '' }
+  };
+
   constructor(
     private rs: RouterService,
     private storage: AppStorageService,
     private logger: NGXLogger,
-    private ednApi: EdnRemoteApiService
+    private ednApi: EdnRemoteApiService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {}
 
   signup(userEmail, password, passwordConfirm) {
     if (!userEmail || !password || !passwordConfirm) {
-      alert('invalidated!');
+      this.feedbackUI.showErrorDialog('invalidated!');
       return;
     }
 
@@ -40,7 +52,7 @@ export class SignupPage implements OnInit {
         this.runEdnSignup();
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }
@@ -54,7 +66,7 @@ export class SignupPage implements OnInit {
         }
       },
       ednError => {
-        alert(ednError);
+        this.feedbackUI.showErrorDialog(ednError);
       }
     );
   }
@@ -66,7 +78,7 @@ export class SignupPage implements OnInit {
         this.runEdnSignup();
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }
@@ -77,7 +89,7 @@ export class SignupPage implements OnInit {
         this.runEdnSignup();
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }
@@ -89,7 +101,7 @@ export class SignupPage implements OnInit {
         this.runEdnSignup();
       },
       error => {
-        alert(error);
+        this.feedbackUI.showErrorDialog(error);
       }
     );
   }

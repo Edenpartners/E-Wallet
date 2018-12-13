@@ -3,7 +3,6 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ConfigService } from '../../../providers/config.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
@@ -33,8 +32,10 @@ import {
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { env } from '../../../../environments/environment';
+import { Consts } from '../../../../environments/constants';
 
-import { ToastController } from '@ionic/angular';
+import { FeedbackUIService } from '../../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dp-edn-main',
@@ -51,7 +52,6 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
 
   constructor(
     private rs: RouterService,
-    public cfg: ConfigService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,
@@ -63,11 +63,12 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     private ednApi: EdnRemoteApiService,
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
-    private toastController: ToastController
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
-    this.wallets = this.storage.getWallets(false, false);
+    this.wallets = this.storage.getWallets();
     if (this.wallets.length > 0) {
       this.selectedWalletId = this.wallets[0].id;
     }
@@ -82,9 +83,14 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     this.dataTracker.stopTracker('ednRateTracker');
     this.dataTracker.startTracker('ednRateTracker', () => {
       return new Promise<any>((finalResolve, finalReject) => {
-        this.getRate(rate => {
-          finalResolve(rate);
-        });
+        this.getRate(
+          rate => {
+            finalResolve(rate);
+          },
+          error => {
+            finalReject(error);
+          }
+        );
       });
     });
   }
@@ -93,7 +99,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     this.logger.debug(field);
   }
 
-  getRate(onValueCatch = value => {}) {
+  getRate(onValueCatch = value => {}, onError = error => {}) {
     if (!this.selectedWalletId) {
       this.logger.debug('select an wallet first');
       return;
@@ -124,6 +130,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
           this.displayRate(result);
         },
         err => {
+          onError(err);
           this.logger.debug(err);
         }
       );
@@ -143,9 +150,10 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       this.ednFromEthEstimated = ethers.utils.bigNumberify(rate.expectedRate);
 
       const rateResult = ethAmountBn.mul(this.ednFromEthEstimated);
-      //convert
+
+      //convert to text
       const rateDivResult = rateResult.div(
-        ethers.utils.bigNumberify(10).pow(18)
+        ethers.utils.bigNumberify(10).pow(Consts.ETH_DECIMAL)
       );
 
       this.logger.debug(rateResult.toString());
@@ -155,7 +163,9 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
 
   tradeEthToEdn() {
     if (!this.selectedWalletId) {
-      alert('select an wallet first');
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.wallet.required')
+      );
       return;
     }
 
@@ -168,42 +178,54 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       p
     );
 
+    if (!this.ethAmount) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.required')
+      );
+      return;
+    }
+
+    let ethAmountBn = null;
+    try {
+      ethAmountBn = ethers.utils.parseEther(String(this.ethAmount));
+    } catch (e) {
+      this.logger.debug(e);
+      return;
+    }
+
+    if (!ethAmountBn) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
+
+    const loading = this.feedbackUI.createLoading();
+
     const onTxCreate = txData => {
-      this.logger.debug('on tx create');
-      this.showToast('transaction created');
+      loading.hide();
     };
-    const onTxReceipt = txReceiptData => {
-      this.logger.debug('on tx receipt');
-      this.showToast('transaction receipted');
-    };
+    const onTxReceipt = txReceiptData => {};
 
     const onSuccess = data => {
       console.log(data);
-      this.showToast('trade succeed!');
     };
 
     const onError = error => {
-      alert(error);
+      loading.hide();
+      this.feedbackUI.showErrorDialog(error);
     };
-
-    const ethAmountBn = ethers.utils.parseEther(String(this.ethAmount));
 
     this.etherApi
       .kyberNetworkTradeEthToErc20Token(
-        walletInfo,
-        ednContractInfo.address,
-        ethAmountBn,
+        {
+          walletInfo: walletInfo,
+          targetErc20ContractAddres: ednContractInfo.address,
+          srcEthAmount: ethAmountBn
+        },
         onTxCreate,
         onTxReceipt
       )
       .then(onSuccess, onError);
-  }
-
-  async showToast(msg) {
-    const toast = await this.toastController.create({
-      message: msg,
-      duration: 3000
-    });
-    toast.present();
   }
 }

@@ -5,19 +5,40 @@
         <div class="logo-img"></div>
       </div>
 
-      <p padding style="text-align: center;">{{ 'Copyright' | translate }}</p>
+      <p padding class="text-center">{{ 'Copyright' | translate }}</p>
     </div>
     <div class="content flex-ch-h-centered">
-      <div class="flex-ch-centered" style="width:70%;">
+      <div class="flex-ch-centered form-area">
         <div>
           <ion-label>{{ 'SigninComment' | translate }}</ion-label>
         </div>
-        <div style="margin-bottom:5px;">
-          <ion-input #userEmail [placeholder]="'InputUserEmail' | translate"></ion-input>
-        </div>
-        <div>
-          <ion-input #userPasswd clearOnEdit="true" type="password" [placeholder]="'InputPassword' | translate"></ion-input>
-        </div>
+        <form novalidate [formGroup]="signinForm" class="fill-width">
+          <div>
+            <ion-input #userEmail type="email" formControlName="email" [placeholder]="'InputUserEmail' | translate"
+              [(ngModel)]="signinFormData.email.value" (keyup.enter)="userPasswd.setFocus()"></ion-input>
+          </div>
+          <div class="form-error-msg" *ngIf="signinForm.get('email').touched && signinForm.get('email').invalid">
+            <div *ngIf="signinForm.get('email').hasError('required')">
+              {{ 'valid.email.required' | translate }}
+            </div>
+            <div *ngIf="signinForm.get('email').hasError('pattern')">
+              {{ 'valid.email.pattern' | translate }}
+            </div>
+          </div>
+
+
+          <div class="field-space">
+            <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
+              [placeholder]="'InputPassword' | translate" [(ngModel)]="signinFormData.password.value"
+              (keyup.enter)="signin()"></ion-input>
+          </div>
+          <div class="form-error-msg" *ngIf="signinForm.get('password').touched && signinForm.get('password').invalid">
+            <div *ngIf="signinForm.get('password').hasError('required')">
+              {{ 'valid.password.required' | translate }}
+            </div>
+          </div>
+
+        </form>
         <div>
           <ion-button btnStyle expand="block" fill="clear" href="/signup">
             <div>{{ 'IsForgotPasswd' | translate }}</div>
@@ -25,7 +46,7 @@
         </div>
         <div margin-bottom>
           <!-- href="/pc-edit" -->
-          <ion-button expand="block" color="continue" (click)="signin(userEmail.value, userPasswd.value)">{{ 'Login' | translate }}</ion-button>
+          <ion-button expand="block" color="continue" (click)="signin()">{{ 'Login' | translate }}</ion-button>
         </div>
 
         <div>
