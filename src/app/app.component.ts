@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 
-import { Platform, NavController, Menu } from '@ionic/angular';
+import { Platform, NavController, Menu, ModalController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
@@ -12,6 +12,7 @@ import { NGXLogger } from 'ngx-logger';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { RouterService } from './providers/router.service';
 import { env } from '../environments/environment';
+import { Consts } from '../environments/constants';
 import { AppStorageService } from './providers/appStorage.service';
 import { Subscription } from 'rxjs';
 import { RouterPathsService } from './providers/routerPaths.service';
@@ -20,6 +21,7 @@ import { Events } from '@ionic/angular';
 import { DataTrackerService } from './providers/dataTracker.service';
 import { SubscriptionPack } from './utils/listutil';
 import { TransactionLoggerService } from './providers/transactionLogger.service';
+import { PcEditPage } from './pages/pin-code/pc-edit/pc-edit.page';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +32,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private envConfigText = '';
 
   private subscriptionPack: SubscriptionPack = new SubscriptionPack();
+  private hasModal = false;
+  private currentModal: HTMLIonModalElement = null;
 
   @ViewChild('sideMenu') private sideMenu: Menu;
 
@@ -47,7 +51,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private ednApi: EdnRemoteApiService,
     private events: Events,
     private dataTracker: DataTrackerService,
-    private transactionLogger: TransactionLoggerService
+    private transactionLogger: TransactionLoggerService,
+    private modalController: ModalController
   ) {
     this.env = env;
     this.resetEnvConfigText();
@@ -57,10 +62,42 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initializeApp();
 
     //any page can attemp to open sidemenu
-    this.events.subscribe('ui:openSideMenu', () => {
-      this.logger.debug('ui:openSideMenu');
+    this.events.subscribe(Consts.EVENT_OPEN_SIDE_MENU, () => {
+      this.logger.debug(Consts.EVENT_OPEN_SIDE_MENU);
       this.sideMenu.open();
     });
+
+    this.events.subscribe(Consts.EVENT_CONFIRM_PIN_CODE, () => {
+      this.logger.debug(Consts.EVENT_CONFIRM_PIN_CODE);
+      this.showPinCodeModal();
+    });
+
+    this.events.subscribe(Consts.EVENT_CLOSE_MODAL, () => {
+      this.logger.debug(Consts.EVENT_CLOSE_MODAL);
+      this.hidePinCodeModal();
+    });
+  }
+
+  async showPinCodeModal() {
+    if (this.hasModal) {
+      return;
+    }
+    this.hasModal = true;
+
+    this.currentModal = await this.modalController.create({
+      component: PcEditPage
+    });
+    return await this.currentModal.present();
+  }
+
+  async hidePinCodeModal() {
+    if (!this.hasModal) {
+      return;
+    }
+
+    const result = await this.currentModal.dismiss();
+    this.currentModal = null;
+    this.hasModal = false;
   }
 
   ngOnInit() {
@@ -118,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   this.logger.debug(
                     'user signed in but no pincode, goto pincode'
                   );
-                  this.rs.navigateByUrl('/pc-edit');
+                  this.rs.navigateByUrl('/pc-edit?isCreation=true');
                 } else {
                   this.logger.debug('user signed in, goto home');
                   this.rs.navigateByUrl('/home');
@@ -134,10 +171,15 @@ export class AppComponent implements OnInit, OnDestroy {
               this.rs.navigateByUrl('/signin');
             }
           } else {
-            const currentUrl = this.rs.getRouter().url;
-            if (currentUrl !== '/' && currentUrl.indexOf('/redirector') !== 0) {
-              this.logger.debug('reload current url : ' + currentUrl);
-              this.rs.navigate(['redirector', currentUrl]);
+            if (env.config.useRedirectorOnDebugMode) {
+              const currentUrl = this.rs.getRouter().url;
+              if (
+                currentUrl !== '/' &&
+                currentUrl.indexOf('/redirector') !== 0
+              ) {
+                this.logger.debug('reload current url : ' + currentUrl);
+                this.rs.navigate(['redirector', currentUrl]);
+              }
             }
           }
 

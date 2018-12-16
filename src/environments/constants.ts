@@ -4,4 +4,9 @@ export class Consts {
   static ETH_DECIMAL = 18;
 
   static TEDN_DEPOSIT_CUSTOM_FILTER = {};
+
+  static EVENT_OPEN_SIDE_MENU = 'ui:openSideMenu';
+  static EVENT_CONFIRM_PIN_CODE = 'ui:confirmPinCode';
+  static EVENT_CLOSE_MODAL = 'ui:closeModal';
+  static EVENT_PIN_CODE_RESULT = 'pincode.result';
 }

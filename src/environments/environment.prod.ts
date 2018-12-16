@@ -6,6 +6,7 @@ export const environment = {
   firebase: firebaseConfig,
 
   config: {
+    useRedirectorOnDebugMode: true,
     handleUserState: true,
     alterStartPath: '',
     disableConsoleLogging: true,
@@ -19,7 +20,8 @@ export const environment = {
     },
 
     ednCoinKey: 'EDN',
-    showDebugToast: true
+    showDebugToast: false,
+    useDecryptPinCodeByPinCode: false
   }
 };
 

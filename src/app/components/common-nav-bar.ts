@@ -1,4 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  EventEmitter,
+  Output,
+  OnDestroy
+} from '@angular/core';
 import { RouterService } from '../providers/router.service';
 
 @Component({
@@ -23,11 +30,16 @@ import { RouterService } from '../providers/router.service';
 })
 export class CommonNavBar implements OnInit {
   @Input() title;
+  @Output() handleBack = new EventEmitter<any>();
 
   constructor(private rs: RouterService) {}
 
   ngOnInit() {}
   onBackBtnClick() {
-    this.rs.goBack();
+    if (this.handleBack.observers.length > 0) {
+      this.handleBack.emit();
+    } else {
+      this.rs.goBack();
+    }
   }
 }

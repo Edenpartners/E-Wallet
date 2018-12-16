@@ -36,6 +36,7 @@ import { Consts } from '../../../../environments/constants';
 
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Events } from '@ionic/angular';
 
 @Component({
   selector: 'app-dp-edn-main',
@@ -49,6 +50,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
   ednFromEthEstimatedText = '-';
   ednFromEthEstimated: BigNumber;
   ethAmount = '0';
+
+  pinCodeConfirmCallback = null;
 
   constructor(
     private rs: RouterService,
@@ -64,7 +67,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
   ngOnInit() {
@@ -73,9 +77,19 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       this.selectedWalletId = this.wallets[0].id;
     }
     this.restartRateTracker();
+
+    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
+      if (this.pinCodeConfirmCallback && walletPw) {
+        this.pinCodeConfirmCallback(walletPw);
+      }
+      this.pinCodeConfirmCallback = null;
+    });
   }
 
   ngOnDestroy() {
+    this.pinCodeConfirmCallback = null;
+    this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
+
     this.dataTracker.stopTracker('ednRateTracker');
   }
 
@@ -161,7 +175,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     }
   }
 
-  tradeEthToEdn() {
+  tradeEthToEdn(walletPw?: string) {
     if (!this.selectedWalletId) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.wallet.required')
@@ -200,6 +214,12 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       return;
     }
 
+    if (!walletPw) {
+      this.pinCodeConfirmCallback = this.tradeEthToEdn;
+      this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
+      return;
+    }
+
     const loading = this.feedbackUI.createLoading();
 
     const onTxCreate = txData => {
@@ -223,6 +243,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
           targetErc20ContractAddres: ednContractInfo.address,
           srcEthAmount: ethAmountBn
         },
+        walletPw,
         onTxCreate,
         onTxReceipt
       )

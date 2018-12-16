@@ -43,6 +43,9 @@
   "transaction.requested": "Tracsaction requested.",
   "transaction.receipted": "Tracsaction receipted.",
   "trade.complete": "Trade complete.",
+
+  "valid.pincode.required": "Pincode is required.",
+  "valid.pincode.areEqual": "Pincode mismatch.",
   
 
   "TEST": "Test {{value}}",

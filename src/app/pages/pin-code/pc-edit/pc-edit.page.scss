@@ -1,30 +1,17 @@
-.hcf-layout {
-  height: 100%;
+.page-content {
   align-items: center;
+  height: 60%;
 }
 
-.hcf-layout .content {
+.page-content .content {
   width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.hcf-layout .content p {
+.page-content .content p {
   text-align: center;
-}
-
-.pin-code {
-  display: flex;
-  flex-direction: row;
-  align-items: center; // align-items center
-}
-
-.pin-code ion-button {
-  --width: 40px;
-  --height: 40px;
-  margin-left: 4px;
-  margin-right: 4px;
 }
 
 .footer {
@@ -33,4 +20,8 @@
 
 ion-item {
   --background: transparent;
+}
+
+num-pad {
+  margin-top: 20px;
 }

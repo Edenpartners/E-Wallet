@@ -1,57 +1,42 @@
 <ion-header>
-  <common-nav-bar title="{{ 'CreatePinTitle' | translate }}"></common-nav-bar>
+  <common-nav-bar title="{{ 'CreatePinTitle' | translate }}" (handleBack)="handleBack()"></common-nav-bar>
 </ion-header>
 
 <ion-content no-bounce>
-  <div class="page-wrapper fill" padding ion-fixed>
-    <div class="hcf-layout">
+  <div class="page-wrapper fill hcf-layout" padding ion-fixed>
+    <div class="hcf-layout header page-content">
       <div class="content">
-        <p>{{ 'PinComment' | translate }}</p>
 
-        <ion-item lines="none">
-          <ion-label> {{ 'CreatePinComment' | translate }} </ion-label>
-        </ion-item>
+        <div *ngIf="isCreation && !isConfirmStep">
+          <p>{{ 'PinComment' | translate }}</p>
+
+          <ion-item lines="none">
+            <ion-label text-center> {{ 'CreatePinComment' | translate }} </ion-label>
+          </ion-item>
+        </div>
+
+        <div *ngIf="isConfirmStep">
+          <ion-item lines="none">
+            <ion-label text-center> {{ 'ConfirmPinComment' | translate }} </ion-label>
+          </ion-item>
+        </div>
 
         <div class="pin-code">
-          <ion-button [color]="userInput.length > 0 ? 'continue' : 'medium'"></ion-button>
-          <ion-button [color]="userInput.length > 1 ? 'continue' : 'medium'"></ion-button>
-          <ion-button [color]="userInput.length > 2 ? 'continue' : 'medium'"></ion-button>
-          <ion-button [color]="userInput.length > 3 ? 'continue' : 'medium'"></ion-button>
-          <ion-button [color]="userInput.length > 4 ? 'continue' : 'medium'"></ion-button>
-          <ion-button [color]="userInput.length > 5 ? 'continue' : 'medium'"></ion-button>
+          <ion-button [color]="numPad.getUserInputCount() > 0 ? 'continue' : 'medium'"></ion-button>
+          <ion-button [color]="numPad.getUserInputCount() > 1 ? 'continue' : 'medium'"></ion-button>
+          <ion-button [color]="numPad.getUserInputCount() > 2 ? 'continue' : 'medium'"></ion-button>
+          <ion-button [color]="numPad.getUserInputCount() > 3 ? 'continue' : 'medium'"></ion-button>
+          <ion-button [color]="numPad.getUserInputCount() > 4 ? 'continue' : 'medium'"></ion-button>
+          <ion-button [color]="numPad.getUserInputCount() > 5 ? 'continue' : 'medium'"></ion-button>
         </div>
       </div>
 
-      <div class="footer">
-        <ion-button expand="block" [disabled]="userInput.length !== 6" (click)="onCreatePinBtnClick()">
+      <div class="footer" [hidden]="isConfirmStep">
+        <ion-button expand="block" [disabled]="numPad.getUserInputCount() !== 6" (click)="onCreatePinBtnClick()">
           {{ 'CreatePin' | translate }}
         </ion-button>
       </div>
-
-      <div class="display:flex; height:300px; width:100%;  flex-direction: column;">
-        <div class="display:flex; flex-grow:1; width:100%; flex-direction: row;">
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('1')">1</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('2')">2</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('3')">3</ion-button>
-        </div>
-        <div class="display:flex; flex-grow:1; width:100%; flex-direction: row;">
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('4')">4</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('5')">5</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('6')">6</ion-button>
-        </div>
-        <div class="display:flex; flex-grow:1; width:100%; flex-direction: row;">
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('7')">7</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('8')">8</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="inputPin('9')">9</ion-button>
-        </div>
-        <div>
-          <ion-button style="flex-grow: 1;" block disabled>_</ion-button>
-          <ion-button style="flex-grow: 1;" block disabled>_</ion-button>
-          <ion-button style="flex-grow: 1;" block (click)="delPin()">
-            <ion-icon name="backspace"></ion-icon>
-          </ion-button>
-        </div>
-      </div>
     </div>
+    <num-pad class="content" (change)="onNumChange()"></num-pad>
   </div>
 </ion-content>

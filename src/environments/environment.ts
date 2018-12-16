@@ -11,11 +11,12 @@ export const environment = {
   firebase: firebaseConfig,
 
   config: {
-    handleUserState: false,
+    useRedirectorOnDebugMode: true,
+    handleUserState: true,
     //alterStartPath: 'ednapitest',
     //alterStartPath: 'backup-wallet',
     alterStartPath: '',
-    disableConsoleLogging: false,
+    disableConsoleLogging: true,
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
@@ -26,7 +27,8 @@ export const environment = {
       useSignupForSignin: true
     },
     ednCoinKey: 'EDN',
-    showDebugToast: true
+    showDebugToast: false,
+    useDecryptPinCodeByPinCode: false
   }
 };
 

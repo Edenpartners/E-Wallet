@@ -159,7 +159,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     return false;
   }
 
-  refreshList() {
+  refreshList(forcedRefresh = false) {
     const walletInfoList = this.storage.getWallets(
       this.checkSignedInBox.checked,
       this.filteredWalletsByUserInfoBox.checked
@@ -171,7 +171,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
       const walletInfo = walletInfoList.find(obj => {
         return obj.id === item.data.id;
       });
-      if (!walletInfo) {
+      if (forcedRefresh || !walletInfo) {
         this.logger.debug('pop from wallets : ' + i);
         this.wallets.splice(i, 1);
         i -= 1;
@@ -186,7 +186,6 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
       });
 
       if (!result) {
-        const txHistory = this.store.get('tx_' + item.id);
         const walletRow: WalletRow = {
           id: index,
           data: item,
@@ -203,6 +202,10 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
           },
           contractWorkers: []
         };
+
+        if (this.selectedWallet && this.selectedWallet.data.id === item.id) {
+          this.selectedWallet = walletRow;
+        }
 
         this.refreshContractWorkers(walletRow);
         this.startEtherBalanceRetrieving(walletRow);

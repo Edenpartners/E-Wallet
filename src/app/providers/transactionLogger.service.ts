@@ -275,20 +275,24 @@ export class TransactionLoggerService {
       const p: EthProviders.Base = this.eths.getProvider(wallet.info.provider);
 
       incompleteTxList.forEach((incompleteTx: AppStorageTypes.TxRowData) => {
-        this.etherApi
-          .trackTransactionReceipt(p, incompleteTx.hash)
-          .then((txReceipt: any) => {
-            this.storage.addTxLog(
-              AppStorageTypes.TxRowState.Closed,
-              wallet,
-              txReceipt.transactionHash,
-              AppStorageTypes.TxState.Receipted,
-              new Date(),
-              null
-            );
+        if (incompleteTx.state === AppStorageTypes.TxRowState.Opened) {
+          this.etherApi
+            .trackTransactionReceipt(p, incompleteTx.hash)
+            .then((txReceipt: any) => {
+              this.storage.addTxLog(
+                AppStorageTypes.TxRowState.Closed,
+                wallet,
+                txReceipt.transactionHash,
+                AppStorageTypes.TxState.Receipted,
+                new Date(),
+                null
+              );
 
-            this.checkAndRunDepositToTEDN(wallet, incompleteTx);
-          });
+              this.checkAndRunDepositToTEDN(wallet, incompleteTx);
+            });
+        } else {
+          this.checkAndRunDepositToTEDN(wallet, incompleteTx);
+        }
       });
     });
   } //end of trackUnclosedLogs

@@ -40,6 +40,8 @@ import {
   LoadingHandler
 } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Consts } from '../../../../environments/constants';
+import { Events } from '@ionic/angular';
 
 @Component({
   selector: 'app-ew-sendto',
@@ -51,6 +53,11 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
+
+  toAddress = '';
+  amount = 0;
+
+  pinCodeConfirmCallback = null;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -66,7 +73,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
   ngOnInit() {
@@ -76,25 +84,31 @@ export class EwSendtoPage implements OnInit, OnDestroy {
         this.wallet = this.storage.findWalletById(this.walletId);
       });
     });
+
+    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
+      if (this.pinCodeConfirmCallback && walletPw) {
+        this.pinCodeConfirmCallback(walletPw);
+      }
+      this.pinCodeConfirmCallback = null;
+    });
   }
 
   ngOnDestroy() {
+    this.pinCodeConfirmCallback = null;
+    this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
     this.subscriptionPack.clear();
   }
 
   setEvents() {}
 
-  transferERC20Token(toAddressInput: Input, sendingAmountInput: Input) {
-    const toAddress = toAddressInput.value;
-    const amount = sendingAmountInput.value;
-
-    if (!toAddress) {
+  transferERC20Token(walletPw?: string) {
+    if (!this.toAddress.trim()) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.address.required')
       );
       return;
     }
-    if (!amount) {
+    if (!this.amount) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.amount.required')
       );
@@ -113,7 +127,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     let adjustedAmount: BigNumber = null;
     try {
       adjustedAmount = ethers.utils.parseUnits(
-        amount,
+        String(this.amount),
         ednContractInfo.contractInfo.decimal
       );
     } catch (e) {
@@ -131,6 +145,12 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     if (ednTracker.value) {
       const ednBalance = ednTracker.value.balance;
       const ednAdjustedBalance = ednTracker.value.adjustedBalance;
+    }
+
+    if (!walletPw) {
+      this.pinCodeConfirmCallback = this.transferERC20Token;
+      this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
+      return;
     }
 
     const loadingHandler: LoadingHandler = this.feedbackUI.createLoading();
@@ -153,9 +173,10 @@ export class EwSendtoPage implements OnInit, OnDestroy {
         {
           walletInfo: this.wallet,
           ctInfo: ednContractInfo,
-          toAddress: toAddress,
+          toAddress: this.toAddress.trim(),
           srcAmount: adjustedAmount
         },
+        walletPw,
         onTransactionCreate,
         onTransactionReceipt
       )

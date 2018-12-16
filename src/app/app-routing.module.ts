@@ -37,11 +37,6 @@ const routes: Routes = [
     loadChildren: './pages/pin-code/pc-edit/pc-edit.module#PcEditPageModule'
   },
   {
-    path: 'pc-confirm',
-    loadChildren:
-      './pages/pin-code/pc-confirm/pc-confirm.module#PcConfirmPageModule'
-  },
-  {
     path: 'backup-wallet',
     loadChildren:
       './pages/wallet-management/backup-wallet/backup-wallet.module#BackupWalletPageModule'

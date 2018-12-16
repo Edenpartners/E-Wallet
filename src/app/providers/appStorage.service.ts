@@ -12,8 +12,10 @@ import { Observable, Subscriber } from 'rxjs';
 import { WalletTypes } from './wallet.service';
 import { EthProviders } from '../providers/ether.service';
 import { environment as env } from '../../environments/environment';
-import { listutil } from '../utils/listutil';
+import { listutil, Map } from '../utils/listutil';
 import { Consts } from 'src/environments/constants';
+import * as CryptoJS from 'crypto-js';
+import { CryptoHelper } from '../utils/cryptoHelper';
 
 export namespace AppStorageTypes {
   export interface User {
@@ -89,6 +91,8 @@ export namespace AppStorageTypes {
   }
 }
 
+const LOG_COUNT_PER_GROUP = 30;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -111,8 +115,6 @@ export class AppStorageService {
     termsAndConditionsAllowed: false,
     privacyAllowed: false
   };
-
-  tempPinNumber = '';
 
   private userStateSubscribers: Array<Subscriber<AppStorageTypes.User>> = [];
   private walletsSubscribers: Array<Subscriber<void>> = [];
@@ -157,12 +159,17 @@ export class AppStorageService {
   wipeData() {
     //keep the pinnumber from wipe
     const pinNumber = this.pinNumber;
+    const salt = this.salt;
+
     this.store.clear();
-    this.pinNumber = pinNumber;
+
+    this.internalPinNumber = pinNumber;
+    this.salt = salt;
   }
 
   get hasPinNumber(): boolean {
-    if (!this.additionalInfo.pinNumber) {
+    //null | undefined | empty
+    if (!this.store.get('pin-code')) {
       return false;
     }
     return true;
@@ -182,17 +189,219 @@ export class AppStorageService {
     this._additionalInfo = val;
   }
 
-  set pinNumber(val: string) {
-    if (!val || val.length !== 6) {
-      return;
+  setPinNumber(val: string, oldPincode: string): boolean {
+    this.logger.debug('=============== SET PINNUMBER');
+
+    if (oldPincode === null || oldPincode === undefined) {
+      oldPincode = '';
     }
-    const addtionalInfo = this.additionalInfo;
-    addtionalInfo.pinNumber = val;
-    this.additionalInfo = addtionalInfo;
+
+    if (!this.isValidPinNumber(oldPincode)) {
+      this.logger.debug('CANCEL');
+      return false;
+    }
+
+    const newSalt = this.randSalt();
+    const mergedVal = newSalt + val;
+    const hashedVal = CryptoJS.SHA256(mergedVal).toString(CryptoJS.enc.Base64);
+    this.logger.debug(newSalt, val, hashedVal);
+
+    let newPinCodeToSave = null;
+    if (env.config.useDecryptPinCodeByPinCode) {
+      newPinCodeToSave = CryptoJS.AES.encrypt(hashedVal, val).toString();
+    } else {
+      newPinCodeToSave = hashedVal;
+    }
+
+    const existingWallets = this.getWallets(false, false);
+    if (existingWallets.length > 0) {
+      const walletPw: string = this.getWalletPassword(oldPincode);
+      this.logger.debug('wallet pw : ' + walletPw);
+
+      if (walletPw !== null) {
+        existingWallets.forEach((item: WalletTypes.WalletInfo) => {
+          if (item.type === WalletTypes.WalletType.Ethereum) {
+            const ethItem: WalletTypes.EthWalletInfo = item;
+
+            const walletSalt = ethItem.info.data.salt;
+            const decKi = CryptoHelper.getKeyAndIV(walletPw, walletSalt);
+            const decMWords = CryptoJS.AES.decrypt(
+              ethItem.info.data.mnemonic,
+              decKi.key,
+              {
+                iv: decKi.iv
+              }
+            ).toString(CryptoJS.enc.Utf8);
+            const decPath = CryptoJS.AES.decrypt(
+              ethItem.info.data.path,
+              decKi.key,
+              {
+                iv: decKi.iv
+              }
+            ).toString(CryptoJS.enc.Utf8);
+            const decPrivateKey = CryptoJS.AES.decrypt(
+              ethItem.info.data.privateKey,
+              decKi.key,
+              {
+                iv: decKi.iv
+              }
+            ).toString(CryptoJS.enc.Utf8);
+
+            const newEthWalletSalt = CryptoHelper.createRandSalt();
+            const newKi = CryptoHelper.getKeyAndIV(hashedVal, newEthWalletSalt);
+            const encryptedMWords = CryptoJS.AES.encrypt(decMWords, newKi.key, {
+              iv: newKi.iv
+            }).toString();
+            const encryptedPath = CryptoJS.AES.encrypt(decPath, newKi.key, {
+              iv: newKi.iv
+            }).toString();
+            const encryptedPrivateKey = CryptoJS.AES.encrypt(
+              decPrivateKey,
+              newKi.key,
+              {
+                iv: newKi.iv
+              }
+            ).toString();
+
+            this.logger.debug('ENC');
+            this.logger.debug(encryptedMWords);
+            this.logger.debug(encryptedPath);
+            this.logger.debug(encryptedPrivateKey);
+            this.logger.debug('DEC');
+            this.logger.debug(decMWords);
+            this.logger.debug(decPath);
+            this.logger.debug(decPrivateKey);
+
+            ethItem.info.data.salt = newEthWalletSalt;
+            ethItem.info.data.mnemonic = encryptedMWords;
+            ethItem.info.data.path = encryptedPath;
+            ethItem.info.data.privateKey = encryptedPrivateKey;
+          }
+        }); //end of foreach
+
+        this.setWallets(existingWallets);
+      }
+    }
+
+    this.salt = newSalt;
+    this.store.set('pin-code', newPinCodeToSave);
+    return true;
+  }
+
+  isValidPinNumber(guessingPinCode: string): boolean {
+    if (!guessingPinCode === null || !guessingPinCode === undefined) {
+      return false;
+    }
+
+    this.logger.debug('is valid pin? : ' + guessingPinCode);
+
+    let pinNumberToCompere = null;
+    if (env.config.useDecryptPinCodeByPinCode) {
+      const savingDecryptedHashedVal = this.getDecryptedPinNumber(
+        guessingPinCode
+      );
+      pinNumberToCompere = savingDecryptedHashedVal;
+    } else {
+      const savedVal = this.pinNumber;
+      this.logger.debug('saved val : ' + this.pinNumber);
+      pinNumberToCompere = savedVal;
+    }
+
+    const salt = this.salt;
+    const mergedVal = salt + guessingPinCode;
+    const hashedVal = CryptoJS.SHA256(mergedVal).toString(CryptoJS.enc.Base64);
+
+    this.logger.debug('is valid pin number?');
+    this.logger.debug(salt, guessingPinCode, hashedVal);
+
+    if (hashedVal === pinNumberToCompere) {
+      this.logger.debug('this is valid number');
+      return true;
+    }
+
+    return false;
+  }
+
+  getWalletPassword(
+    guessingPinCode?: string,
+    validate: boolean = false
+  ): string | null {
+    let result = null;
+    if (env.config.useDecryptPinCodeByPinCode) {
+      if (guessingPinCode !== undefined && guessingPinCode !== null) {
+        if (this.isValidPinNumber(guessingPinCode)) {
+          result = this.getDecryptedPinNumber(guessingPinCode);
+        }
+      }
+    } else {
+      if (validate) {
+        if (
+          guessingPinCode !== undefined &&
+          guessingPinCode !== null &&
+          this.isValidPinNumber(guessingPinCode)
+        ) {
+          result = this.pinNumber;
+        }
+      } else {
+        result = this.pinNumber;
+      }
+    }
+    return result;
+  }
+
+  getWalletPasswordWithValidate(guessingPinCode: string): string | null {
+    return this.getWalletPassword(guessingPinCode, true);
+  }
+
+  getDecryptedPinNumber(guessingPinCode: string) {
+    const savingEnctyptedVal = this.pinNumber;
+    const savingDecryptedHashedVal = CryptoJS.AES.decrypt(
+      savingEnctyptedVal,
+      guessingPinCode
+    ).toString(CryptoJS.enc.Utf8);
+
+    return savingDecryptedHashedVal;
   }
 
   get pinNumber(): string {
-    return this.additionalInfo.pinNumber;
+    let result = this.store.get('pin-code');
+    if (result === null || result === undefined) {
+      const val = '';
+      const newSalt = this.randSalt();
+      const mergedVal = newSalt + val;
+      const hashedVal = CryptoJS.SHA256(mergedVal).toString(
+        CryptoJS.enc.Base64
+      );
+
+      let newPinCodeToSave = null;
+      if (env.config.useDecryptPinCodeByPinCode) {
+        newPinCodeToSave = CryptoJS.AES.encrypt(hashedVal, val).toString();
+      } else {
+        newPinCodeToSave = hashedVal;
+      }
+      this.logger.debug('make empty pinNumber : ' + newPinCodeToSave);
+      this.internalPinNumber = newPinCodeToSave;
+      this.salt = newSalt;
+      result = newPinCodeToSave;
+    }
+
+    return result;
+  }
+
+  set internalPinNumber(val: string) {
+    this.store.set('pin-code', val);
+  }
+
+  randSalt(): string {
+    return UUID.UUID();
+  }
+
+  get salt(): string {
+    return this.store.get('salt');
+  }
+
+  set salt(val: string) {
+    this.store.set('salt', val);
   }
 
   get isUserInfoValidated(): boolean {
@@ -316,7 +525,12 @@ export class AppStorageService {
     });
   }
 
+  setWallets(wallets: Array<WalletTypes.WalletInfo>) {
+    this.insecureWallets = wallets;
+  }
+
   /**
+   *
    * @param checkSignedIn return empty array with not signed in user
    * @param filteredWalletsByUserInfo filter by ethaddress in userInfo from edn server
    */
@@ -566,7 +780,7 @@ export class AppStorageService {
         startIndex: 0,
         endIndex: 0,
         incompleteSearchIndex: 0,
-        countPerGroup: 2
+        countPerGroup: LOG_COUNT_PER_GROUP
       };
       this.store.set(key, info);
     }

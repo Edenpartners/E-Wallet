@@ -3,7 +3,6 @@ import { NGXLogger } from 'ngx-logger';
 import { ApitestPage } from '../pages/apitest/apitest.page';
 
 import { Component, OnInit } from '@angular/core';
-import { FirebaseService } from 'src/app/providers/firebase.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase';
 import { Platform } from '@ionic/angular';

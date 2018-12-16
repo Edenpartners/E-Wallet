@@ -9,7 +9,7 @@
         </ion-item>
 
         <ion-item>
-          <ion-input #toAddr></ion-input>
+          <ion-input [(ngModel)]="toAddress"></ion-input>
         </ion-item>
 
         <ion-item>
@@ -19,14 +19,14 @@
         </ion-item>
 
         <ion-item>
-          <ion-input #amount></ion-input>
+          <ion-input type="number" [(ngModel)]="amount"></ion-input>
         </ion-item>
       </ion-list>
     </div>
 
     <div class="footer">
       <ion-toolbar>
-        <ion-button btnStyle (click)="transferERC20Token(toAddr,amount)" expand="full">{{ "Send" | translate }}</ion-button>
+        <ion-button btnStyle (click)="transferERC20Token()" expand="full">{{ "Send" | translate }}</ion-button>
       </ion-toolbar>
     </div>
 

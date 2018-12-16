@@ -47,62 +47,96 @@ export class SignupPage implements OnInit {
       return;
     }
 
-    this.ednApi.registerFirebaseUser(userEmail, password).then(
-      success => {
-        this.runEdnSignup();
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
-      }
-    );
+    const loading = this.feedbackUI.createLoading();
+
+    this.ednApi
+      .registerFirebaseUser(userEmail, password)
+      .then(
+        success => {
+          this.runEdnSignup();
+        },
+        error => {
+          this.feedbackUI.showErrorDialog(error);
+        }
+      )
+      .finally(() => {
+        loading.hide();
+      });
   }
 
   runEdnSignup() {
+    const loading = this.feedbackUI.createLoading();
+
     this.logger.debug('run edn signup');
-    this.ednApi.signup().then(
-      userInfoResult => {
-        if (userInfoResult.data) {
-          this.storage.userInfo = userInfoResult.data;
+    this.ednApi
+      .signup()
+      .then(
+        userInfoResult => {
+          if (userInfoResult.data) {
+            this.storage.userInfo = userInfoResult.data;
+          }
+        },
+        ednError => {
+          this.feedbackUI.showErrorDialog(ednError);
         }
-      },
-      ednError => {
-        this.feedbackUI.showErrorDialog(ednError);
-      }
-    );
+      )
+      .finally(() => {
+        loading.hide();
+      });
   }
 
   signinWithFacebook() {
-    this.ednApi.signinFirebaseUserWithFacebook().then(
-      result => {
-        this.logger.debug(result);
-        this.runEdnSignup();
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
-      }
-    );
+    const loading = this.feedbackUI.createLoading();
+
+    this.ednApi
+      .signinFirebaseUserWithFacebook()
+      .then(
+        result => {
+          this.logger.debug(result);
+          this.runEdnSignup();
+        },
+        error => {
+          this.feedbackUI.showErrorDialog(error);
+        }
+      )
+      .finally(() => {
+        loading.hide();
+      });
   }
 
   signinWithTwitter() {
-    this.ednApi.signinFirebaseUserWithTwitter().then(
-      result => {
-        this.runEdnSignup();
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
-      }
-    );
+    const loading = this.feedbackUI.createLoading();
+    this.ednApi
+      .signinFirebaseUserWithTwitter()
+      .then(
+        result => {
+          this.runEdnSignup();
+        },
+        error => {
+          this.feedbackUI.showErrorDialog(error);
+        }
+      )
+      .finally(() => {
+        loading.hide();
+      });
   }
 
   signinWithGoogle() {
-    this.ednApi.signinFirebaseUserWithGoogle().then(
-      result => {
-        this.logger.debug(result);
-        this.runEdnSignup();
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
-      }
-    );
+    const loading = this.feedbackUI.createLoading();
+
+    this.ednApi
+      .signinFirebaseUserWithGoogle()
+      .then(
+        result => {
+          this.logger.debug(result);
+          this.runEdnSignup();
+        },
+        error => {
+          this.feedbackUI.showErrorDialog(error);
+        }
+      )
+      .finally(() => {
+        loading.hide();
+      });
   }
 }

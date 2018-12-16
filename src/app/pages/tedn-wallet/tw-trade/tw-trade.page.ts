@@ -42,6 +42,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Consts } from '../../../../environments/constants';
 
+import { Events } from '@ionic/angular';
+
 enum Mode {
   deposit = 'deposit',
   withdraw = 'withdraw'
@@ -64,6 +66,7 @@ export class TwTradePage implements OnInit, OnDestroy {
   selectedTednWalletId: string = null;
 
   tradeAmount = 0;
+  pinCodeConfirmCallback = null;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -79,7 +82,8 @@ export class TwTradePage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
   ngOnInit() {
@@ -96,10 +100,19 @@ export class TwTradePage implements OnInit, OnDestroy {
       });
     });
 
+    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
+      if (this.pinCodeConfirmCallback && walletPw) {
+        this.pinCodeConfirmCallback(walletPw);
+      }
+      this.pinCodeConfirmCallback = null;
+    });
+
     this.refreshList();
   }
 
   ngOnDestroy() {
+    this.pinCodeConfirmCallback = null;
+    this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
     this.subscriptionPack.clear();
   }
 
@@ -115,7 +128,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     }
   }
 
-  depositTEDN() {
+  depositTEDN(walletPw?: string) {
     if (!this.selectedEthWalletId) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.wallet.required')
@@ -170,6 +183,12 @@ export class TwTradePage implements OnInit, OnDestroy {
       return;
     }
 
+    if (!walletPw) {
+      this.pinCodeConfirmCallback = this.depositTEDN;
+      this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
+      return;
+    }
+
     const loadingHandler: LoadingHandler = this.feedbackUI.createLoading();
 
     this.logger.debug('========= DEPOSIT ========== ');
@@ -196,6 +215,7 @@ export class TwTradePage implements OnInit, OnDestroy {
           srcAmount: adjustedAmount,
           customLogData: { filter: 'tedn.deposit', postedToEdnServer: false }
         },
+        walletPw,
         onTransactionCreate,
         onTransactionReceipt
       )
@@ -209,7 +229,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.withdrawTEDN();
   }
 
-  withdrawTEDN() {
+  withdrawTEDN(walletPw?: string) {
     if (!this.selectedEthWalletId) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.wallet.required')
@@ -249,6 +269,12 @@ export class TwTradePage implements OnInit, OnDestroy {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.amount.pattern')
       );
+      return;
+    }
+
+    if (!walletPw) {
+      this.pinCodeConfirmCallback = this.withdrawTEDN;
+      this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
       return;
     }
 

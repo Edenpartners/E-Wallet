@@ -99,8 +99,7 @@ export class HomePage implements OnInit, OnDestroy {
   onEdnWalletClick() {}
 
   toggleSideMenu() {
-    this.logger.debug('ui:openSideMenu');
-    this.events.publish('ui:openSideMenu');
+    this.events.publish(Consts.EVENT_OPEN_SIDE_MENU);
   }
 
   onWalletItemClick(walletRow: WalletRow) {
@@ -232,5 +231,12 @@ export class HomePage implements OnInit, OnDestroy {
     }); //end of foreach
 
     this.showWalletsOrderIcon = this.wallets.length > 0;
+  }
+
+  onTEDNDepositClick() {
+    this.rs.navigateByUrl('tw-main/sub/_default_/(sub:trade)?mode=deposit');
+  }
+  onTEDNWithdrawClick() {
+    this.rs.navigateByUrl('tw-main/sub/_default_/(sub:trade)?mode=withdraw');
   }
 }

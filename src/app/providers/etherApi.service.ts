@@ -16,14 +16,10 @@ import {
 import { env } from '../../environments/environment';
 import { FeedbackUIService } from './feedbackUI.service';
 import { Observable, Subscriber } from 'rxjs';
-import { listutil, SubscriptionHandler } from '../utils/listutil';
+import { listutil, SubscriptionHandler, Map } from '../utils/listutil';
 
 import { Events } from '@ionic/angular';
 import { Consts } from 'src/environments/constants';
-
-interface Map<T> {
-  [key: string]: T;
-}
 
 class TracsactionReceiptTracker extends SubscriptionHandler<any> {
   isTracking = true;
@@ -51,12 +47,8 @@ export class EtherApiService {
       const p: EthProviders.Base = this.eths.getProvider(
         walletInfo.info.provider
       );
-      const w: Wallet = this.walletService.walletInstance(
-        walletInfo,
-        p.getEthersJSProvider()
-      );
-
-      w.getBalance().then(
+      const rp = p.getEthersJSProvider();
+      rp.getBalance(walletInfo.address).then(
         val => {
           finalResolve(val);
         },
@@ -75,6 +67,7 @@ export class EtherApiService {
       sendWeiAmount: BigNumber;
       customLogData?: any;
     },
+    password: string,
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ): Promise<any> {
@@ -87,10 +80,16 @@ export class EtherApiService {
       const p: EthProviders.Base = this.eths.getProvider(
         params.walletInfo.info.provider
       );
-      const w: Wallet = new ethers.Wallet(
-        params.walletInfo.info.data.privateKey,
-        p.getEthersJSProvider()
+
+      const w: Wallet = this.walletService.createEthWalletInstance(
+        params.walletInfo,
+        password
       );
+
+      if (!w) {
+        finalReject(new Error('invalid wallet'));
+        return;
+      }
 
       const txData = {
         to: params.sendEthTo,
@@ -145,10 +144,6 @@ export class EtherApiService {
 
       const p: EthProviders.Base = this.eths.getProvider(
         walletInfo.info.provider
-      );
-      const w: Wallet = this.walletService.walletInstance(
-        walletInfo,
-        p.getEthersJSProvider()
       );
 
       // this.abiStorage.etherERC20
@@ -209,10 +204,6 @@ export class EtherApiService {
       const p: EthProviders.Base = this.eths.getProvider(
         walletInfo.info.provider
       );
-      const w: Wallet = this.walletService.walletInstance(
-        walletInfo,
-        p.getEthersJSProvider()
-      );
 
       // this.abiStorage.etherERC20
       // last argument as provider = readonly but wallet = r/w
@@ -226,8 +217,6 @@ export class EtherApiService {
         erc20Abi,
         p.getEthersJSProvider()
       );
-
-      const logger = this.logger;
 
       let getInfoComplete = false;
       if (timeout >= 0) {
@@ -267,6 +256,7 @@ export class EtherApiService {
       srcAmount: BigNumber;
       customLogData?: any;
     },
+    password: string,
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ): Promise<any> {
@@ -297,10 +287,16 @@ export class EtherApiService {
       const p: EthProviders.Base = this.eths.getProvider(
         params.walletInfo.info.provider
       );
-      const w: Wallet = this.walletService.walletInstance(
+
+      const w: Wallet = this.walletService.createEthWalletInstance(
         params.walletInfo,
-        p.getEthersJSProvider()
+        password
       );
+
+      if (!w) {
+        finalReject(new Error('Invalid wallet'));
+        return;
+      }
 
       this.logger.debug('start transfer erc-20 token');
 
@@ -578,6 +574,7 @@ export class EtherApiService {
       srcEthAmount: BigNumber;
       customLogData?: any;
     },
+    password: string,
     onTransactionCreate: ((any) => void) = tx => {},
     onTransactionReceipt: ((txReceipt: any) => void) = null
   ) {
@@ -591,10 +588,15 @@ export class EtherApiService {
         params.walletInfo.info.provider
       );
       const rp: Provider = p.getEthersJSProvider();
-      const w: Wallet = new ethers.Wallet(
-        params.walletInfo.info.data.privateKey,
-        rp
+      const w: Wallet = this.walletService.createEthWalletInstance(
+        params.walletInfo,
+        password
       );
+
+      if (!w) {
+        finalReject(new Error('invalid wallet'));
+        return;
+      }
 
       this.logger.debug('start trade ETH -> erc-20 token');
       const kyberProxyAbi = this.etherData.abiResolver.getKyberNetworkProxy(p);

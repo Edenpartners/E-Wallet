@@ -68,6 +68,17 @@
   <ion-grid *ngIf="isSignedIn()">
     <ion-row>
       <ion-col size="auto">
+        <ion-input placeholder="Pin Code" [(ngModel)]="pinCode"></ion-input>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-input placeholder="Old Pin Code" [(ngModel)]="oldPinCode"></ion-input>
+      </ion-col>
+      <ion-col size="auto">
+        <ion-button (click)="setPinCode()"> setPinCode </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="auto">
         <ion-button (click)="getUserInfo()">
           getUserInfo
         </ion-button>

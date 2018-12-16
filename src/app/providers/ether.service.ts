@@ -17,6 +17,12 @@ import { NGXLogger } from 'ngx-logger';
 
 import { ethers } from 'ethers';
 import { Provider } from 'ethers/providers';
+import { AppStorageService } from './appStorage.service';
+import { WalletTypes } from './wallet.service';
+import { UUID } from 'angular2-uuid';
+import * as CryptoJS from 'crypto-js';
+
+import { env } from '../../environments/environment';
 
 let commonLogger: NGXLogger;
 

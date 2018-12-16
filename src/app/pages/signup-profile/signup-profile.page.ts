@@ -58,24 +58,30 @@ export class SignupProfilePage implements OnInit {
     additionalInfo.termsAndConditionsAllowed = termsAndConditionsChecked;
     additionalInfo.privacyAllowed = privacyChecked;
 
-    this.ednApi.updateUserInfo(userInfo).then(
-      result => {
-        this.ednApi.getUserInfo().then(
-          userInfoResult => {
-            if (userInfoResult.data) {
-              this.storage.userInfo = userInfoResult.data;
-              this.storage.additionalInfo = additionalInfo;
-              this.storage.notifyToUserStateObservers();
+    this.feedbackUI.showLoading();
+    this.ednApi
+      .updateUserInfo(userInfo)
+      .then(
+        result => {
+          this.ednApi.getUserInfo().then(
+            userInfoResult => {
+              if (userInfoResult.data) {
+                this.storage.userInfo = userInfoResult.data;
+                this.storage.additionalInfo = additionalInfo;
+                this.storage.notifyToUserStateObservers();
+              }
+            },
+            userInfoError => {
+              this.feedbackUI.showErrorDialog(userInfoError);
             }
-          },
-          userInfoError => {
-            this.feedbackUI.showErrorDialog(userInfoError);
-          }
-        );
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
-      }
-    );
+          );
+        },
+        error => {
+          this.feedbackUI.showErrorDialog(error);
+        }
+      )
+      .finally(() => {
+        this.feedbackUI.hideLoading();
+      });
   }
 }

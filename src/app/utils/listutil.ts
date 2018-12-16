@@ -1,5 +1,9 @@
 import { Subscription, Subscriber, Observable } from 'rxjs';
 
+export interface Map<T> {
+  [key: string]: T;
+}
+
 class ListUtil {
   addItemToList(list, item) {
     let itemExists = false;

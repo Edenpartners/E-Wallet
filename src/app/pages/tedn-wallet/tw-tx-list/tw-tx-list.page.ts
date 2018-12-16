@@ -39,7 +39,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
 
 const countPerPage = 30;
-const useDummyData = true;
+const useDummyData = false;
 
 interface TednTransaction {
   isSend: boolean;

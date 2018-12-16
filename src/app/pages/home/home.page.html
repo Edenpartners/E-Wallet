@@ -118,10 +118,10 @@
         <ion-toolbar class="footer">
           <div class="flex-h-dir">
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle>{{ 'Deposit' | translate }}</ion-button>
+              <ion-button btnStyle (click)="onTEDNDepositClick()">{{ 'Deposit' | translate }}</ion-button>
             </div>
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle>{{ 'Withdraw' | translate }}</ion-button>
+              <ion-button btnStyle (click)="onTEDNWithdrawClick()">{{ 'Withdraw' | translate }}</ion-button>
             </div>
           </div>
         </ion-toolbar>

@@ -9,6 +9,7 @@ import { UserStateChecker } from './user-state-checker';
 import { Bip39Handler } from './testers/bip39-handler';
 import { EthProviderMaker } from './testers/eth-provider-maker';
 import { EthWalletManager } from './testers/eth-wallet-manager';
+import { NumPad } from './numpad/num-pad';
 
 @NgModule({
   imports: [IonicModule, TranslateModule, FormsModule, CommonModule],
@@ -17,14 +18,16 @@ import { EthWalletManager } from './testers/eth-wallet-manager';
     UserStateChecker,
     Bip39Handler,
     EthProviderMaker,
-    EthWalletManager
+    EthWalletManager,
+    NumPad
   ],
   exports: [
     CommonNavBar,
     UserStateChecker,
     Bip39Handler,
     EthProviderMaker,
-    EthWalletManager
+    EthWalletManager,
+    NumPad
   ],
   providers: []
 })

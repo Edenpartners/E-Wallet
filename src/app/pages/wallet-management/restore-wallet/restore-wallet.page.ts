@@ -60,59 +60,69 @@ export class RestoreWalletPage implements OnInit {
     }
     this.logger.debug(this.userInputMnemonic);
 
-    let walletInfo: WalletTypes.EthWalletInfo = null;
+    if (env.config.useDecryptPinCodeByPinCode) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.pincode.required')
+      );
+      return;
+    }
 
-    try {
-      const mWords = this.userInputMnemonic.trim();
-      const path = this.etherData.getBIP39DerivationPath(String(0));
-      const wallet = ethers.Wallet.fromMnemonic(mWords, path);
-
-      walletInfo = {
-        id: UUID.UUID(),
-        address: wallet.address,
-        type: WalletTypes.WalletType.Ethereum,
-        profile: {
-          alias: '',
-          color: '',
-          order: -1
-        },
-
-        info: {
-          data: {
-            mnemonic: mWords,
-            path: path,
-            privateKey: wallet.privateKey
+    setTimeout(() => {
+      const loading = this.feedbackUI.createLoading();
+      this.addWallet()
+        .then(
+          () => {
+            this.feedbackUI.showAlertDialog('wallet restored');
+            this.rs.navigateByUrl('/home');
           },
-          contracts: [],
-          provider: {
-            type: EthProviders.Type.KnownNetwork,
-            connectionInfo: env.config.ednEthNetwork
+          err => {
+            this.feedbackUI.showErrorDialog(err);
           }
-        }
-      };
-    } catch (e) {
-      this.logger.debug(e);
-      this.feedbackUI.showErrorDialog(e);
-    }
+        )
+        .finally(() => {
+          loading.hide();
+        });
+    }, 500);
+  }
 
-    if (!walletInfo) {
-      return;
-    }
+  addWallet() {
+    return new Promise((finalResolve, finalReject) => {
+      let walletInfo: WalletTypes.EthWalletInfo = null;
 
-    if (this.storage.findWalletByInfo(walletInfo)) {
-      this.feedbackUI.showErrorDialog('the wallet already using!');
-      return;
-    }
+      try {
+        const mWords = this.userInputMnemonic.trim();
+        const path = this.etherData.getBIP39DerivationPath(String(0));
 
-    this.ednApi.addEthAddress(walletInfo.address).then(
-      result => {
-        this.storage.addWallet(walletInfo);
-        this.feedbackUI.showErrorDialog('wallet restored');
-        this.rs.navigateByUrl('/home');
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
+        walletInfo = this.walletService.createEthWalletInfoToStore(
+          mWords,
+          path,
+          EthProviders.Type.KnownNetwork,
+          env.config.ednEthNetwork,
+          this.storage.getWalletPassword()
+        );
+      } catch (e) {
+        this.logger.debug(e);
+        finalReject(e);
       }
-    );
+
+      if (!walletInfo) {
+        return;
+      }
+
+      if (this.storage.findWalletByInfo(walletInfo)) {
+        finalReject(new Error('the wallet already using!'));
+        return;
+      }
+
+      this.ednApi.addEthAddress(walletInfo.address).then(
+        result => {
+          this.storage.addWallet(walletInfo);
+          finalResolve();
+        },
+        error => {
+          finalReject(error);
+        }
+      );
+    });
   }
 }

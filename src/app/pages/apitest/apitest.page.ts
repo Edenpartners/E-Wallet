@@ -56,6 +56,8 @@ export class ApitestPage implements OnInit, OnDestroy {
   private tednBalance = null;
   private ethaddressToSend = '';
 
+  private pinCode = '';
+  private oldPinCode = '';
   private tdenTransactionList = [];
 
   @ViewChild(Bip39Handler) bip39Handler: Bip39Handler;
@@ -124,6 +126,15 @@ export class ApitestPage implements OnInit, OnDestroy {
 
   isSignedIn(): boolean {
     return this.storage.isSignedIn;
+  }
+
+  setPinCode() {
+    if (this.pinCode.length === 6) {
+      this.storage.setPinNumber(this.pinCode, this.oldPinCode);
+      this.ethWalletManager.refreshList(true);
+    } else {
+      this.feedbackUI.showErrorDialog('pin code error!');
+    }
   }
 
   getDisplayableName(): string {
@@ -292,6 +303,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       }
     );
   }
+
   updateUserInfo() {
     let userInfoObj = null;
     try {
@@ -313,6 +325,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       }
     );
   }
+
   getTEDNBalance() {
     this.ednApi.getTEDNBalance().then(
       resultData => {
@@ -387,6 +400,14 @@ export class ApitestPage implements OnInit, OnDestroy {
       return;
     }
 
+    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
+    if (walletPw === null) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.pincode.areEqual')
+      );
+      return;
+    }
+
     this.logger.debug('========= DEPOSIT ========== ');
     this.logger.debug(ednContractInfo);
     this.logger.debug(amount);
@@ -417,6 +438,7 @@ export class ApitestPage implements OnInit, OnDestroy {
           toAddress: this.storage.coinHDAddress,
           srcAmount: adjustedAmount
         },
+        walletPw,
         onTransactionCreate,
         onTransactionReceipt
       )
@@ -584,12 +606,20 @@ export class ApitestPage implements OnInit, OnDestroy {
       return;
     }
 
+    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
+    if (!walletPw) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.pincode.areEqual')
+      );
+      return;
+    }
+
     const walletInfo = this.walletService.createEthWalletInfoToStore(
       mWords,
       path,
       this.ethProviderMaker.selectedWalletProviderType,
       this.ethProviderMaker.selectedWalletConnectionInfo,
-      null
+      walletPw
     );
 
     this.storage.addWallet(walletInfo);

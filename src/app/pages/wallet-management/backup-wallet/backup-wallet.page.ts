@@ -35,7 +35,6 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./backup-wallet.page.scss']
 })
 export class BackupWalletPage implements OnInit {
-  currentWallet: WalletTypes.EthWalletInfo = null;
   mnemonic = '';
   step = 0;
 
@@ -59,42 +58,32 @@ export class BackupWalletPage implements OnInit {
 
   ngOnInit() {
     this.logger.debug('create temp wallet');
-    const mWords = ethers.Wallet.createRandom().mnemonic;
+    this.feedbackUI.showLoading();
+    setTimeout(() => {
+      this.createRandomWallet()
+        .then(() => {}, err => {})
+        .finally(() => {
+          this.feedbackUI.hideLoading();
+        });
+    }, 500);
+  }
 
-    const path = this.etherData.getBIP39DerivationPath(String(0));
-    const wallet = ethers.Wallet.fromMnemonic(mWords, path);
+  createRandomWallet() {
+    return new Promise<any>((finalResolve, finalReject) => {
+      this.logger.debug('create temp wallet');
+      const mWords = ethers.Wallet.createRandom().mnemonic;
 
-    this.currentWallet = {
-      id: UUID.UUID(),
-      address: wallet.address,
-      type: WalletTypes.WalletType.Ethereum,
-      profile: {
-        alias: '',
-        color: '',
-        order: -1
-      },
-      info: {
-        data: {
-          mnemonic: mWords,
-          path: path,
-          privateKey: wallet.privateKey
-        },
-        contracts: [],
-        provider: {
-          type: EthProviders.Type.KnownNetwork,
-          connectionInfo: env.config.ednEthNetwork
-        }
-      }
-    };
+      this.mnemonic = mWords;
+      this.correctWords = mWords.split(' ');
+      let inputWords = mWords.split(' ');
+      inputWords = this.shuffle(inputWords);
+      inputWords.forEach((item, index) => {
+        this.userInputWords.push({ id: index, value: item, selected: false });
+      });
+      this.userSelectedWords = [];
 
-    this.mnemonic = mWords;
-    this.correctWords = mWords.split(' ');
-    let inputWords = mWords.split(' ');
-    inputWords = this.shuffle(inputWords);
-    inputWords.forEach((item, index) => {
-      this.userInputWords.push({ id: index, value: item, selected: false });
+      finalResolve();
     });
-    this.userSelectedWords = [];
   }
 
   onUserSelectWord(wordInfo) {
@@ -168,20 +157,61 @@ export class BackupWalletPage implements OnInit {
       }
     }
 
-    if (this.storage.findWalletByInfo(this.currentWallet)) {
-      this.feedbackUI.showErrorDialog('the wallet already using!');
+    if (env.config.useDecryptPinCodeByPinCode) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.pincode.required')
+      );
       return;
     }
 
-    this.ednApi.addEthAddress(this.currentWallet.address).then(
-      result => {
-        this.storage.addWallet(this.currentWallet);
-        this.feedbackUI.showErrorDialog('wallet added!');
-        this.rs.navigateByUrl('/home');
-      },
-      error => {
-        this.feedbackUI.showErrorDialog(error);
+    setTimeout(() => {
+      const loading = this.feedbackUI.createLoading();
+      this.addWallet()
+        .then(
+          () => {
+            this.feedbackUI.showAlertDialog('wallet added!');
+            this.rs.navigateByUrl('/home');
+          },
+          err => {
+            this.feedbackUI.showErrorDialog(err);
+          }
+        )
+        .finally(() => {
+          loading.hide();
+        });
+    }, 500);
+  }
+
+  addWallet() {
+    return new Promise<any>((finalResolve, finalReject) => {
+      const path = this.etherData.getBIP39DerivationPath(String(0));
+      const createdWalletInfo = this.walletService.createEthWalletInfoToStore(
+        this.mnemonic,
+        path,
+        EthProviders.Type.KnownNetwork,
+        env.config.ednEthNetwork,
+        this.storage.getWalletPassword()
+      );
+
+      if (!createdWalletInfo) {
+        finalReject(new Error('unknown error!'));
+        return;
       }
-    );
+
+      if (this.storage.findWalletByInfo(createdWalletInfo)) {
+        finalReject(new Error('the wallet already using!'));
+        return;
+      }
+
+      this.ednApi.addEthAddress(createdWalletInfo.address).then(
+        result => {
+          this.storage.addWallet(createdWalletInfo);
+          finalResolve();
+        },
+        error => {
+          finalReject(error);
+        }
+      );
+    });
   }
 }

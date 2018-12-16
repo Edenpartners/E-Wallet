@@ -33,6 +33,7 @@ import { Facebook } from '@ionic-native/facebook/ngx';
 
 import { environment } from '../environments/environment';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PcEditPageModule } from './pages/pin-code/pc-edit/pc-edit.module';
 
 import { env } from '../environments/environment';
 
@@ -71,7 +72,9 @@ export function createTranslateLoader(http: HttpClient) {
         useFactory: createTranslateLoader,
         deps: [HttpClient]
       }
-    })
+    }),
+
+    PcEditPageModule
   ],
   exports: [ClipboardModule, QRCodeModule],
   providers: [
