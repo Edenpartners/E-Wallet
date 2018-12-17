@@ -17,6 +17,7 @@ import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Validators, FormGroup, FormControl } from '@angular/forms';
+import { emailPattern } from '../../utils/regex-validations';
 
 @Component({
   selector: 'app-signup',
@@ -27,7 +28,8 @@ export class SignupPage implements OnInit {
   signupForm: FormGroup;
   signupFormData = {
     email: { value: '' },
-    password: { value: '' }
+    password: { value: '' },
+    passwordConfirm: { value: '' }
   };
 
   constructor(
@@ -39,18 +41,64 @@ export class SignupPage implements OnInit {
     private translate: TranslateService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.signupForm = new FormGroup(
+      {
+        email: new FormControl('', [
+          Validators.required,
+          Validators.pattern(emailPattern)
+        ]),
+        password: new FormControl('', [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(12)
+        ]),
+        passwordConfirm: new FormControl('', [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(12)
+        ])
+      },
+      {
+        validators: [
+          (group: FormGroup) => {
+            // here we have the 'passwords' group
+            const pass = group.controls.password.value;
+            const confirmPass = group.controls.passwordConfirm.value;
 
-  signup(userEmail, password, passwordConfirm) {
-    if (!userEmail || !password || !passwordConfirm) {
-      this.feedbackUI.showErrorDialog('invalidated!');
+            //to show required first.
+            if (!confirmPass) {
+              return null;
+            }
+            return pass === confirmPass ? null : { areEqual: true };
+          }
+        ]
+      }
+    );
+  }
+
+  checkPasswords(group: FormGroup) {}
+
+  signup() {
+    Object.keys(this.signupForm.controls).forEach(field => {
+      // {1}
+      const control = this.signupForm.get(field); // {2}
+      control.markAsTouched({ onlySelf: true }); // {3}
+    });
+
+    this.signupForm.updateValueAndValidity();
+    if (this.signupForm.invalid) {
+      this.logger.debug('invalidated');
       return;
     }
 
     const loading = this.feedbackUI.createLoading();
 
     this.ednApi
-      .registerFirebaseUser(userEmail, password)
+      .registerFirebaseUser(
+        this.signupFormData.email.value,
+        this.signupFormData.password.value
+      )
       .then(
         success => {
           this.runEdnSignup();

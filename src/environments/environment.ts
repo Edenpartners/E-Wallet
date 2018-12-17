@@ -12,7 +12,7 @@ export const environment = {
 
   config: {
     useRedirectorOnDebugMode: true,
-    handleUserState: true,
+    handleUserState: false,
     //alterStartPath: 'ednapitest',
     //alterStartPath: 'backup-wallet',
     alterStartPath: '',

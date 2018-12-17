@@ -30,23 +30,29 @@
   "valid.confirm-password.areEqual": "Password mismatch",
 
   "valid.terms.pattern": "You must accept terms and conditions",
+  "valid.privacy.pattern": "You must accept provacy",
 
-  "valid.address.required": "Address is required.",
-  "valid.amount.required": "Amount is required.",
-  "valid.amount.pattern": "Invalid amount.",
+  "valid.address.required": "Address is required",
+  "valid.amount.required": "Amount is required",
+  "valid.amount.pattern": "Invalid amount",
 
-  "valid.wallet.required": "Wallet is required.",
-  "valid.tednWallet.required": "TEDN Wallet is required.",
+  "valid.wallet.required": "Wallet is required",
+  "valid.tednWallet.required": "TEDN Wallet is required",
 
   "error.network.connection": "A network error occured. Please check your internet connection.",
 
-  "transaction.requested": "Tracsaction requested.",
-  "transaction.receipted": "Tracsaction receipted.",
-  "trade.complete": "Trade complete.",
+  "transaction.requested": "Tracsaction requested",
+  "transaction.receipted": "Tracsaction receipted",
+  "trade.complete": "Trade complete",
 
-  "valid.pincode.required": "Pincode is required.",
-  "valid.pincode.areEqual": "Pincode mismatch.",
+  "valid.pincode.required": "Pincode is required",
+  "valid.pincode.areEqual": "Pincode mismatch",
+
+  "valid.displayName.required": "Display name is required",
+  "valid.phoneNumber.required": "Mobile number is required",
+  "valid.phoneNumber.pattern": "Invalid mobile number",
   
+  "wallet.address.copied":"The wallet address has been placed in the clipboard.",
 
   "TEST": "Test {{value}}",
   "______________SIGN_IN": "",

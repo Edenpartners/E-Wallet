@@ -196,6 +196,10 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.logger.debug(this.tradeAmount);
     const onTransactionCreate = tx => {
       loadingHandler.hide();
+      this.feedbackUI.showToast(
+        this.translate.instant('transaction.requested')
+      );
+      this.tradeAmount = 0;
     };
     const onTransactionReceipt = txReceipt => {};
 
@@ -287,7 +291,12 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.ednApi
       .withdrawFromTEDN(walletInfo.address, adjustedAmount.toString())
       .then(
-        result => {},
+        result => {
+          this.feedbackUI.showToast(
+            this.translate.instant('transaction.requested')
+          );
+          this.tradeAmount = 0;
+        },
         error => {
           this.feedbackUI.showErrorDialog(error);
         }

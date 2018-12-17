@@ -49,7 +49,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
   wallets: Array<WalletTypes.EthWalletInfo> = [];
   ednFromEthEstimatedText = '-';
   ednFromEthEstimated: BigNumber;
-  ethAmount = '0';
+  ethAmount = 0;
 
   pinCodeConfirmCallback = null;
 
@@ -224,6 +224,10 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
 
     const onTxCreate = txData => {
       loading.hide();
+      this.feedbackUI.showToast(
+        this.translate.instant('transaction.requested')
+      );
+      this.ethAmount = 0;
     };
     const onTxReceipt = txReceiptData => {};
 

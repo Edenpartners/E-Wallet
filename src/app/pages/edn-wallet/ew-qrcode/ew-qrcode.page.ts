@@ -11,6 +11,7 @@ import {
   AppStorageService
 } from '../../../providers/appStorage.service';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ew-qrcode',
@@ -30,7 +31,8 @@ export class EwQrcodePage implements OnInit, OnDestroy {
     private aRoute: ActivatedRoute,
     private cbService: ClipboardService,
     private storage: AppStorageService,
-    private feedbackUI: FeedbackUIService
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -53,8 +55,6 @@ export class EwQrcodePage implements OnInit, OnDestroy {
 
   private async onQrCodeClick() {
     this.cbService.copyFromContent(this.qrCodeData);
-    this.feedbackUI.showToast(
-      'The wallet address has been placed in the clipboard.'
-    );
+    this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
   }
 }

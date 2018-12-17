@@ -15,6 +15,11 @@ import {
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Validators, FormGroup, FormControl } from '@angular/forms';
+import {
+  emailPattern,
+  phoneNumberPattern
+} from '../../utils/regex-validations';
 
 @Component({
   selector: 'app-signup-profile',
@@ -22,6 +27,12 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./signup-profile.page.scss']
 })
 export class SignupProfilePage implements OnInit {
+  profileForm: FormGroup;
+  profileFormData = {
+    displayName: { value: '' },
+    phoneNumber: { value: '' }
+  };
+
   constructor(
     private rs: RouterService,
     private storage: AppStorageService,
@@ -31,29 +42,47 @@ export class SignupProfilePage implements OnInit {
     private translate: TranslateService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.profileForm = new FormGroup({
+      displayName: new FormControl('', [Validators.required]),
+      phoneNumber: new FormControl('', [
+        Validators.required,
+        Validators.pattern(phoneNumberPattern)
+      ])
+    });
+  }
 
-  onContinueBtnClick(
-    displayName,
-    mobileNumber,
-    termsAndConditionsChecked,
-    privacyChecked
-  ) {
-    if (
-      !displayName ||
-      !mobileNumber ||
-      !termsAndConditionsChecked ||
-      !privacyChecked
-    ) {
-      this.feedbackUI.showErrorDialog('invalidated!');
+  onContinueBtnClick(termsAndConditionsChecked, privacyChecked) {
+    Object.keys(this.profileForm.controls).forEach(field => {
+      // {1}
+      const control = this.profileForm.get(field); // {2}
+      control.markAsTouched({ onlySelf: true }); // {3}
+    });
+
+    this.profileForm.updateValueAndValidity();
+    if (this.profileForm.invalid) {
+      this.logger.debug('invalidated');
+      return;
+    }
+
+    if (!termsAndConditionsChecked) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.terms.pattern')
+      );
+      return;
+    }
+    if (!privacyChecked) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.privacy.pattern')
+      );
       return;
     }
 
     const userInfo = this.storage.userInfo;
     const additionalInfo = this.storage.additionalInfo;
 
-    userInfo.display_name = displayName;
-    userInfo.phone_number = mobileNumber;
+    userInfo.display_name = this.profileFormData.displayName.value;
+    userInfo.phone_number = this.profileFormData.phoneNumber.value;
 
     additionalInfo.termsAndConditionsAllowed = termsAndConditionsChecked;
     additionalInfo.privacyAllowed = privacyChecked;

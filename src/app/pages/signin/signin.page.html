@@ -36,6 +36,12 @@
             <div *ngIf="signinForm.get('password').hasError('required')">
               {{ 'valid.password.required' | translate }}
             </div>
+            <div *ngIf="signinForm.get('password').hasError('minLength')">
+              {{ 'valid.password.minlength' | translate }}
+            </div>
+            <div *ngIf="signinForm.get('password').hasError('maxLength')">
+              {{ 'valid.password.maxlength' | translate }}
+            </div>
           </div>
 
         </form>

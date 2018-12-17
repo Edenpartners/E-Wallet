@@ -17,6 +17,7 @@ import { env } from '../../../environments/environment';
 import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Validators, FormGroup, FormControl } from '@angular/forms';
+import { emailPattern } from '../../utils/regex-validations';
 
 @Component({
   selector: 'app-signin',
@@ -41,16 +42,15 @@ export class SigninPage implements OnInit {
   };
 
   ngOnInit() {
-    const emailPattern = /^[a-zA-Z0-9.!#$%&*+=?^_{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
     this.signinForm = new FormGroup({
       email: new FormControl('', [
         Validators.required,
         Validators.pattern(emailPattern)
       ]),
       password: new FormControl('', [
-        Validators.required
-        // Validators.minLength(8),
-        // Validators.maxLength(12)
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(12)
       ])
     });
   }

@@ -34,6 +34,8 @@ import {
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { env } from '../../../../environments/environment';
+import { FeedbackUIService } from '../../../providers/feedbackUI.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ew-main',
@@ -62,7 +64,10 @@ export class EwMainPage implements OnInit, OnDestroy {
     private etherApi: EtherApiService,
     private ednApi: EdnRemoteApiService,
     private etherData: EtherDataService,
-    private eths: EthService
+    private eths: EthService,
+    private cbService: ClipboardService,
+    private feedbackUI: FeedbackUIService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -126,6 +131,11 @@ export class EwMainPage implements OnInit, OnDestroy {
     setTimeout(() => {
       this.aliasInput.setFocus();
     }, 100);
+  }
+
+  onWalletAddressClick(walletAddress) {
+    this.cbService.copyFromContent(walletAddress);
+    this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
   }
 
   handleAliasEditing() {

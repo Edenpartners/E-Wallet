@@ -122,13 +122,18 @@ export class TwTxListPage implements OnInit, OnDestroy {
     this.logger.debug('load page : ' + pageNum);
     this.feedbackUI.showLoading();
 
+    const tednPublicKey = this.storage.userInfo.tedn_public_key;
+
     const onSuccess = resData => {
       const data = resData.data;
       this.currentPage = data.currentpage;
       this.totalCount = data.totalcount;
       for (let i = 0; i < data.transactions.length; i++) {
         const item = data.transactions[i];
-        const isSend = true;
+        let isSend = false;
+        if (item.from_addr === tednPublicKey) {
+          isSend = true;
+        }
         this.txList.push({
           isSend: isSend,
           from_addr: item.from_addr,

@@ -15,7 +15,7 @@
       </ion-select>
       <ion-label>{{ 'Amount' | translate }}</ion-label>
       <ion-item no-padding>
-        <ion-input #ethAmountInput type="number" [(ngModel)]="ethAmount" (ionChange)="getRateByLocally()"></ion-input>
+        <ion-input type="number" [(ngModel)]="ethAmount" (ionChange)="getRateByLocally()"></ion-input>
         <ion-label>ETH</ion-label>
       </ion-item>
 
