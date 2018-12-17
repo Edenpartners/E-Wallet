@@ -543,8 +543,9 @@ export class AppStorageService {
     }
 
     const result: Array<WalletTypes.WalletInfo> = [];
-    if (filteredWalletsByUserInfo === false) {
-      this.insecureWallets.forEach(item => {
+    const currentWallets = this.insecureWallets;
+    if (filteredWalletsByUserInfo === false && currentWallets) {
+      currentWallets.forEach(item => {
         if (item.type === WalletTypes.WalletType.Ethereum) {
           result.push(item);
         }

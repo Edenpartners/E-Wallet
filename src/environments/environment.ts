@@ -16,7 +16,7 @@ export const environment = {
     //alterStartPath: 'ednapitest',
     //alterStartPath: 'backup-wallet',
     alterStartPath: '',
-    disableConsoleLogging: true,
+    disableConsoleLogging: false,
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,

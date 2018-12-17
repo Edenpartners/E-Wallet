@@ -6,7 +6,13 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { Router, Route, UrlSegment, RouterEvent } from '@angular/router';
+import {
+  Router,
+  Route,
+  UrlSegment,
+  RouterEvent,
+  NavigationEnd
+} from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -22,6 +28,7 @@ import { DataTrackerService } from './providers/dataTracker.service';
 import { SubscriptionPack } from './utils/listutil';
 import { TransactionLoggerService } from './providers/transactionLogger.service';
 import { PcEditPage } from './pages/pin-code/pc-edit/pc-edit.page';
+import { AppVersion } from '@ionic-native/app-version/ngx';
 
 @Component({
   selector: 'app-root',
@@ -34,10 +41,15 @@ export class AppComponent implements OnInit, OnDestroy {
   private subscriptionPack: SubscriptionPack = new SubscriptionPack();
   private hasModal = false;
   private currentModal: HTMLIonModalElement = null;
+  private isFirstUserStateEvent = true;
+
+  private appVersionCode: any = '';
+  private appVersionNumber: any = '';
 
   @ViewChild('sideMenu') private sideMenu: Menu;
 
   constructor(
+    private appVersion: AppVersion,
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
@@ -119,6 +131,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.transactionLogger.initEvents();
 
     this.platform.ready().then(() => {
+      this.appVersion.getVersionCode().then(val => {
+        this.appVersionCode = val;
+      });
+
+      this.appVersion.getVersionNumber().then(val => {
+        this.appVersionNumber = val;
+      });
+
       this.logger.debug('platform is ready!');
       this.statusBar.styleDefault();
 
@@ -141,6 +161,8 @@ export class AppComponent implements OnInit, OnDestroy {
       return this.storage.userStateObserver.subscribe(
         //next
         userInfo => {
+          const isFirstUserStateEvent = this.isFirstUserStateEvent;
+          this.isFirstUserStateEvent = false;
           //start tracking incomplete tx logs
           if (this.storage.isSignedIn) {
             this.transactionLogger.trackUnclosedTxLogs();
@@ -148,6 +170,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
           this.logger.debug(userInfo);
           if (env.config.handleUserState) {
+            if (isFirstUserStateEvent) {
+              const navSubscription = this.rs
+                .getRouter()
+                .events.subscribe(event => {
+                  if (event instanceof NavigationEnd) {
+                    this.logger.debug('on navigation end');
+                    setTimeout(() => {
+                      this.splashScreen.hide();
+                    }, 1000);
+                    navSubscription.unsubscribe();
+                  }
+                });
+            }
+
             this.logger.debug(window.location);
             if (this.storage.isSignedIn) {
               if (this.storage.isUserInfoValidated) {
@@ -171,6 +207,10 @@ export class AppComponent implements OnInit, OnDestroy {
               this.rs.navigateByUrl('/signin');
             }
           } else {
+            if (isFirstUserStateEvent) {
+              this.splashScreen.hide();
+            }
+
             if (env.config.useRedirectorOnDebugMode) {
               const currentUrl = this.rs.getRouter().url;
               if (
@@ -182,8 +222,6 @@ export class AppComponent implements OnInit, OnDestroy {
               }
             }
           }
-
-          this.splashScreen.hide();
         },
         //error
         error => {},

@@ -5,6 +5,12 @@ const routes: Routes = [
   //this app has customized route handing. dont use default path.
   //{ path: '', redirectTo: '/signup', pathMatch: 'full' },
   {
+    path: '',
+    redirectTo: 'landing',
+    pathMatch: 'full'
+  },
+
+  {
     path: 'ethtest',
     loadChildren: './pages/ethtest/ethtest.module#EthtestPageModule'
   },
@@ -86,6 +92,10 @@ const routes: Routes = [
   {
     path: 'redirector/:redirect',
     loadChildren: './pages/redirector/redirector.module#RedirectorPageModule'
+  },
+  {
+    path: 'landing',
+    loadChildren: './pages/landing/landing.module#LandingPageModule'
   }
 ];
 

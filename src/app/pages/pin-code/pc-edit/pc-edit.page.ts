@@ -45,7 +45,9 @@ export class PcEditPage implements OnInit, OnDestroy {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events
-  ) {}
+  ) {
+    this.logger.trace('init pc-edit');
+  }
 
   ngOnInit() {
     this.subscriptionPack.addSubscription(() => {
