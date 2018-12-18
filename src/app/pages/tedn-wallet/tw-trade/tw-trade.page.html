@@ -46,8 +46,8 @@
 
     <div class="footer fill-width">
       <ion-toolbar>
-        <ion-button btnStyle expand="full" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
-        <ion-button btnStyle expand="full" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
+        <ion-button appBtnStyle expand="full" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
+        <ion-button appBtnStyle expand="full" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
       </ion-toolbar>
     </div>
   </div>

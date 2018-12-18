@@ -1,10 +1,47 @@
 @import '../../../theme/common.scss';
 
-ion-content {
-  --background: var(--common-back, #ffffff);
-}
-
 .content .flex-ch-centered div {
   flex: 1;
   width: 100%;
+}
+
+.copyright {
+  position: absolute;
+  display: block;
+  bottom: 0px;
+  width: 100%;
+  height: auto;
+  text-align: center;
+  color: var(--color-text-dark-3);
+  font-size: .6em;
+  margin-bottom: var(--space-normal);
+}
+
+
+.page-wrapper {
+  .page-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    .header {
+      margin-top: 23%;
+      width: 100%;
+    }
+
+    .content {
+      margin-top: 20%;
+      width: 100%;
+
+      form {
+        margin-top: var(--space-half);
+      }
+    }
+
+    .social-wrapper {
+      justify-content: center;
+      //uncomment this with facebook & twitter enable
+      //justify-content: space-between;
+    }
+  }
 }

@@ -1,25 +1,29 @@
+<!-- <div class="fill back-image"> -->
 <ion-header>
   <common-nav-bar title="{{ 'SignupTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content>
-  <div class="hfc-layout">
+<ion-content class="page-wrapper">
+  <div class="page-content hfc-layout">
     <div class="header" margin-bottom>
       <div margin-top class="logo-wrapper header">
-        <div class="logo-img"></div>
+        <div class="logo-img-big"></div>
       </div>
     </div>
     <div class="content flex-ch-h-centered">
       <div class="flex-ch-centered form-area">
-        <div>
+        <div class="text-center text-light-1">
           <ion-label>{{ 'SignupComment' | translate }}</ion-label>
         </div>
 
         <form novalidate [formGroup]="signupForm" class="fill-width">
-          <div>
+          <ion-item class="input-field" lines="none">
+            <span class="input-field-icon email"></span>
             <ion-input #userEmail [placeholder]="'InputEmail' | translate" type="email"
-              formControlName="email" [(ngModel)]="signupFormData.email.value" (keyup.enter)="userPasswd.setFocus()"></ion-input>
-          </div>
+              formControlName="email" [(ngModel)]="signupFormData.email.value" (keyup.enter)="userPasswd.setFocus()"
+              color="text-light-1"></ion-input>
+            <span class="input-field-icon email invisible"></span>
+          </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('email').touched && signupForm.get('email').invalid">
             <div *ngIf="signupForm.get('email').hasError('required')">
               {{ 'valid.email.required' | translate }}
@@ -29,12 +33,13 @@
             </div>
           </div>
 
-
-          <div class="field-space">
+          <ion-item class="input-field field-space" lines="none">
+            <span class="input-field-icon lock"></span>
             <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
               [placeholder]="'InputPassword' | translate" [(ngModel)]="signupFormData.password.value"
-              (keyup.enter)="userPasswdConfirm.setFocus()"></ion-input>
-          </div>
+              (keyup.enter)="userPasswdConfirm.setFocus()" color="text-light-1"></ion-input>
+            <span class="input-field-icon lock invisible"></span>
+          </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('password').touched && signupForm.get('password').invalid">
             <div *ngIf="signupForm.get('password').hasError('required')">
               {{ 'valid.password.required' | translate }}
@@ -47,11 +52,12 @@
             </div>
           </div>
 
-          <div class="field-space">
+          <ion-item class="input-field field-space" lines="none">
             <ion-input #userPasswdConfirm clearOnEdit="true" type="password" formControlName="passwordConfirm"
-              [placeholder]="'ConfigmPasswd' | translate" [(ngModel)]="signupFormData.passwordConfirm.value"></ion-input>
-          </div>
-          <div class="form-error-msg" *ngIf="signupForm.get('password').touched && signupForm.get('password').invalid">
+              [placeholder]="'ConfigmPasswd' | translate" [(ngModel)]="signupFormData.passwordConfirm.value"
+              color="text-light-1"></ion-input>
+          </ion-item>
+          <div class="form-error-msg" *ngIf="signupForm.get('passwordConfirm').touched && ( signupForm.get('passwordConfirm').invalid  || signupForm.hasError('areEqual') )">
             <div *ngIf="signupForm.get('passwordConfirm').hasError('required')">
               {{ 'valid.confirm-password.required' | translate }}
             </div>
@@ -60,26 +66,28 @@
             </div>
           </div>
 
-          <div class="field-space">
-            <ion-button expand="block" color="continue" (click)="signup(userEmail.value,userPasswd.value,userPasswdConfirm.value)">{{
-            'Continue' | translate
-          }}</ion-button>
+          <div class="margin-top">
+            <ion-button expand="block" color="theme-2" (click)="signup(userEmail.value,userPasswd.value,userPasswdConfirm.value)">{{
+                  'Continue' | translate
+                }}</ion-button>
           </div>
         </form>
 
-        <div>
-          <span>{{ 'OrSignupWith' | translate }}</span>
-        </div>
-        <div>
-          <ion-button expand="block">{{ 'Facebook' | translate }}</ion-button>
-        </div>
-        <div>
-          <ion-button expand="block">{{ 'Twitter' | translate }}</ion-button>
-        </div>
-        <div>
-          <ion-button expand="block">{{ 'Google' | translate }}</ion-button>
+        <div class="flex-h-dir-centered margin-top social-wrapper" margin-bottom>
+          <ion-button appBtnStyle (click)="signinWithFacebook()" *ngIf="false">
+            <ion-icon src="/assets/img/facebook.svg" class="social-icon"></ion-icon>
+          </ion-button>
+          <ion-button appBtnStyle (click)="signinWithTwitter()" *ngIf="false">
+            <ion-icon src="/assets/img/twitter.svg" class="social-icon"></ion-icon>
+          </ion-button>
+          <ion-button appBtnStyle (click)="signinWithGoogle()">
+            <ion-icon src="/assets/img/google.svg" class="social-icon"></ion-icon>
+            <ion-icon src="/assets/img/g-plus.svg" class="social-icon g-plus"></ion-icon>
+          </ion-button>
         </div>
       </div>
     </div>
   </div>
 </ion-content>
+
+<!-- </div> -->

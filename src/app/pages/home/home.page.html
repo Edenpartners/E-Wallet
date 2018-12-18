@@ -24,12 +24,12 @@
 <ion-content no-padding no-bounce>
   <div class="page-wrapper fill hcf-layout">
     <div padding class="content lists-wrapper">
-      <div padding-bottom class="hcf-layout edn-wallet-container">
+      <div margin-bottom class="hcf-layout wallet-container edn">
         <ion-toolbar class="header" color="main2">
-          <ion-title>{{ 'MyEDNWalletsTitle' | translate }}</ion-title>
+          <ion-label color="text-light-1">{{ 'MyEDNWalletsTitle' | translate }}</ion-label>
           <ion-buttons slot="end">
             <ion-button href="/add-wallet">
-              <ion-icon name="add"></ion-icon>
+              <ion-icon name="add" color="text-light-1"></ion-icon>
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -51,7 +51,7 @@
                   <div [ngStyle]="{ 'background-color': item.data.profile.color }"></div>
                 </div>
                 <div class="inner-content">
-                  <ion-label color="info-dark" class="title">
+                  <ion-label color="text-dark-2" class="title">
                     {{ item.data.profile.alias }}
                   </ion-label>
                   <ion-label text-right color="info-subtitle" class="sub-title">
@@ -68,18 +68,23 @@
             </ion-item>
           </ion-list>
         </ion-content>
-        <ion-toolbar class="footer">
-          <ion-buttons slot="end">
-            <ion-button btnStyle href="/dp-edn-list">{{
-              'AddEdn' | translate
-            }}</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
+        <div class="footer">
+          <div class="divider"></div>
+          <ion-toolbar>
+            <div class="flex-h-dir">
+              <div class="flex-item-fill flex-ch-centered">
+                <ion-button appBtnStyle href="/dp-edn-list" color="text-dark-1">{{
+                        'AddEdn' | translate
+                      }}</ion-button>
+              </div>
+            </div>
+          </ion-toolbar>
+        </div>
       </div>
 
-      <div class="hcf-layout tedn-wallet-container">
+      <div class="hcf-layout wallet-container tedn">
         <ion-toolbar class="header" color="main2">
-          <ion-title>{{ 'MyTEDNWalletsTitle' | translate }}</ion-title>
+          <ion-label color="text-light-1">{{ 'MyTEDNWalletsTitle' | translate }}</ion-label>
         </ion-toolbar>
         <ion-content class="content">
           <ion-list no-margin padding class="content-list">
@@ -99,7 +104,7 @@
                   <div [ngStyle]="{ 'background-color': item.data.color }"></div>
                 </div>
                 <div class="inner-content">
-                  <ion-label color="info-dark" class="title">
+                  <ion-label color="text-dark-2" class="title">
                     {{ item.data.name }}
                   </ion-label>
                   <ion-label text-right color="info-subtitle" class="sub-title">
@@ -115,16 +120,20 @@
             </ion-item>
           </ion-list>
         </ion-content>
-        <ion-toolbar class="footer">
-          <div class="flex-h-dir">
-            <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle (click)="onTEDNDepositClick()">{{ 'Deposit' | translate }}</ion-button>
+
+        <div class="footer">
+          <div class="divider"></div>
+          <ion-toolbar>
+            <div class="flex-h-dir">
+              <div class="flex-item-fill flex-ch-centered">
+                <ion-button appBtnStyle color="text-dark-1" (click)="onTEDNDepositClick()">{{ 'Deposit' | translate }}</ion-button>
+              </div>
+              <div class="flex-item-fill flex-ch-centered">
+                <ion-button appBtnStyle color="text-dark-1" (click)="onTEDNWithdrawClick()">{{ 'Withdraw' | translate }}</ion-button>
+              </div>
             </div>
-            <div class="flex-item-fill flex-ch-centered">
-              <ion-button btnStyle (click)="onTEDNWithdrawClick()">{{ 'Withdraw' | translate }}</ion-button>
-            </div>
-          </div>
-        </ion-toolbar>
+          </ion-toolbar>
+        </div>
       </div>
     </div>
   </div>

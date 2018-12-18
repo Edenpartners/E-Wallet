@@ -1,29 +1,71 @@
 :root {
-  /** main **/
-  --ion-color-main: #DC8633;
-  --ion-color-main-rgb: 220, 134, 51;
-  --ion-color-main-contrast: #000000;
-  --ion-color-main-contrast-rgb: 0, 0, 0;
-  --ion-color-main-shade: #c2762d;
-  --ion-color-main-tint: #e09247;
-
-  --ion-color-main2: #524689;
-  --ion-color-main2-rgb: 82, 70, 137;
-  --ion-color-main2-contrast: #ffffff;
-  --ion-color-main2-contrast-rgb: 255, 255, 255;
-  --ion-color-main2-shade: #483e79;
-  --ion-color-main2-tint: #635995;
-
-  --main: #DC8633;
-  --main-background: #efefef;
-
   --tcol-mainback: #efefef;
   --tcol-lightest: #ffffff;
+
+  --common-background-color: rgba(255, 255, 255, 0);
+  --color-transparent: rgba(255, 255, 255, 0);
+
+  --color-text-light-1: #ffffff;
+  --color-text-dark-1: #000000;
+  --color-text-dark-2: #636363;
+  --color-text-dark-3: #9A9A9A;
+
+  --color-theme-1: #D57C47;
+  --color-theme-2: #614DA0;
+
+  --space-normal: 16px;
+  --space-x2: 32px;
+  --space-half: 8px;
+
+  --color-divider: #909090;
+}
+
+//https://stackoverflow.com/questions/46313640/iphone-x-8-8-plus-css-media-queries
+.back-image {
+  background: url('/assets/img/ssscccczzzz_750x1334.png');
+  background-size: cover;
+}
+
+.text-light-1 {
+  color: var(--color-text-light-1);
+}
+
+.ion-page{
+  background: url('/assets/img/ssscccczzzz_750x1334.png');
+  background-size: cover;
 }
 
 .page-wrapper {
-  --background: var(--main-background);
-  background: var(--main-background);
+  --background: var(--common-background-color);
+  background: var(--common-background-color);
+  
+}
+
+ion-content {
+  --background: var(--common-background-color);
+  background: var(--common-background-color);
+}
+
+ion-header {
+  --background: var(--common-background-color);
+  background: var(--common-background-color);
+  background-image: none;
+
+  ion-toolbar {
+    --background: var(--common-background-color);
+    background: var(--common-background-color);
+    color: var(--color-text-light-1);
+  }
+}
+
+//clear shadow bottom at ion-header 
+.header-md:after {
+  background-image: none;
+}
+
+.back-transparent {
+  --background: var(--color-transparent);
+  background: var(--color-transparent);
 }
 
 .fill {
@@ -87,33 +129,13 @@
   overflow: hidden;
 }
 
-/** <ion-button color="favorite">... */
-.ion-color-favorite {
-  --ion-color-base: #69bb7b;
-  --ion-color-base-rgb: 105, 187, 123;
-  --ion-color-contrast: #ffffff;
-  --ion-color-contrast-rgb: 255, 255, 255;
-  --ion-color-shade: #5ca56c;
-  --ion-color-tint: #78c288;
-}
-
-/** <ion-button color="continue">... */
-.ion-color-continue {
-  --ion-color-base: #DC8633;
-  --ion-color-base-rgb: 220, 134, 51;
-  --ion-color-contrast: #ffffff;
-  --ion-color-contrast-rgb: 255, 255, 255;
-  --ion-color-shade: #c2762d;
-  --ion-color-tint: #e09247;
-}
-
-.ion-color-background {
-  --ion-color-base: #efefef;
-  --ion-color-base-rgb: 239, 239, 239;
+.ion-color-text-light-1 {
+  --ion-color-base: #ffffff;
+  --ion-color-base-rgb: 255, 255, 255;
   --ion-color-contrast: #000000;
   --ion-color-contrast-rgb: 0, 0, 0;
-  --ion-color-shade: #d2d2d2;
-  --ion-color-tint: #f1f1f1;
+  --ion-color-shade: #e0e0e0;
+  --ion-color-tint: #ffffff;
 }
 
 .ion-color-info {
@@ -125,13 +147,31 @@
   --ion-color-tint: #949494;
 }
 
-.ion-color-info-dark {
-  --ion-color-base: #444444;
-  --ion-color-base-rgb: 68, 68, 68;
+.ion-color-transparent {
+  --ion-color-base: #00000000;
+  --ion-color-base-rgb: 0,0,0;
+  --ion-color-contrast: #ffffff;
+  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-shade: #000000;
+  --ion-color-tint: #1a1a1a;
+}
+
+.ion-color-text-dark-1 {
+  --ion-color-base: #000000;
+  --ion-color-base-rgb: 0,0,0;
+  --ion-color-contrast: #ffffff;
+  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-shade: #000000;
+  --ion-color-tint: #1a1a1a;
+}
+
+.ion-color-text-dark-2 {
+  --ion-color-base: #636363;
+  --ion-color-base-rgb: 99, 99, 99;
   --ion-color-contrast: #ffffff;
   --ion-color-contrast-rgb: 255, 255, 255;
-  --ion-color-shade: #3c3c3c;
-  --ion-color-tint: #575757;
+  --ion-color-shade: #575757;
+  --ion-color-tint: #737373;
 }
 
 .ion-color-info-subtitle {
@@ -143,22 +183,31 @@
   --ion-color-tint: #757575;
 }
 
-.ion-color-main1 {
-  --ion-color-base: #DC8633;
-  --ion-color-base-rgb: 220, 134, 51;
-  --ion-color-contrast: #000000;
-  --ion-color-contrast-rgb: 0, 0, 0;
-  --ion-color-shade: #c2762d;
-  --ion-color-tint: #e09247;
-}
-
-.ion-color-main2 {
-  --ion-color-base: #524689;
-  --ion-color-base-rgb: 82, 70, 137;
+.ion-color-theme-2 {
+  --ion-color-base: #614DA0;
+  --ion-color-base-rgb: 97, 77, 160;
   --ion-color-contrast: #ffffff;
   --ion-color-contrast-rgb: 255, 255, 255;
-  --ion-color-shade: #483e79;
-  --ion-color-tint: #635995;
+  --ion-color-shade: #55448d;
+  --ion-color-tint: #715faa
+}
+
+.ion-color-theme-1 {
+  --ion-color-base: #D57C47;
+  --ion-color-base-rgb: 213, 124, 71;
+  --ion-color-contrast: #000000;
+  --ion-color-contrast-rgb: 0, 0, 0;
+  --ion-color-shade: #bb6d3e;
+  --ion-color-tint: #d98959;
+}
+
+ion-checkbox {
+  --background: rgba(255, 255, 255, 0);
+  --background-checked: rgba(255, 255, 255, 0);
+
+  --border-color: var(--color-theme-1);
+  --border-color-checked: var(--color-theme-1);
+  --checkmark-color: var(--color-theme-1);
 }
 
 /**
@@ -228,11 +277,11 @@
   width: 70%;
 
   .field-space {
-    margin-top: 8px;
+    margin-top: var(--space-half);
   }
 
   .form-error-msg {
-    color: #cc0000;
+    color: #ee1111;
     font-size: 0.7em;
   }
 
@@ -241,12 +290,89 @@
     margin-top: 2px;
   }
 
+  ion-item.input-field {
+    --height: auto;
+    --min-height: none;
+  }
+
   ion-input {
-    // border: 1px black solid;
-    background-color: #eeeeee;
-    border-radius: 8px;
+    --height: 37px;
+  }
+
+  ion-button {
+    --height: 37px;
+  }
+
+  ion-button.text-button {
+    --height: 1.15em;
+    --margin-top: 0px;
+    --margin-bottom: 0px;
+
+    .button-md {
+      height: auto;
+    }
+  }
+
+  ion-item.check-box {
+    --height: auto;
+    --min-height: none;
+
+    --background: none;
+    --padding-start: 0px;
+    --inner-padding-end: 0px;
+
+    ion-checkbox {
+      margin-right: var(--space-half);
+      margin-top: 0px;
+      margin-bottom: 0px;
+      --margin-top: 0px;
+      --margin-bottom: 0px;
+      --width: 20px;
+      --height: 20px;
+    }
+
+    ion-label {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      --margin-top: 0px;
+      --margin-bottom: 0px;
+      font-size: .93em;
+    }
   }
 }
+
+.input-field {
+  background-color: rgba(255, 255, 255, 0.28);
+  --background: none;
+
+  border-radius: 10px;
+  font-size: .96em;
+  --padding: 0px;
+  --margin: 0px;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+
+  text-align: center;
+}
+
+.input-field-icon {
+  display: inline-block;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.input-field-icon.email {
+  width: 14px;
+  height: 11px;
+  background-image: url('/assets/img/email.svg');
+}
+
+.input-field-icon.lock {
+  width: 11px;
+  height: 14px;
+  background-image: url('/assets/img/lock.svg');
+}
+
 
 /** App Logo */
 .logo-wrapper {
@@ -258,11 +384,45 @@
   background: #00000000;
 
   .logo-img {
-    width: 200px;
-    height: 35px;
-    background: url('/assets/img/e-wallet-logo-small.png');
-    background-size: contain;
+    width: 148px;
+    height: 30px;
+    background: url('/assets/img/sscaa-big@2x.png');
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
   }
+
+  .logo-img-big {
+    width: 225px;
+    height: 45px;
+    background: url('/assets/img/sscaa-big@2x.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+}
+
+.social-icon {
+  color:rgba(255,255,255,0);
+  height: 24px;
+}
+
+.social-icon.g-plus {
+  width: 11px;
+  height: 11px;
+}
+
+.margin-top {
+  --margin-top: var(--space-normal);
+  margin-top: var(--space-normal);
+}
+
+.margin-top-x2 {
+  --margin-top: var(--space-x2);
+  margin-top: var(--space-x2);
+}
+
+.margin-top-half {
+  --margin-top: var(--space-half);
+  margin-top: var(--space-half);
 }

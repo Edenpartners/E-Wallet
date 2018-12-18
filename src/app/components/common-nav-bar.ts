@@ -14,7 +14,7 @@ import { RouterService } from '../providers/router.service';
     <ion-toolbar>
       <ion-buttons slot="start">
         <ion-button (click)="onBackBtnClick()">
-          <ion-icon name="arrow-back"></ion-icon>
+          <ion-icon name="arrow-back" color="text-light-1"></ion-icon>
         </ion-button>
       </ion-buttons>
       <ion-title>{{ title }}</ion-title>

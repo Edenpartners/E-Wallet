@@ -53,11 +53,7 @@ export class SignupPage implements OnInit {
           Validators.minLength(8),
           Validators.maxLength(12)
         ]),
-        passwordConfirm: new FormControl('', [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(12)
-        ])
+        passwordConfirm: new FormControl('', [Validators.required])
       },
       {
         validators: [
@@ -70,14 +66,13 @@ export class SignupPage implements OnInit {
             if (!confirmPass) {
               return null;
             }
+
             return pass === confirmPass ? null : { areEqual: true };
           }
         ]
       }
     );
   }
-
-  checkPasswords(group: FormGroup) {}
 
   signup() {
     Object.keys(this.signupForm.controls).forEach(field => {

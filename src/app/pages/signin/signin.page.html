@@ -1,22 +1,24 @@
-<ion-content>
-  <div class="hfc-layout">
+<ion-content no-padding class="page-wrapper">
+  <div class="page-content">
     <div class="header">
       <div margin-top class="logo-wrapper header">
-        <div class="logo-img"></div>
+        <div class="logo-img-big"></div>
       </div>
-
-      <p padding class="text-center">{{ 'Copyright' | translate }}</p>
     </div>
     <div class="content flex-ch-h-centered">
       <div class="flex-ch-centered form-area">
-        <div>
+        <div class="text-center text-light-1">
           <ion-label>{{ 'SigninComment' | translate }}</ion-label>
         </div>
+
         <form novalidate [formGroup]="signinForm" class="fill-width">
-          <div>
+          <ion-item class="input-field" lines="none">
+            <span class="input-field-icon email"></span>
             <ion-input #userEmail type="email" formControlName="email" [placeholder]="'InputUserEmail' | translate"
-              [(ngModel)]="signinFormData.email.value" (keyup.enter)="userPasswd.setFocus()"></ion-input>
-          </div>
+              [(ngModel)]="signinFormData.email.value" (keyup.enter)="userPasswd.setFocus()" color="text-light-1">
+            </ion-input>
+            <span class="input-field-icon email invisible"></span>
+          </ion-item>
           <div class="form-error-msg" *ngIf="signinForm.get('email').touched && signinForm.get('email').invalid">
             <div *ngIf="signinForm.get('email').hasError('required')">
               {{ 'valid.email.required' | translate }}
@@ -27,11 +29,13 @@
           </div>
 
 
-          <div class="field-space">
+          <ion-item class="input-field field-space" lines="none">
+            <span class="input-field-icon lock"></span>
             <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
               [placeholder]="'InputPassword' | translate" [(ngModel)]="signinFormData.password.value"
-              (keyup.enter)="signin()"></ion-input>
-          </div>
+              (keyup.enter)="signin()" color="text-light-1"></ion-input>
+            <span class="input-field-icon lock invisible"></span>
+          </ion-item>
           <div class="form-error-msg" *ngIf="signinForm.get('password').touched && signinForm.get('password').invalid">
             <div *ngIf="signinForm.get('password').hasError('required')">
               {{ 'valid.password.required' | translate }}
@@ -43,36 +47,40 @@
               {{ 'valid.password.maxlength' | translate }}
             </div>
           </div>
-
         </form>
-        <div>
-          <ion-button btnStyle expand="block" fill="clear" href="/signup">
-            <div>{{ 'IsForgotPasswd' | translate }}</div>
+
+        <div class="margin-top">
+          <!-- href="/pc-edit" -->
+          <ion-button class="signin" expand="block" color="theme-2" (click)="signin()">{{ 'Login' | translate }}</ion-button>
+        </div>
+
+        <div class="margin-top">
+          <ion-button appBtnStyle color="text-dark-2" class="text-button" expand="block" fill="clear"
+            href="/signup">
+            {{ 'IsForgotPasswd' | translate }}
           </ion-button>
         </div>
-        <div margin-bottom>
-          <!-- href="/pc-edit" -->
-          <ion-button expand="block" color="continue" (click)="signin()">{{ 'Login' | translate }}</ion-button>
-        </div>
 
-        <div>
-          <span>{{ 'OrSigninWith' | translate }}</span>
+        <div class="flex-h-dir-centered margin-top social-wrapper" margin-bottom>
+          <ion-button appBtnStyle (click)="signinWithFacebook()" *ngIf="false">
+            <ion-icon src="/assets/img/facebook.svg" class="social-icon"></ion-icon>
+          </ion-button>
+          <ion-button appBtnStyle (click)="signinWithTwitter()" *ngIf="false">
+            <ion-icon src="/assets/img/twitter.svg" class="social-icon"></ion-icon>
+          </ion-button>
+          <ion-button appBtnStyle (click)="signinWithGoogle()">
+            <ion-icon src="/assets/img/google.svg" class="social-icon"></ion-icon>
+            <ion-icon src="/assets/img/g-plus.svg" class="social-icon g-plus"></ion-icon>
+          </ion-button>
         </div>
         <div>
-          <ion-button expand="block" (click)="signinWithFacebook()">{{ 'Facebook' | translate }}</ion-button>
-        </div>
-        <div>
-          <ion-button expand="block" (click)="signinWithTwitter()">{{ 'Twitter' | translate }}</ion-button>
-        </div>
-        <div margin-bottom>
-          <ion-button expand="block" (click)="signinWithGoogle()">{{ 'Google' | translate }}</ion-button>
-        </div>
-        <div>
-          <ion-button btnStyle expand="block" fill="clear" href="/signup">
+          <ion-button appBtnStyle color="text-dark-2" expand="block" fill="clear" href="/signup">
             <div>{{ 'DontHaveAccount' | translate }}</div>
           </ion-button>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="copyright">{{ 'Copyright' | translate }}</div>
 </ion-content>
