@@ -22,16 +22,41 @@
     --inner-padding-end: 2px;
   }
 
+  //remove line from last child item
+  .item:last-child {
+    --border-width: 0 0 0 0;
+  }
+
   .row-icon-content {
     margin-right: 13px;
     --margin-right: 13px;
 
     .icon-area>* {
-      width: 50px;
-      height: 50px;
+      width: 37px;
+      height: 37px;
       border-radius: 25px;
     }
+
+    .inner-content {
+      padding-top: 10px;
+      padding-bottom: 10px;
+
+      .title {
+        margin-top: 0px;
+        margin-bottom: 4px;
+      }
+
+      .sub-title {
+        margin-top: 4px;
+        margin-bottom: 0px;
+      }
+    }
   }
+}
+
+.ios .toolbar .toolbar-background {
+  border-top-width: 0;
+  border-bottom-width: 0;
 }
 
 .wallet-container {
@@ -60,10 +85,14 @@
       --background: none;
       --height: 43px;
       --min-height: 43px;
+      --border-color: transparent;
+      --border-width: 0px;
     }
 
     ion-button {
-      --height: 100%;
+      --height: auto;
+      --padding-top: 4px;
+      --padding-bottom: 4px;
       font-size: .85em;
     }
   }

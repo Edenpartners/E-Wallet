@@ -53,8 +53,13 @@
   "valid.phoneNumber.pattern": "Invalid mobile number",
   
   "wallet.address.copied":"The wallet address has been placed in the clipboard.",
+  "NoTransactions":"No transactions found",
 
+  "To":"to",
+  "From":"from",
+  
   "TEST": "Test {{value}}",
+  
   "______________SIGN_IN": "",
   "Copyright": "Copyright by Eden Partners, Inc. Company Confidential.",
   "AppName": "E-Wallets",

@@ -2,17 +2,15 @@
   <common-nav-bar title="{{ 'DpEdnListTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content no-padding>
-  <div class="page-wrapper" padding>
-    <button ion-button>
-      <div class="row-hor-direction">
-        <ion-fab-button icon-start color="medium" (click)="onAddFromEthClick()">
-          <ion-icon name="add"></ion-icon>
-        </ion-fab-button>
-        <ion-label class="row-hor-item-fill">{{
+<ion-content class="page-wrapper" no-padding>
+  <div class="page-content" padding>
+    <ion-button fill="clear" (click)="onAddFromEthClick()">
+      <div class="flex-h-dir-v-centered">
+        <ion-icon class="icon" name="add-circle" color="text-light-1"></ion-icon>
+        <ion-label color="text-light-1" class="row-hor-item-fill">{{
           'DpFromEth' | translate
         }}</ion-label>
       </div>
-    </button>
+    </ion-button>
   </div>
 </ion-content>

@@ -12,7 +12,7 @@
   width: 100%;
   height: auto;
   text-align: center;
-  color: var(--color-text-dark-3);
+  color: var(--color-text-dark-4);
   font-size: .6em;
   margin-bottom: var(--space-normal);
 }
@@ -32,6 +32,10 @@
     .content {
       margin-top: 20%;
       width: 100%;
+
+      .form-area {
+        width: 70%;
+      }
 
       form {
         margin-top: var(--space-half);

@@ -11,8 +11,8 @@
     "apply:ewallet-config": "node apply.js ewallet only-config",
     "apply:default": "node apply.js default && cd .. && ionic cordova prepare && cd app_build_helper",
     "apply:default-config": "node apply.js default only-config",
-    "reset:ewallet": "npm run clean && npm run apply:ewallet-config && cd .. && npm install && ionic cordova prepare && cd app_build_helper && npm run apply:ewallet",
-    "reset:default": "npm run clean && npm run apply:default-config && cd .. && npm install && ionic cordova prepare && cd app_build_helper && npm run apply:default"
+    "reset:ewallet": "npm run clean && npm run apply:ewallet-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:ewallet",
+    "reset:default": "npm run clean && npm run apply:default-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:default"
   },
   "author": "Jinho Yun",
   "license": "Owl Family Inc.",

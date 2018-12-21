@@ -1,13 +1,70 @@
 // this will also available to use from all pages
 @import '../../../../theme/common.scss';
 
-.page-wrapper {
-  background: var(--tcol-lightest);
+.item:last-child {
+  --border-width: 0 0 0 0;
+}
+
+.page-content {
+  ion-item {
+    --background: rgba(0, 0, 0, 0);
+    --background-color: rgba(0, 0, 0, 0);
+  }
+
+  .header {
+    .title {
+      font-size: 1.5em;
+
+      background: linear-gradient(to right, #7ddb43, #614da0);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      padding: 0;
+      margin: 0;
+    }
+
+    .tedn {
+      margin-top: var(--space-2x);
+
+      .field-label {
+        font-size: .95em;
+      }
+
+      .field-value {
+        font-size: 1.2em;
+      }
+    }
+
+    ion-label {
+      color: var(--color-text-light-1);
+    }
+  }
+}
+
+.content {
+  --background: rgba(255, 255, 255, 0.86);
+
+  ion-list {
+    --background: none;
+    background: none;
+    --padding-top: 0px;
+  }
+
+  ion-item {
+    --background: none;
+    background: none;
+    --padding-start: var(--space-normal);
+    --padding-end: var(--space-normal);
+  }
 }
 
 .row-icon-content {
   text-overflow: ellipsis;
   overflow: hidden;
+
+  margin-top: var(--space-half);
+  margin-bottom: var(--space-half);
 
   * {
     text-overflow: ellipsis;
@@ -15,9 +72,27 @@
   }
 
   .icon-area>* {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     border-radius: 15px;
+    opacity: 0.54;
+  }
+
+  .inner-content {
+    ion-label {
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .title {
+      margin-top: 0px;
+      margin-bottom: 4px;
+    }
+
+    .sub-title {
+      margin-top: 4px;
+      margin-bottom: 0px;
+    }
   }
 
   .label {
@@ -26,5 +101,15 @@
 
   .address {
     font-size: .9em;
+  }
+
+  .date {
+    font-size: .9em;
+  }
+}
+
+.footer {
+  ion-toolbar {
+    --background: none;
   }
 }

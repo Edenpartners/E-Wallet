@@ -46,6 +46,7 @@ interface TednTransaction {
   from_addr: string;
   to_addr: string;
   amount: string;
+  amountDisplay: string;
   regdate: number;
   regdateText: string;
 }
@@ -122,7 +123,10 @@ export class TwTxListPage implements OnInit, OnDestroy {
     this.logger.debug('load page : ' + pageNum);
     this.feedbackUI.showLoading();
 
-    const tednPublicKey = this.storage.userInfo.tedn_public_key;
+    let tednPublicKey = null;
+    if (this.storage.isSignedIn) {
+      tednPublicKey = this.storage.userInfo.tedn_public_key;
+    }
 
     const onSuccess = resData => {
       const data = resData.data;
@@ -139,6 +143,10 @@ export class TwTxListPage implements OnInit, OnDestroy {
           from_addr: item.from_addr,
           to_addr: item.to_addr,
           amount: item.amount,
+          amountDisplay: ethers.utils.formatUnits(
+            String(item.amount),
+            Consts.TEDN_DECIMAL
+          ),
           regdate: item.regdate,
           regdateText: this.getDateString(item.regdate)
         });
@@ -157,10 +165,23 @@ export class TwTxListPage implements OnInit, OnDestroy {
       data.totalcount = 100;
       data.transactions = [];
       for (let i = 0; i < countPerPage; i++) {
+        let isEven = false;
+        if (i === 0 || i % 2 === 0) {
+          isEven = true;
+        }
+        let fromAddr: string = null;
+        let toAddr: string = null;
+        if (isEven) {
+          fromAddr = tednPublicKey;
+          toAddr = UUID.UUID();
+        } else {
+          fromAddr = UUID.UUID();
+          toAddr = tednPublicKey;
+        }
         const item = {
-          from_addr: UUID.UUID(),
-          to_addr: UUID.UUID(),
-          amount: i,
+          from_addr: fromAddr,
+          to_addr: toAddr,
+          amount: i * 10000000000,
           regdate: new Date().getTime() / 1000
         };
         data.transactions.push(item);
@@ -191,11 +212,8 @@ export class TwTxListPage implements OnInit, OnDestroy {
   }
 
   getDateString(regdate) {
-    return new Date().toLocaleString();
-  }
-
-  isSendTx(tx: TednTransaction) {
-    return tx.isSend;
+    return new Date(regdate * 1000).toLocaleDateString();
+    //return new Date(regdate * 1000).toLocaleString();
   }
 
   doInfinite(evt) {

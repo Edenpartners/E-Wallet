@@ -86,7 +86,7 @@ export class SubscriptionPack {
 
   addSubscription(subscriptionCreator: () => Subscription, key: any = null) {
     this.list.push({
-      key: null,
+      key: key,
       subscription: subscriptionCreator(),
       subscriptionCreator: subscriptionCreator
     });

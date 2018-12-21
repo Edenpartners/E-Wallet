@@ -55,6 +55,11 @@ enum Mode {
   styleUrls: ['./tw-trade.page.scss']
 })
 export class TwTradePage implements OnInit, OnDestroy {
+  walletId: string;
+  wallet: AppStorageTypes.TednWalletInfo;
+  tednBalance = null;
+  tednBalanceFormatted = null;
+
   wallets: Array<WalletTypes.WalletInfo> = [];
   tednWallets: Array<AppStorageTypes.TednWalletInfo> = [];
 
@@ -87,6 +92,29 @@ export class TwTradePage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.subscriptionPack.addSubscription(() => {
+      return this.aRoute.parent.params.subscribe(params => {
+        this.walletId = params['id'];
+        this.wallet = this.storage.findTednWalletById(this.walletId);
+
+        if (this.wallet) {
+          const tednTracker = this.dataTracker.startTEDNBalanceTracker(
+            this.walletId
+          );
+
+          this.subscriptionPack.addSubscription(() => {
+            return tednTracker.trackObserver.subscribe(balance => {
+              this.tednBalance = balance;
+              this.tednBalanceFormatted = ethers.utils.formatUnits(
+                balance,
+                Consts.TEDN_DECIMAL
+              );
+            });
+          });
+        }
+      });
+    });
+
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.queryParamMap.subscribe(query => {
         try {

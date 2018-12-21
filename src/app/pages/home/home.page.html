@@ -18,11 +18,10 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-
 </ion-header>
 
-<ion-content no-padding no-bounce>
-  <div class="page-wrapper fill hcf-layout">
+<ion-content class="page-wrapper" no-padding no-bounce>
+  <div class="page-content fill hcf-layout">
     <div padding class="content lists-wrapper">
       <div margin-bottom class="hcf-layout wallet-container edn">
         <ion-toolbar class="header" color="main2">
@@ -34,7 +33,7 @@
           </ion-buttons>
         </ion-toolbar>
         <ion-content class="content">
-          <ion-list no-margin padding class="content-list">
+          <ion-list lines="none" no-margin padding class="content-list">
             <ion-item lines="none" no-margin (click)="onWalletItemClick(item)" *ngFor="
             let item of wallets;
             let i = index;
@@ -51,18 +50,20 @@
                   <div [ngStyle]="{ 'background-color': item.data.profile.color }"></div>
                 </div>
                 <div class="inner-content">
-                  <ion-label color="text-dark-2" class="title">
-                    {{ item.data.profile.alias }}
-                  </ion-label>
-                  <ion-label text-right color="info-subtitle" class="sub-title">
-                    {{ item.ethBalanceEther | number: '.0-5' }} ETH /
-                    {{ item.ednBalanceDisplay  | number: '.0-5' }}
-                    EDN
-                  </ion-label>
+                  <div>
+                    <ion-label color="text-dark-1-1" class="title">
+                      {{ item.data.profile.alias }}
+                    </ion-label>
+                    <ion-label text-right color="text-dark-3" class="sub-title">
+                      {{ item.ethBalanceEther | number: '.0-5' }} ETH /
+                      {{ item.ednBalanceDisplay  | number: '.0-5' }}
+                      EDN
+                    </ion-label>
+                  </div>
                 </div>
               </div>
 
-              <ion-button fill="clear" color="dark" *ngIf="showWalletsOrderIcon">
+              <ion-button fill="clear" color="text-dark-2" *ngIf="showWalletsOrderIcon">
                 <ion-icon name="menu"></ion-icon>
               </ion-button>
             </ion-item>
@@ -70,7 +71,7 @@
         </ion-content>
         <div class="footer">
           <div class="divider"></div>
-          <ion-toolbar>
+          <ion-toolbar style="border:none;" no-border-top no-border>
             <div class="flex-h-dir">
               <div class="flex-item-fill flex-ch-centered">
                 <ion-button appBtnStyle href="/dp-edn-list" color="text-dark-1">{{
@@ -87,7 +88,7 @@
           <ion-label color="text-light-1">{{ 'MyTEDNWalletsTitle' | translate }}</ion-label>
         </ion-toolbar>
         <ion-content class="content">
-          <ion-list no-margin padding class="content-list">
+          <ion-list lines="none" no-margin padding class="content-list">
             <ion-item lines="none" no-margin (click)="onTednWalletItemClick(item)" *ngFor="
                 let item of tednWallets;
                 let i = index;
@@ -104,17 +105,19 @@
                   <div [ngStyle]="{ 'background-color': item.data.color }"></div>
                 </div>
                 <div class="inner-content">
-                  <ion-label color="text-dark-2" class="title">
-                    {{ item.data.name }}
-                  </ion-label>
-                  <ion-label text-right color="info-subtitle" class="sub-title">
-                    {{ item.tednBalanceFormatted === null ? '-' : (item.tednBalanceFormatted | number: '.0-5') }}
-                    TEDN
-                  </ion-label>
+                  <div>
+                    <ion-label color="text-dark-1-1" class="title">
+                      {{ item.data.name }}
+                    </ion-label>
+                    <ion-label text-right color="text-dark-3" class="sub-title">
+                      {{ item.tednBalanceFormatted === null ? '-' : (item.tednBalanceFormatted | number: '.0-5') }}
+                      TEDN
+                    </ion-label>
+                  </div>
                 </div>
               </div>
 
-              <ion-button fill="clear" color="dark" *ngIf="showTednWalletsOrderIcon">
+              <ion-button fill="clear" color="text-dark-2" *ngIf="showTednWalletsOrderIcon">
                 <ion-icon name="menu"></ion-icon>
               </ion-button>
             </ion-item>

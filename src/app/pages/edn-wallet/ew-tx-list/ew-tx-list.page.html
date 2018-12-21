@@ -1,24 +1,24 @@
-<div class="page-wrapper fill" padding>
+<div class="page-wrapper fill">
   <div class="hcf-layout fill">
     <ion-content class="content" class="content" [hidden]="txList.length < 1">
       <ion-list *ngIf="txList.length > 0">
-        <ion-item *ngFor="let item of txList" no-padding>
+        <ion-item lines="none" *ngFor="let item of txList">
           <div class="row-icon-content">
             <div class="icon-area">
-              <ion-icon name="arrow-round-up" *ngIf="isSendTx(item)"></ion-icon>
-              <ion-icon name="arrow-round-down" *ngIf="!isSendTx(item)"></ion-icon>
+              <ion-icon name="arrow-dropup" *ngIf="isSendTx(item)"></ion-icon>
+              <ion-icon name="arrow-dropdown" *ngIf="!isSendTx(item)"></ion-icon>
             </div>
             <div class="inner-content">
               <div class="flex-h-dir">
-                <ion-label class="label flex-item-auto">
-                  {{ item.info.amount.display }} EDN
+                <ion-label class="label flex-item-auto" color="text-dark-1-1">
+                  {{ item.info.amount.display | number: '.0-5' }} {{ 'EDN' | translate }}
                 </ion-label>
               </div>
               <div class="flex-h-dir">
-                <ion-label class="flex-item-fill address" color="info">
-                  {{ item.info.to }}
+                <ion-label class="flex-item-fill address" color="text-dark-2">
+                  {{ isSendTx(item) ? ('To' | translate) : ('From' | translate ) }} {{ item.info.to }}
                 </ion-label>
-                <ion-label class="flex-item-auto">
+                <ion-label class="flex-item-auto date" color="text-dark-2">
                   {{ getDateString(item.cDate) }}
                 </ion-label>
               </div>
@@ -29,14 +29,14 @@
 
       <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
         <ion-infinite-scroll-content></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
+        </ion-infinizte-scroll>
     </ion-content>
 
     <ion-content class="content" [hidden]="txList.length > 0">
       <div class="flex-ch-centered fill">
         <div class="flex-h-dir-centered">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          <ion-label class="icon-space-left-margin">No transactions found</ion-label>
+          <ion-icon name="information-circle-outline" color="text-light-1"></ion-icon>
+          <ion-label class="icon-space-left-margin" color="text-light-1">{{ 'NoTransactions' | translate }}</ion-label>
         </div>
       </div>
     </ion-content>
@@ -45,10 +45,10 @@
       <ion-toolbar>
         <div class="flex-h-dir">
           <div class="flex-item-fill flex-ch-centered">
-            <ion-button appBtnStyle (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
+            <ion-button appBtnStyle color="text-light-1" (click)="onReceiveClick()">{{ "Receive" | translate }}</ion-button>
           </div>
           <div class="flex-item-fill flex-ch-centered">
-            <ion-button appBtnStyle (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
+            <ion-button appBtnStyle color="text-light-1" (click)="onSendClick()">{{ "Send" | translate }}</ion-button>
           </div>
         </div>
       </ion-toolbar>

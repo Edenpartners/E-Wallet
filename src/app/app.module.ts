@@ -18,6 +18,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HTTP } from '@ionic-native/http/ngx';
 import { AppVersion } from '@ionic-native/app-version/ngx';
+import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
 //===== firebase
 import { AngularFireModule } from '@angular/fire';
@@ -83,6 +84,7 @@ export function createTranslateLoader(http: HttpClient) {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     HTTP,
     AppVersion,
+    Deeplinks,
 
     AngularFireDatabase,
     AngularFireAuth,

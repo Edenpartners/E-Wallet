@@ -1,22 +1,30 @@
+@import '../../../../theme/common.scss';
+
 .page-wrapper {
   height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
-}
 
-.row-hor-direction {
-  display: flex;
-  flex-direction: row;
 
-  align-items: center; //center vertically
-}
+  ion-button {
+    --height: auto;
+    --width: 100%;
+    --padding-left: 0px;
+    text-transform: none;
 
-.row-hor-item-fill {
-  padding-left: 10px;
-}
+    >div {
+      width: 100%;
+    }
+  }
 
-button {
-  width: 100%;
-  background: transparent;
+  ion-label {
+    padding-left: 10px;
+  }
+
+  .icon {
+    width: 38px;
+    height: 38px;
+  }
+
 }

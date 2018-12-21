@@ -1,20 +1,32 @@
-.hcf-layout {
-  height: 100%;
-}
+@import '../../../../theme/common.scss';
 
-.header {
-  --background: var(--tcol-mainback);
-}
+.page-wrapper {
+  ion-list {
+    margin-bottom: 0px;
 
-.header ion-item {
-  --background: var(--tcol-mainback);
-}
+    --background: none;
+    background: none;
 
-ion-label.field-label {
-  flex: none;
-  margin-right: 13px;
-}
+    ion-item {
+      --background: none;
+    }
+  }
 
-ion-list {
-  margin-bottom: 0px;
+  .wallet-name {
+    font-size: 1.4em;
+  }
+
+  .sub-item {
+    color: var(--color-text-light-1);
+
+    .field-label {
+      flex: none;
+      margin-right: var(--space-normal);
+      font-size: .85em;
+    }
+
+    .field-value {
+      font-size: 1.1em;
+    }
+  }
 }

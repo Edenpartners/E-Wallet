@@ -10,6 +10,8 @@ export const environment = {
     handleUserState: true,
     alterStartPath: '',
     disableConsoleLogging: true,
+    compareUserIDTokenOnDeeplinkHandling: false,
+
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
     signinWithEdnUserInfo: true,

@@ -2,33 +2,36 @@
   <common-nav-bar title="{{ 'DpEdnMainTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content no-padding no-bounce>
-  <div class="page-wrapper hcf-layout fill" padding ion-fixed>
-    <div class="content fill-width">
+<ion-content class="page-wrapper" no-padding no-bounce>
+  <div class="page-content fill flex-ch-centered" padding>
+    <div class="content free-form-area fill-width">
       <ion-label>{{ 'Exchange' | translate }}</ion-label>
-      <ion-select [(ngModel)]="selectedTrader">
+      <ion-select class="input-field margin-top-half" [(ngModel)]="selectedTrader">
         <ion-select-option>Kyber Networks</ion-select-option>
       </ion-select>
-      <ion-label>{{ 'AddEdnTo' | translate }}</ion-label>
-      <ion-select [(ngModel)]="selectedWalletId" (ionChange)="onWalletChange(this)">
+
+      <ion-label class="margin-top-2x">{{ 'AddEdnTo' | translate }}</ion-label>
+      <ion-select class="input-field margin-top-half" [(ngModel)]="selectedWalletId" (ionChange)="onWalletChange(this)">
         <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
       </ion-select>
-      <ion-label>{{ 'Amount' | translate }}</ion-label>
-      <ion-item no-padding>
-        <ion-input type="number" [(ngModel)]="ethAmount" (ionChange)="getRateByLocally()"></ion-input>
-        <ion-label>ETH</ion-label>
+
+      <ion-label class="margin-top-2x sub-header">{{ 'Amount' | translate }}</ion-label>
+
+      <ion-item lines="full" class="full-text-input">
+        <ion-label class="invisible">{{ 'ETH' | translate }}</ion-label>
+
+        <ion-input type="number" color="text-light-1" text-center [(ngModel)]="ethAmount"
+          (ionChange)="getRateByLocally()"></ion-input>
+        <ion-label>{{ 'ETH' | translate }}</ion-label>
       </ion-item>
 
-      <ion-item no-padding margin-top>
-        <ion-input [readonly]="true" [(ngModel)]="ednFromEthEstimatedText"></ion-input>
-        <ion-label>EDN</ion-label>
+      <ion-item lines="full" class="full-text-input readonly">
+        <ion-label class="invisible">{{ 'EDN' | translate }}</ion-label>
+        <ion-input [readonly]="true" color="text-light-1" text-center [(ngModel)]="ednFromEthEstimatedText"></ion-input>
+        <ion-label>{{ 'EDN' | translate }}</ion-label>
       </ion-item>
-    </div>
 
-    <div class="footer fill-width">
-      <ion-toolbar>
-        <ion-button appBtnStyle expand="full" (click)="tradeEthToEdn()">{{ 'Add' | translate }}</ion-button>
-      </ion-toolbar>
+      <ion-button expand="block" color="theme-1" (click)="tradeEthToEdn()" class="margin-top-2x">{{ 'Add' | translate }}</ion-button>
     </div>
   </div>
 

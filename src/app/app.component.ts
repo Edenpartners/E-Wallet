@@ -29,6 +29,8 @@ import { SubscriptionPack } from './utils/listutil';
 import { TransactionLoggerService } from './providers/transactionLogger.service';
 import { PcEditPage } from './pages/pin-code/pc-edit/pc-edit.page';
 import { AppVersion } from '@ionic-native/app-version/ngx';
+import { Deeplinks } from '@ionic-native/deeplinks/ngx';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -41,10 +43,12 @@ export class AppComponent implements OnInit, OnDestroy {
   private subscriptionPack: SubscriptionPack = new SubscriptionPack();
   private hasModal = false;
   private currentModal: HTMLIonModalElement = null;
-  private isFirstUserStateEvent = true;
+  private isUserStateEventFired = false;
 
   private appVersionCode: any = '';
   private appVersionNumber: any = '';
+
+  private latestDeeplink: any = null;
 
   @ViewChild('sideMenu') private sideMenu: Menu;
 
@@ -64,7 +68,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private events: Events,
     private dataTracker: DataTrackerService,
     private transactionLogger: TransactionLoggerService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private deeplinks: Deeplinks
   ) {
     this.env = env;
     this.resetEnvConfigText();
@@ -131,6 +136,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.transactionLogger.initEvents();
 
     this.platform.ready().then(() => {
+      this.handleHardwareBackButton();
       this.appVersion.getVersionCode().then(val => {
         this.appVersionCode = val;
       });
@@ -148,6 +154,119 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  handleHardwareBackButton() {
+    //https://github.com/ionic-team/ionic/issues/15820
+    this.subscriptionPack.removeSubscriptionsByKey('backButton');
+    this.subscriptionPack.addSubscription(() => {
+      return this.platform.backButton.subscribeWithPriority(9999, () => {
+        this.logger.debug('handle back button');
+      });
+    }, 'backButton');
+
+    //
+    // this.platform.backButton.subscribe(
+    //   (val?: any) => {},
+    //   (error?: any) => {},
+    //   (complete?: any) => {}
+    // );
+  }
+  async handleDeepLink() {
+    if (this.latestDeeplink) {
+      this.logger.debug('found deep link');
+
+      if (this.storage.isSignedIn) {
+        // {
+        //   "$link": {
+        //     "path": "/deposit",
+        //     "queryString": "id=user_id_hash",
+        //     "fragment": "",
+        //     "host": "ssl.owlfamily.net",
+        //     "url": "https://ssl.owlfamily.net/deposit?id=user_id_hash",
+        //     "scheme": "https"
+        //   }
+        // }
+
+        try {
+          const link = this.latestDeeplink.$link;
+          const queryString: string = link.queryString;
+          let userIdHash: string = null;
+
+          if (queryString && queryString.indexOf('id=') >= 0) {
+            const userIdParams = queryString.split('=');
+            if (userIdParams.length >= 2) {
+              userIdHash = userIdParams[1];
+            }
+          }
+
+          let moveUrl = null;
+          const linkPath = link.path;
+          if (linkPath && linkPath.indexOf('/deposit') === 0) {
+            moveUrl = 'tw-main/sub/_default_/(sub:trade)?mode=deposit';
+          } else if (linkPath && linkPath.indexOf('/withdraw') === 0) {
+            moveUrl = 'tw-main/sub/_default_/(sub:trade)?mode=withdraw';
+          }
+
+          const currentUserAccessToken: string = await this.ednApi.getUserAccessToken();
+
+          this.logger.debug('move to deeplink');
+          if (env.config.compareUserIDTokenOnDeeplinkHandling) {
+            if (currentUserAccessToken === userIdHash && moveUrl) {
+              this.rs.navigateByUrl(moveUrl);
+            }
+          } else if (moveUrl) {
+            this.rs.navigateByUrl(moveUrl);
+          }
+        } catch (e) {
+          this.logger.debug(e);
+        }
+      } else {
+        this.logger.debug('there is no user signed-in. just ignore deeplink');
+      }
+    }
+
+    this.latestDeeplink = null;
+  }
+
+  resubscribeDeeplink() {
+    if (!this.platform.is('cordova')) {
+      return;
+    }
+
+    this.subscriptionPack.removeSubscriptionsByKey('deeplink');
+    this.subscriptionPack.addSubscription(() => {
+      //will not use automatic-routing. for handling with user's sign-in statement
+      return this.deeplinks.route([]).subscribe(
+        deepLinkMatch => {
+          //this will not happen
+          this.logger.debug('deep link match');
+          this.logger.debug(deepLinkMatch.$args);
+          this.logger.debug(deepLinkMatch.$route);
+          this.logger.debug(deepLinkMatch.$link);
+
+          this.resubscribeDeeplink();
+        },
+        deepLinkNotMatch => {
+          // handle deep link from here.
+          this.logger.debug('deep link not match');
+          this.logger.debug(deepLinkNotMatch);
+
+          if (deepLinkNotMatch.$link) {
+            this.latestDeeplink = deepLinkNotMatch;
+          }
+          if (this.isUserStateEventFired) {
+            this.handleDeepLink();
+          }
+
+          this.resubscribeDeeplink();
+        },
+        //complete
+        () => {
+          this.logger.debug('deep link subscription complete');
+        }
+      );
+    }, 'deeplink');
+  }
+
   handleDefaultRoute() {
     this.logger.debug('current url : ' + this.router.url);
     if (
@@ -157,12 +276,18 @@ export class AppComponent implements OnInit, OnDestroy {
       this.rs.navigateByUrl(env.config.alterStartPath);
     }
 
+    this.resubscribeDeeplink();
+
     this.subscriptionPack.addSubscription(() => {
       return this.storage.userStateObserver.subscribe(
         //next
         userInfo => {
-          const isFirstUserStateEvent = this.isFirstUserStateEvent;
-          this.isFirstUserStateEvent = false;
+          this.logger.debug('user state changed');
+
+          const isFirstUserStateEvent =
+            this.isUserStateEventFired === true ? false : true;
+
+          this.isUserStateEventFired = true;
           //start tracking incomplete tx logs
           if (this.storage.isSignedIn) {
             this.transactionLogger.trackUnclosedTxLogs();
@@ -178,6 +303,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     this.logger.debug('on navigation end');
                     setTimeout(() => {
                       this.splashScreen.hide();
+                      this.handleDeepLink();
                     }, 1000);
                     navSubscription.unsubscribe();
                   }

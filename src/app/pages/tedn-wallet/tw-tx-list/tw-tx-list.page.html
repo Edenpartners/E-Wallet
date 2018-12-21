@@ -1,72 +1,75 @@
-<div class="page-wrapper fill" no-padding>
-  <div class="hcf-layout fill">
-    <div class="header">
-      <ion-list>
-        <ion-item lines="none" [hidden]="!aliasEditing">
-          <ion-input text-center #aliasInput [(ngModel)]="editingAlias" (keyup.enter)="handleAliasEditing()">
-          </ion-input>
-        </ion-item>
-        <ion-item lines="none">
+<ion-content class="page-wrapper" no-padding no-bounce>
+  <div class="page-content fill">
+    <div class="hcf-layout fill">
+      <div class="header" padding>
+        <div class="flex-h-dir-centered">
+          <ion-label class="field-label title"> {{ wallet.name }}</ion-label>
+        </div>
+        <div class="flex-h-dir-v-centered tedn">
           <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
           </ion-label>
-          <ion-label text-right> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
+          <ion-label text-right class="field-value flex-item-fill"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
             {{ 'TEDN' | translate }}
           </ion-label>
-        </ion-item>
-      </ion-list>
-    </div>
-
-    <ion-content class="content" [hidden]="txList.length < 1" padding>
-      <ion-list *ngIf="txList.length > 0">
-        <ion-item *ngFor="let item of txList" no-padding>
-          <div class="row-icon-content">
-            <div class="icon-area">
-              <ion-icon name="arrow-round-up" *ngIf="isSendTx(item)"></ion-icon>
-              <ion-icon name="arrow-round-down" *ngIf="!isSendTx(item)"></ion-icon>
-            </div>
-            <div class="inner-content">
-              <div class="flex-h-dir">
-                <ion-label class="label flex-item-auto">
-                  {{ item.amount }} TEDN
-                </ion-label>
-              </div>
-              <div class="flex-h-dir">
-                <ion-label class="flex-item-fill address" color="info">
-                  {{ item.to_addr }}
-                </ion-label>
-                <ion-label class="flex-item-auto">
-                  {{ item.regdateText }}
-                </ion-label>
-              </div>
-            </div>
-          </div>
-        </ion-item>
-      </ion-list>
-      <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
-        <ion-infinite-scroll-content></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-    </ion-content>
-
-    <ion-content class="content" [hidden]="txList.length > 0">
-      <div class="flex-ch-centered fill">
-        <div class="flex-h-dir-centered">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          <ion-label class="icon-space-left-margin">No transactions found</ion-label>
         </div>
       </div>
-    </ion-content>
 
-    <div class="footer">
-      <ion-toolbar>
-        <div class="flex-h-dir">
-          <div class="flex-item-fill flex-ch-centered">
-            <ion-button appBtnStyle (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
-          </div>
-          <div class="flex-item-fill flex-ch-centered">
-            <ion-button appBtnStyle (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
+      <ion-content class="content" [hidden]="txList.length < 1">
+        <ion-list lines="none" *ngIf="txList.length > 0">
+          <ion-item lines="none" *ngFor="let item of txList">
+            <div class="row-icon-content">
+              <div class="icon-area">
+                <ion-icon name="arrow-dropup" *ngIf="item.isSend"></ion-icon>
+                <ion-icon name="arrow-dropdown" *ngIf="!item.isSend"></ion-icon>
+              </div>
+              <div class="inner-content">
+                <div class="flex-h-dir">
+                  <ion-label class="label flex-item-auto" color="text-dark-1-1">
+                    {{ item.amountDisplay | number: '.0-5' }} {{ 'TEDN' | translate }}
+                  </ion-label>
+                </div>
+                <div class="flex-h-dir">
+                  <ion-label class="flex-item-fill address" color="text-dark-2" *ngIf="item.isSend">
+                    {{ ('To' | translate) }} {{ item.to_addr }}
+                  </ion-label>
+                  <ion-label class="flex-item-fill address" color="text-dark-2" *ngIf="!item.isSend">
+                    {{ ('From' | translate ) }} {{ item.from_addr }}
+                  </ion-label>
+
+                  <ion-label class="flex-item-auto date" color="text-dark-2">
+                    {{ item.regdateText }}
+                  </ion-label>
+                </div>
+              </div>
+            </div>
+          </ion-item>
+        </ion-list>
+        <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ion-content>
+
+      <ion-content class="content" [hidden]="txList.length > 0">
+        <div class="flex-ch-centered fill">
+          <div class="flex-h-dir-centered">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <ion-label class="icon-space-left-margin">No transactions found</ion-label>
           </div>
         </div>
-      </ion-toolbar>
+      </ion-content>
+
+      <div class="footer">
+        <ion-toolbar>
+          <div class="flex-h-dir">
+            <div class="flex-item-fill flex-ch-centered">
+              <ion-button appBtnStyle color="text-light-1" (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
+            </div>
+            <div class="flex-item-fill flex-ch-centered">
+              <ion-button appBtnStyle color="text-light-1" (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
+            </div>
+          </div>
+        </ion-toolbar>
+      </div>
     </div>
   </div>
-</div>
+</ion-content>

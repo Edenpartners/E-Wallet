@@ -165,6 +165,7 @@ export class AppStorageService {
 
     this.internalPinNumber = pinNumber;
     this.salt = salt;
+    this.insecureWallets = [];
   }
 
   get hasPinNumber(): boolean {
@@ -597,6 +598,9 @@ export class AppStorageService {
   }
 
   findWalletById(walletId: string): WalletTypes.WalletInfo | null {
+    if (!this.insecureWallets) {
+      return null;
+    }
     const foundStoredWallet = this.insecureWallets.find(
       (item: WalletTypes.WalletInfo) => {
         if (walletId === item.id) {
@@ -615,6 +619,9 @@ export class AppStorageService {
     providerType: EthProviders.Type,
     providerConnectionInfo: string
   ): WalletTypes.EthWalletInfo | null {
+    if (!this.insecureWallets) {
+      return null;
+    }
     const foundStoredWallet = this.insecureWallets.find(
       (item: WalletTypes.WalletInfo) => {
         if (

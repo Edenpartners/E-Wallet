@@ -6,18 +6,26 @@
   --color-transparent: rgba(255, 255, 255, 0);
 
   --color-text-light-1: #ffffff;
-  --color-text-dark-1: #000000;
-  --color-text-dark-2: #636363;
-  --color-text-dark-3: #9A9A9A;
+  --color-text-light-2: #eeeeee;
 
+  --color-text-dark-1: #000000;
+  --color-text-dark-1-1: #222222;
+  --color-text-dark-2: #636363;
+  --color-text-dark-3: #7F7F7F;
+  --color-text-dark-4: #9A9A9A;
+
+  
   --color-theme-1: #D57C47;
   --color-theme-2: #614DA0;
 
   --space-normal: 16px;
-  --space-x2: 32px;
+  --space-2x: 32px;
+  --space-3x: 48px;
   --space-half: 8px;
 
   --color-divider: #909090;
+  --color-item-underline: #585858;
+  --color-item-underline-focused: #D57C48;
 }
 
 //https://stackoverflow.com/questions/46313640/iphone-x-8-8-plus-css-media-queries
@@ -32,6 +40,11 @@
 
 .ion-page{
   background: url('/assets/img/ssscccczzzz_750x1334.png');
+  background-size: cover;
+}
+
+app-tw-trade.ion-page, app-tw-tx-list.ion-page, app-ew-qrcode.ion-page, app-ew-sendto.ion-page, app-ew-tx-list.ion-page{
+  background: none;
   background-size: cover;
 }
 
@@ -138,6 +151,16 @@ ion-header {
   --ion-color-tint: #ffffff;
 }
 
+.ion-color-text-light-2 {
+  --ion-color-base: #eeeeee;
+  --ion-color-base-rgb: 238,238,238;
+  --ion-color-contrast: #000000;
+  --ion-color-contrast-rgb: 0,0,0;
+  --ion-color-shade: #d1d1d1;
+  --ion-color-tint: #f0f0f0;
+}
+
+
 .ion-color-info {
   --ion-color-base: #888888;
   --ion-color-base-rgb: 136, 136, 136;
@@ -165,6 +188,16 @@ ion-header {
   --ion-color-tint: #1a1a1a;
 }
 
+.ion-color-text-dark-1-1 {
+  --ion-color-base: #222222;
+  --ion-color-base-rgb: 34,34,34;
+  --ion-color-contrast: #ffffff;
+  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-shade: #1e1e1e;
+  --ion-color-tint: #383838;
+
+}
+
 .ion-color-text-dark-2 {
   --ion-color-base: #636363;
   --ion-color-base-rgb: 99, 99, 99;
@@ -174,13 +207,13 @@ ion-header {
   --ion-color-tint: #737373;
 }
 
-.ion-color-info-subtitle {
-  --ion-color-base: #666666;
-  --ion-color-base-rgb: 102, 102, 102;
+.ion-color-text-dark-3 {
+  --ion-color-base: #7f7f7f;
+  --ion-color-base-rgb: 127,127,127;
   --ion-color-contrast: #ffffff;
-  --ion-color-contrast-rgb: 255, 255, 255;
-  --ion-color-shade: #5a5a5a;
-  --ion-color-tint: #757575;
+  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-shade: #707070;
+  --ion-color-tint: #8c8c8c;
 }
 
 .ion-color-theme-2 {
@@ -195,7 +228,8 @@ ion-header {
 .ion-color-theme-1 {
   --ion-color-base: #D57C47;
   --ion-color-base-rgb: 213, 124, 71;
-  --ion-color-contrast: #000000;
+  //--ion-color-contrast: #000000;
+  --ion-color-contrast: #ffffff;
   --ion-color-contrast-rgb: 0, 0, 0;
   --ion-color-shade: #bb6d3e;
   --ion-color-tint: #d98959;
@@ -217,15 +251,15 @@ ion-checkbox {
   display: flex;
   flex-direction: column;
 
-  .header {
+  >.header {
     height: auto;
   }
 
-  .content {
+  >.content {
     flex: 1;
   }
 
-  .footer {
+  >.footer {
     height: auto;
   }
 }
@@ -245,6 +279,17 @@ ion-checkbox {
   opacity: 0;
 }
 
+.fw-medeum {
+  font-weight: 500;
+}
+.fw-bold {
+  font-weight: 700;
+}
+
+.title {
+  @extend .fw-bold;
+}
+
 /** Row Item */
 .row-icon-content {
   flex: 1;
@@ -258,24 +303,23 @@ ion-checkbox {
 
   .inner-content {
     flex: 1;
-    margin-left: 16px;
+    margin-left: var(--space-normal);
 
     .title {
-      font-weight: 500;
+      @extend .fw-medeum;
     }
 
     .sub-title {
-      font-weight: 500;
+      @extend .fw-medeum;
       font-size: .95em;
     }
   }
 }
 
+//.free-form-area {}
 
 /** Signin & Signup Form */
 .form-area {
-  width: 70%;
-
   .field-space {
     margin-top: var(--space-half);
   }
@@ -355,6 +399,10 @@ ion-checkbox {
   text-align: center;
 }
 
+ion-select.input-field {
+  background-color: rgba(255, 255, 255, 0.56);
+}
+
 .input-field-icon {
   display: inline-block;
   background-size: cover;
@@ -417,12 +465,28 @@ ion-checkbox {
   margin-top: var(--space-normal);
 }
 
-.margin-top-x2 {
-  --margin-top: var(--space-x2);
-  margin-top: var(--space-x2);
+.margin-top-2x {
+  --margin-top: var(--space-2x);
+  margin-top: var(--space-2x);
+}
+
+.margin-top-3x {
+  --margin-top: var(--space-3x);
+  margin-top: var(--space-3x);
 }
 
 .margin-top-half {
   --margin-top: var(--space-half);
   margin-top: var(--space-half);
+}
+
+
+ion-item.full-text-input{
+  --border-color: var(--color-item-underline);
+  --border-width: 0px 0px 3px 0px;
+  --highlight-color-focused: var(--color-item-underline-focused);
+}
+
+.version-info {
+  color:white; z-index:999; position:fixed; right: var(--space-normal); bottom:0; font-size: .7em;
 }
