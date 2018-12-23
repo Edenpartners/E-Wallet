@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterService } from '../../providers/router.service';
 
 import { NGXLogger } from 'ngx-logger';
-import { Header, Platform } from '@ionic/angular';
+import { IonHeader, Platform } from '@ionic/angular';
 
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
@@ -26,10 +26,10 @@ import { emailPattern } from '../../utils/regex-validations';
 })
 export class SignupPage implements OnInit {
   signupForm: FormGroup;
-  signupFormData = {
-    email: { value: '' },
-    password: { value: '' },
-    passwordConfirm: { value: '' }
+  signupFormData: {
+    email: { value: string };
+    password: { value: string };
+    passwordConfirm: { value: string };
   };
 
   constructor(
@@ -42,6 +42,8 @@ export class SignupPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.resetFormData();
+
     this.signupForm = new FormGroup(
       {
         email: new FormControl('', [
@@ -73,6 +75,21 @@ export class SignupPage implements OnInit {
       }
     );
   }
+  ionViewWillEnter() {
+    this.resetFormData();
+  }
+
+  ionViewDidLeave() {
+    this.resetFormData();
+  }
+
+  resetFormData() {
+    this.signupFormData = {
+      email: { value: '' },
+      password: { value: '' },
+      passwordConfirm: { value: '' }
+    };
+  }
 
   signup() {
     Object.keys(this.signupForm.controls).forEach(field => {
@@ -87,7 +104,7 @@ export class SignupPage implements OnInit {
       return;
     }
 
-    const loading = this.feedbackUI.createLoading();
+    const loading = this.feedbackUI.showRandomKeyLoading();
 
     this.ednApi
       .registerFirebaseUser(
@@ -108,7 +125,7 @@ export class SignupPage implements OnInit {
   }
 
   runEdnSignup() {
-    const loading = this.feedbackUI.createLoading();
+    const loading = this.feedbackUI.showRandomKeyLoading();
 
     this.logger.debug('run edn signup');
     this.ednApi
@@ -129,7 +146,7 @@ export class SignupPage implements OnInit {
   }
 
   signinWithFacebook() {
-    const loading = this.feedbackUI.createLoading();
+    const loading = this.feedbackUI.showRandomKeyLoading();
 
     this.ednApi
       .signinFirebaseUserWithFacebook()
@@ -148,7 +165,7 @@ export class SignupPage implements OnInit {
   }
 
   signinWithTwitter() {
-    const loading = this.feedbackUI.createLoading();
+    const loading = this.feedbackUI.showRandomKeyLoading();
     this.ednApi
       .signinFirebaseUserWithTwitter()
       .then(
@@ -165,7 +182,7 @@ export class SignupPage implements OnInit {
   }
 
   signinWithGoogle() {
-    const loading = this.feedbackUI.createLoading();
+    const loading = this.feedbackUI.showRandomKeyLoading();
 
     this.ednApi
       .signinFirebaseUserWithGoogle()

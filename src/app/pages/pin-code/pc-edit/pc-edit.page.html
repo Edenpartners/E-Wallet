@@ -2,41 +2,42 @@
   <common-nav-bar title="{{ 'CreatePinTitle' | translate }}" (handleBack)="handleBack()"></common-nav-bar>
 </ion-header>
 
-<ion-content no-bounce>
-  <div class="page-wrapper fill hcf-layout" ion-fixed>
-    <div class="hcf-layout header page-content">
-      <div class="content">
+<ion-content class="page-wrapper" no-bounce>
+  <div class="page-content fill hcf-layout flex-col-h-center">
+    <div class="hcf-layout header">
+      <div class="content flex-ch-centered">
 
         <div *ngIf="isCreation && !isConfirmStep">
-          <p>{{ 'PinComment' | translate }}</p>
+          <span class="comment">{{ 'PinComment' | translate }}</span>
 
-          <ion-item lines="none">
-            <ion-label text-center> {{ 'CreatePinComment' | translate }} </ion-label>
+          <ion-item lines="none" class="margin-top-2x">
+            <ion-label text-center class="title"> {{ 'CreatePinComment' | translate }} </ion-label>
           </ion-item>
         </div>
 
         <div *ngIf="isConfirmStep">
           <ion-item lines="none">
-            <ion-label text-center> {{ 'ConfirmPinComment' | translate }} </ion-label>
+            <ion-label text-center class="title"> {{ 'ConfirmPinComment' | translate }} </ion-label>
           </ion-item>
         </div>
 
-        <div class="pin-code">
-          <ion-button [color]="numPad.getUserInputCount() > 0 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button [color]="numPad.getUserInputCount() > 1 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button [color]="numPad.getUserInputCount() > 2 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button [color]="numPad.getUserInputCount() > 3 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button [color]="numPad.getUserInputCount() > 4 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button [color]="numPad.getUserInputCount() > 5 ? 'theme-1' : 'medium'"></ion-button>
+        <div class="pin-code flex-h-dir">
+          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 0 ? 'theme-1' : 'medium'"></ion-button>
+          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 1 ? 'theme-1' : 'medium'"></ion-button>
+          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 2 ? 'theme-1' : 'medium'"></ion-button>
+          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 3 ? 'theme-1' : 'medium'"></ion-button>
+          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 4 ? 'theme-1' : 'medium'"></ion-button>
+          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 5 ? 'theme-1' : 'medium'"></ion-button>
         </div>
       </div>
 
       <div class="footer" [hidden]="isConfirmStep">
-        <ion-button expand="block" [disabled]="numPad.getUserInputCount() !== 6" (click)="onCreatePinBtnClick()">
+        <ion-button expand="block" color="theme-1" [disabled]="numPad.getUserInputCount() !== 6"
+          (click)="onCreatePinBtnClick()">
           {{ 'CreatePin' | translate }}
         </ion-button>
       </div>
     </div>
-    <num-pad class="content" (change)="onNumChange()"></num-pad>
+    <num-pad class="content" style="width:100%;" (change)="onNumChange()"></num-pad>
   </div>
 </ion-content>

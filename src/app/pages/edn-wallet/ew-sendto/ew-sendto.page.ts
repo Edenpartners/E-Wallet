@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,7 +23,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput, Platform } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
@@ -59,6 +65,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   pinCodeConfirmCallback = null;
 
+  @ViewChild('background') background: ElementRef;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -77,7 +85,10 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     private events: Events
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.parent.params.subscribe(params => {
         this.walletId = params['id'];
@@ -91,9 +102,16 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       }
       this.pinCodeConfirmCallback = null;
     });
+
+    this.events.subscribe('set.ew-main.height', height => {
+      this.background.nativeElement.style.height = height;
+    });
+    this.events.publish('get.ew-main.height');
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
+    this.events.unsubscribe('set.ew-main.height');
+
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
     this.subscriptionPack.clear();
@@ -153,7 +171,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       return;
     }
 
-    const loadingHandler: LoadingHandler = this.feedbackUI.createLoading();
+    const loadingHandler: LoadingHandler = this.feedbackUI.showRandomKeyLoading();
     const onTransactionCreate = tx => {
       /** transaction info */
       loadingHandler.hide();

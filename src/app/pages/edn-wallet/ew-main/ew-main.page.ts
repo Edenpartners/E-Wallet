@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { RouterService } from '../../../providers/router.service';
@@ -18,7 +24,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
@@ -37,6 +43,8 @@ import { env } from '../../../../environments/environment';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
+import { Events } from '@ionic/angular';
+
 @Component({
   selector: 'app-ew-main',
   templateUrl: './ew-main.page.html',
@@ -53,9 +61,10 @@ export class EwMainPage implements OnInit, OnDestroy {
   ednBalance: BigNumber;
   ednBalanceAdjusted: BigNumber;
 
-  @ViewChild('aliasInput') aliasInput: Input;
+  @ViewChild('aliasInput') aliasInput: IonInput;
 
   constructor(
+    private element: ElementRef,
     private logger: NGXLogger,
     private rs: RouterService,
     private aRoute: ActivatedRoute,
@@ -67,10 +76,25 @@ export class EwMainPage implements OnInit, OnDestroy {
     private eths: EthService,
     private cbService: ClipboardService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
   ngOnInit() {
+    this.events.subscribe('get.ew-main.height', () => {
+      const firstRect = this.element.nativeElement.getBoundingClientRect();
+      this.logger.debug('send first rect');
+      if (firstRect) {
+        this.events.publish('set.ew-main.height', firstRect.height + 'px');
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.events.unsubscribe('get.ew-main.height');
+  }
+
+  ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
@@ -85,7 +109,7 @@ export class EwMainPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     this.subscriptionPack.clear();
   }
 

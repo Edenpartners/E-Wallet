@@ -3,7 +3,7 @@ import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
 import { NGXLogger } from 'ngx-logger';
-import { Header, Platform } from '@ionic/angular';
+import { IonHeader, Platform } from '@ionic/angular';
 
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
@@ -49,7 +49,10 @@ export class PcEditPage implements OnInit, OnDestroy {
     this.logger.trace('init pc-edit');
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.queryParamMap.subscribe(query => {
         try {
@@ -73,7 +76,7 @@ export class PcEditPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     this.subscriptionPack.clear();
   }
 

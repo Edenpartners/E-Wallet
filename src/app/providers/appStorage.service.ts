@@ -3,7 +3,7 @@ import { NGXLogger } from 'ngx-logger';
 
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase';
-import { Platform, ItemSliding } from '@ionic/angular';
+import { Platform } from '@ionic/angular';
 import { UUID } from 'angular2-uuid';
 
 import { AppVersion } from '@ionic-native/app-version/ngx';

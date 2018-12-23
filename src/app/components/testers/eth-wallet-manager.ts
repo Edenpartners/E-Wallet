@@ -31,7 +31,7 @@ import {
 } from 'src/app/providers/appStorage.service';
 import { Subscription, of, Observable } from 'rxjs';
 
-import { Checkbox } from '@ionic/angular';
+import { IonCheckbox } from '@ionic/angular';
 import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -78,9 +78,9 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   @Input() defaultCheckSignedIn = false;
   @Input() defaultFilteredWalletsByUserInfo = false;
 
-  @ViewChild('checkSignedInBox') checkSignedInBox: Checkbox;
+  @ViewChild('checkSignedInBox') checkSignedInBox: IonCheckbox;
   @ViewChild('filteredWalletsByUserInfoBox')
-  filteredWalletsByUserInfoBox: Checkbox;
+  filteredWalletsByUserInfoBox: IonCheckbox;
 
   supportedContracts: Array<WalletTypes.ContractType> = [
     WalletTypes.ContractType.UNKNOWN,

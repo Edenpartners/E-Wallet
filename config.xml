@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-packageName="io.edenchain.ewallet" id="io.edenchain.ewallet" ios-CFBundleIdentifier="io.edenchain.ewallet" version="0.8.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-packageName="io.edenchain.ewallet" id="io.edenchain.ewallet" ios-CFBundleIdentifier="io.edenchain.ewallet" version="0.9.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>E-Wallet</name>
     <description>An awesome Ionic/Cordova app.</description>
     <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
@@ -131,7 +131,7 @@
         <variable name="DEEPLINK_5_SCHEME" value=" " />
         <variable name="DEEPLINK_5_HOST" value=" " />
     </plugin>
+    <engine name="ios" spec="4.5.5" />
     <engine name="browser" spec="5.0.4" />
-    <engine name="android" spec="~7.1.4" />
-    <engine name="ios" spec="~4.5.5" />
+    <engine name="android" spec="7.1.4" />
 </widget>

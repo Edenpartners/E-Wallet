@@ -2,19 +2,19 @@
   <common-nav-bar title="{{ 'ImportWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content no-bounce>
-  <div class="page-wrapper fill flex-ch-centered" padding ion-fixed>
-    <div class="hcf-layout">
-      <div class="content">
+<ion-content class="page-wrapper" no-bounce>
+  <div class="page-content fill flex-ch-centered" padding ion-fixed>
+    <div class="inner-content">
+      <div class="content margin-top">
         <div class="input-area flex-ch-centered">
-          <ion-label margin-top>
+          <ion-label class="comment margin-top">
             {{ 'EnterPhraseComment' | translate }}
           </ion-label>
-          <ion-textarea margin-top [rows]="10" [(ngModel)]="userInputMnemonic"></ion-textarea>
+          <ion-textarea padding class="text-box-field margin-top" [rows]="10" [(ngModel)]="userInputMnemonic"></ion-textarea>
         </div>
       </div>
 
-      <div class="footer">
+      <div class="footer margin-top">
         <ion-button expand="block" color="danger" (click)="restoreWallet()">
           {{ 'Import' | translate }}
         </ion-button>

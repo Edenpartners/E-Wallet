@@ -16,7 +16,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { env } from '../../../../environments/environment';
@@ -56,7 +56,9 @@ export class BackupWalletPage implements OnInit {
     private translate: TranslateService
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ionViewWillEnter() {
     this.logger.debug('create temp wallet');
     this.feedbackUI.showLoading();
     setTimeout(() => {
@@ -71,6 +73,7 @@ export class BackupWalletPage implements OnInit {
   createRandomWallet() {
     return new Promise<any>((finalResolve, finalReject) => {
       this.logger.debug('create temp wallet');
+      this.userInputWords = [];
       const mWords = ethers.Wallet.createRandom().mnemonic;
 
       this.mnemonic = mWords;
@@ -165,7 +168,7 @@ export class BackupWalletPage implements OnInit {
     }
 
     setTimeout(() => {
-      const loading = this.feedbackUI.createLoading();
+      const loading = this.feedbackUI.showRandomKeyLoading();
       this.addWallet()
         .then(
           () => {

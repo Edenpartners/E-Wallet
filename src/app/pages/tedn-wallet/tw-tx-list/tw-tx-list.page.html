@@ -1,4 +1,6 @@
 <ion-content class="page-wrapper" no-padding no-bounce>
+  <div class="background" #background style="z-index:-1;"></div>
+
   <div class="page-content fill">
     <div class="hcf-layout fill">
       <div class="header" padding>
@@ -52,8 +54,8 @@
       <ion-content class="content" [hidden]="txList.length > 0">
         <div class="flex-ch-centered fill">
           <div class="flex-h-dir-centered">
-            <ion-icon name="information-circle-outline"></ion-icon>
-            <ion-label class="icon-space-left-margin">No transactions found</ion-label>
+            <ion-icon name="information-circle-outline" color="text-dark-1"></ion-icon>
+            <ion-label class="icon-space-left-margin" color="text-dark-1">{{ 'NoTransactions' | translate }}</ion-label>
           </div>
         </div>
       </ion-content>

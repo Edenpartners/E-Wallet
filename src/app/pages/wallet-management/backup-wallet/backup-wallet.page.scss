@@ -1,21 +1,37 @@
-.hcf-layout {
-  width: 90%;
+@import '../../../../theme/common.scss';
+
+.inner-content {
+  width: 80%;
   height: 100%;
   align-items: center;
-}
 
-.hcf-layout .content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  .comment {
+    color: var(--color-text-light-1);
+    font-size: .9em;
+  }
 
-.hcf-layout .content p {
-  text-align: center;
-}
+  >.content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-.footer {
-  width: 100%;
+    p {
+      text-align: center;
+    }
+
+    ion-content {
+      >div {
+        min-height: 100%;
+      }
+
+      flex: 1;
+    }
+  }
+
+  >.footer {
+    width: 100%;
+  }
 }
 
 ion-button.selected {
@@ -23,31 +39,42 @@ ion-button.selected {
 }
 
 .user-input-container {
-  margin-Top: 40px;
+  width: 100%;
   padding: 20px;
-  border: 1px black solid;
   min-height: 150px;
 
   display: flex;
   align-items: center;
   flex-direction: column;
+  color: var(--color-text-dark-1);
 }
 
 .words-box {
+  width: 100%;
   max-width: 100%;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  color: var(--color-text-dark-1);
 }
 
 .user-select-container {
   padding: 20px;
-  margin-top: 100px;
-  min-height: 50px;
 }
 
 ion-item {
   --background: transparent;
+}
+
+ion-button {
+  font-size: .9em;
+}
+
+.word-button {
+  --padding-start: var(--space-qt);
+  --padding-end: var(--space-qt);
+  margin-left: var(--space-qt);
+  margin-right: var(--space-qt);
 }

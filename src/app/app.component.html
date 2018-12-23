@@ -2,20 +2,30 @@
   <ion-menu #sideMenu side="start" [hidden]="!env.config.useSideMenu">
     <ion-content>
       <ion-list>
-        <ion-item>
-          <ion-button color="danger" (click)="signout()">
+        <div class="img-wrapper flex-ch-centered margin-top-3x">
+          <div class="img-background flex-ch-centered">
+            <div class="img-content">
+              <div class="profile-img" [ngStyle]="{'background-image': getUserProfileImage() }"></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex-ch-centered margin-top-3x">
+          <ion-label class="userDisplay">{{ getUserEmail() }}</ion-label>
+        </div>
+        <div class="flex-ch-centered margin-top-2x">
+          <ion-button class="signout" color="theme-2" (click)="signout()">
             Signout
           </ion-button>
-        </ion-item>
+        </div>
       </ion-list>
       <ion-list *ngIf="env.config.useSideMenuForDebug">
         <ion-item *ngFor="let item of rPaths.paths">
-          <ion-button [href]="item">
+          <ion-button (click)="navigateToUrlBySideMenu(item)">
             {{item}}
           </ion-button>
         </ion-item>
         <ion-item *ngFor="let item of rPaths.customPaths">
-          <ion-button [href]="item">
+          <ion-button (click)="navigateToUrlBySideMenu(item)">
             {{item}}
           </ion-button>
         </ion-item>
@@ -41,4 +51,8 @@
   <span class="version-info">
     <span>{{ appVersionNumber ? ('ver' + appVersionNumber) : 'ver?' }} </span>
   </span>
+
+  <ion-button class="back-button-simulater" *ngIf="env.config.simulateHardwareBackButton" (click)="handleHardwareBackButton()">
+    <ion-icon name="arrow-round-back"></ion-icon>
+  </ion-button>
 </ion-app>

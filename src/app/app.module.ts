@@ -62,7 +62,7 @@ export function createTranslateLoader(http: HttpClient) {
     // Logging
     LoggerModule.forRoot({
       disableConsoleLogging: env.config.disableConsoleLogging,
-      level: NgxLoggerLevel.DEBUG,
+      level: NgxLoggerLevel.INFO,
       serverLoggingUrl: null,
       serverLogLevel: NgxLoggerLevel.ERROR
     }),

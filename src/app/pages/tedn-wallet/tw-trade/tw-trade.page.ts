@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { RouterService } from '../../../providers/router.service';
@@ -73,6 +79,8 @@ export class TwTradePage implements OnInit, OnDestroy {
   tradeAmount = 0;
   pinCodeConfirmCallback = null;
 
+  @ViewChild('background') background: ElementRef;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -127,6 +135,17 @@ export class TwTradePage implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  ngOnDestroy() {
+    this.subscriptionPack.clear();
+  }
+
+  ionViewWillEnter() {
+    this.events.subscribe('set.tw-main.height', height => {
+      this.background.nativeElement.style.height = height;
+    });
+    this.events.publish('get.tw-main.height');
 
     this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
       if (this.pinCodeConfirmCallback && walletPw) {
@@ -138,10 +157,14 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.refreshList();
   }
 
-  ngOnDestroy() {
+  ionViewDidEnter() {
+    //this.refreshList();
+  }
+
+  ionViewDidLeave() {
+    this.events.unsubscribe('set.tw-main.height');
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
-    this.subscriptionPack.clear();
   }
 
   refreshList() {
@@ -217,7 +240,7 @@ export class TwTradePage implements OnInit, OnDestroy {
       return;
     }
 
-    const loadingHandler: LoadingHandler = this.feedbackUI.createLoading();
+    const loadingHandler: LoadingHandler = this.feedbackUI.showRandomKeyLoading();
 
     this.logger.debug('========= DEPOSIT ========== ');
     this.logger.debug(ednContractInfo);
@@ -310,7 +333,7 @@ export class TwTradePage implements OnInit, OnDestroy {
       return;
     }
 
-    const loadingHandler: LoadingHandler = this.feedbackUI.createLoading();
+    const loadingHandler: LoadingHandler = this.feedbackUI.showRandomKeyLoading();
 
     this.logger.debug(
       adjustedAmount.toString() + '/' + adjustedAmount.toHexString()

@@ -1,9 +1,13 @@
-<div class="page-wrapper fill" padding>
-  <div class="hcf-wrapper fill flex-ch-centered">
-    <div>
-      <ion-button class="qr-wrapper" (click)="onQrCodeClick()" fill="clear">
-        <qrcode [qrdata]="qrCodeData" [size]="200" [level]="'M'"></qrcode>
-      </ion-button>
+<ion-content class="page-wrapper" no-padding no-bounce>
+  <div class="background" #background></div>
+  <div class="page-content fill" padding>
+    <div class="hcf-wrapper fill flex-ch-centered">
+      <div>
+        <ion-button class="qr-wrapper" (click)="onQrCodeClick()" fill="clear" *ngIf="qrCodeData">
+          <qrcode [qrdata]="qrCodeData" [size]="200" [level]="'M'"></qrcode>
+        </ion-button>
+      </div>
     </div>
   </div>
-</div>
+
+</ion-content>

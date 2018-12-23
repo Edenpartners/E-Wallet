@@ -3,7 +3,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase';
 import { NGXLogger } from 'ngx-logger';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Header, Platform } from '@ionic/angular';
+import { IonHeader, Platform } from '@ionic/angular';
 import { UUID } from 'angular2-uuid';
 import { HTTP } from '@ionic-native/http/ngx';
 
@@ -89,7 +89,10 @@ export class ApitestPage implements OnInit, OnDestroy {
     this.logger.debug(this.platform.platforms());
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.logger.debug('ethtest component init');
     this.userStateSubscription = this.storage.userStateObserver.subscribe(
       //next
@@ -113,7 +116,7 @@ export class ApitestPage implements OnInit, OnDestroy {
     );
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     this.logger.debug('ethtest component destroyed');
     if (
       this.userStateSubscription &&

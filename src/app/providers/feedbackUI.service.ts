@@ -7,11 +7,13 @@ import {
 } from '@angular/core';
 
 import { Component } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, Events } from '@ionic/angular';
 import { NGXLogger } from 'ngx-logger';
 import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastController } from '@ionic/angular';
+import { Map } from '../utils/listutil';
+import { UUID } from 'angular2-uuid';
 
 export interface AlertOptions {
   title?: string | undefined;
@@ -19,20 +21,14 @@ export interface AlertOptions {
   buttons?: Array<any> | undefined;
 }
 
-export class LoadingHandler {
+class InnerLoadingHandler {
   private loadingElement: HTMLIonLoadingElement;
-  private creatingLoading = false;
   private dismissLoading = false;
+  private creatingLoading = false;
 
   constructor(private loadingController: LoadingController) {}
 
   show(msg?: string): Promise<any> {
-    this.hide();
-
-    if (this.creatingLoading) {
-      return;
-    }
-
     const thisRef = this;
     this.creatingLoading = true;
 
@@ -74,6 +70,48 @@ export class LoadingHandler {
   }
 }
 
+export class LoadingHandler {
+  private innerHandler: InnerLoadingHandler = null;
+  private canBlockBackButton = true;
+
+  constructor(
+    private loadingController: LoadingController,
+    private events: Events,
+    private logger: NGXLogger,
+    private _key?: string
+  ) {}
+
+  get key(): string {
+    return this._key;
+  }
+
+  show(msg?: string): Promise<any> {
+    this.hide(false);
+
+    this.innerHandler = new InnerLoadingHandler(this.loadingController);
+    return this.innerHandler.show(msg);
+  }
+
+  hide(dispatchEvent = true) {
+    if (this.innerHandler) {
+      this.innerHandler.hide();
+      this.innerHandler = null;
+
+      if (dispatchEvent) {
+        this.logger.info('hide loading : ' + this.key);
+        this.events.publish('ui.loading.hide', this.key);
+      }
+    }
+  }
+}
+
+class AlertHandler {
+  constructor(
+    public alertElement: HTMLIonAlertElement,
+    public opt: AlertOptions
+  ) {}
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -83,36 +121,74 @@ export class FeedbackUIService {
     private loadingController: LoadingController,
     private alertController: AlertController,
     private translate: TranslateService,
-    private toastController: ToastController
-  ) {}
-
-  private loadingMap: any = {};
-
-  createLoading(msg?: string): LoadingHandler {
-    const handler = new LoadingHandler(this.loadingController);
-    handler.show(msg);
-    return handler;
+    private toastController: ToastController,
+    private events: Events
+  ) {
+    this.events.subscribe('ui.loading.hide', key => {
+      this.hideLoading(key);
+    });
   }
 
-  showLoading(msg?: string, key: string = '_default_'): LoadingHandler {
-    if (this.loadingMap[key]) {
-      return;
+  private loadingMap: Array<LoadingHandler> = [];
+  private alertMap: Array<AlertHandler> = [];
+
+  hasLoading(key?: string): boolean {
+    if (key) {
+      const loadingItem = this.loadingMap.find(item => {
+        if (key === item.key) {
+          return true;
+        }
+        return false;
+      });
+
+      if (loadingItem) {
+        return true;
+      }
+      return false;
+    } else {
+      return this.loadingMap.length > 0;
+    }
+  }
+
+  showRandomKeyLoading(msg?: string): LoadingHandler {
+    return this.showLoading(msg, null);
+  }
+
+  showLoading(msg?: string, key: string | null = '_default_'): LoadingHandler {
+    this.hideLoading(key);
+
+    if (!key) {
+      key = UUID.UUID();
     }
 
-    const handler = new LoadingHandler(this.loadingController);
-    this.loadingMap[key] = handler;
+    const handler = new LoadingHandler(
+      this.loadingController,
+      this.events,
+      this.logger,
+      key
+    );
+    this.loadingMap.push(handler);
+
+    this.logger.info('show loading : ' + key + ', ' + this.loadingMap.length);
+
     handler.show(msg);
     return handler;
   }
 
   hideLoading(key: string = '_default_') {
-    if (!this.loadingMap[key]) {
-      return;
-    }
+    for (let i = 0; i < this.loadingMap.length; i++) {
+      const loadingItem = this.loadingMap[i];
+      if (key === loadingItem.key) {
+        this.logger.info('found loading : ' + key + ', ' + i);
+        this.loadingMap.splice(i, 1);
+        this.logger.info(
+          'remove loading : ' + loadingItem.key + ', ' + this.loadingMap.length
+        );
 
-    const handler: LoadingHandler = this.loadingMap[key];
-    handler.hide();
-    delete this.loadingMap[key];
+        loadingItem.hide();
+        break;
+      }
+    }
   }
 
   generateDialogOpt(opt: AlertOptions | string | Error): AlertOptions {
@@ -133,6 +209,39 @@ export class FeedbackUIService {
     return result;
   }
 
+  hasAlert(): boolean {
+    if (this.alertMap.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  popLastAlert() {
+    if (this.alertMap.length < 1) {
+      return;
+    }
+
+    const lastIndex = this.alertMap.length - 1;
+    const lastAlertHandler: AlertHandler = this.alertMap[lastIndex];
+    this.alertMap.splice(lastIndex, 1);
+
+    lastAlertHandler.alertElement.dismiss();
+
+    if (lastAlertHandler.opt.buttons) {
+      const buttons = lastAlertHandler.opt.buttons;
+      let dismissWithBtn = null;
+
+      //it is cancel handler (maybe).
+      if (buttons.length === 1) {
+        dismissWithBtn = buttons[0];
+      }
+
+      if (dismissWithBtn && dismissWithBtn.handler) {
+        dismissWithBtn.handler();
+      }
+    }
+  }
+
   async showAlertDialog(opt: AlertOptions | string | Error) {
     opt = this.generateDialogOpt(opt);
 
@@ -145,11 +254,24 @@ export class FeedbackUIService {
       opt.buttons = [okTitle];
     }
 
-    const alert = await this.alertController.create({
+    const alert: HTMLIonAlertElement = await this.alertController.create({
       header: opt.title,
       message: opt.message,
       buttons: opt.buttons
     });
+
+    const alertHandler = new AlertHandler(alert, opt);
+    const alertRemover = () => {
+      this.logger.info('alert dismissed');
+      for (let i = 0; i < this.alertMap.length; i++) {
+        if (Object.is(this.alertMap[i], alertHandler)) {
+          this.alertMap.splice(i, 1);
+        }
+      }
+    };
+
+    this.alertMap.push(alertHandler);
+    alert.onDidDismiss().then(alertRemover);
 
     return await alert.present();
   }

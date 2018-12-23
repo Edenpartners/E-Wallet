@@ -18,7 +18,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { KyberNetworkService } from '../../providers/kybernetwork.service';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
@@ -50,7 +50,9 @@ export class RedirectorPage implements OnInit, OnDestroy {
     private aRoute: ActivatedRoute
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ionViewDidEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
@@ -82,12 +84,14 @@ export class RedirectorPage implements OnInit, OnDestroy {
     if (this.redirect.indexOf('/redirector') !== 0) {
       this.logger.debug('redirect to : ' + this.redirect);
       setTimeout(() => {
-        this.rs.navigateByUrl(this.redirect);
+        //this.rs.navigateByUrl(this.redirect);
+        this.rs.goBack();
       }, 100);
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy() {}
+  ionViewDidLeave() {
     this.subscriptionPack.clear();
   }
 }

@@ -14,7 +14,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval } from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { KyberNetworkService } from '../../providers/kybernetwork.service';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { Bip39Handler } from '../../components/testers/bip39-handler';
@@ -102,11 +102,14 @@ export class EthtestPage implements OnInit, OnDestroy {
     );
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.logger.debug('ethtest component init');
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     this.logger.debug('ethtest component destroyed');
   }
 
@@ -175,7 +178,7 @@ export class EthtestPage implements OnInit, OnDestroy {
   /**
    * Transactions
    */
-  sendEth(sendEthToInput: Input, sendEthAmountInput: Input) {
+  sendEth(sendEthToInput: IonInput, sendEthAmountInput: IonInput) {
     if (!this.selectedWallet) {
       this.feedbackUI.showErrorDialog('select wallet');
       return;
@@ -224,7 +227,7 @@ export class EthtestPage implements OnInit, OnDestroy {
       );
   }
 
-  transferERC20Token(toAddressInput: Input, sendingAmountInput: Input) {
+  transferERC20Token(toAddressInput: IonInput, sendingAmountInput: IonInput) {
     if (!this.selectedWallet) {
       this.feedbackUI.showErrorDialog('select wallet');
       return;
@@ -294,8 +297,8 @@ export class EthtestPage implements OnInit, OnDestroy {
    * ERC 20 sol : https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol
    */
   kyberNetworkTradeEthToErc20Token(
-    kyberTradeEthToErcTargetAddressInput: Input,
-    kyberTradeEthToErcAmountInput: Input
+    kyberTradeEthToErcTargetAddressInput: IonInput,
+    kyberTradeEthToErcAmountInput: IonInput
   ) {
     if (!this.selectedWallet) {
       this.feedbackUI.showErrorDialog('select an wallet first');
@@ -352,12 +355,12 @@ export class EthtestPage implements OnInit, OnDestroy {
     });
   }
 
-  convertToBigNumber(text: string, resultInput: Input) {
+  convertToBigNumber(text: string, resultInput: IonInput) {
     const bn = ethers.utils.bigNumberify(text);
     resultInput.value = bn.toString() + ' / ' + bn.toHexString();
   }
 
-  convertHexToBigNumber(text: string, resultInput: Input) {
+  convertHexToBigNumber(text: string, resultInput: IonInput) {
     const bn = ethers.utils.bigNumberify(text);
     resultInput.value = bn.toString() + ' / ' + bn.toHexString();
   }

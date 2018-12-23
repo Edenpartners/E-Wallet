@@ -16,7 +16,6 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { Input } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
@@ -71,7 +70,10 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     private events: Events
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.wallets = this.storage.getWallets();
     if (this.wallets.length > 0) {
       this.selectedWalletId = this.wallets[0].id;
@@ -86,7 +88,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
 
@@ -220,7 +222,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       return;
     }
 
-    const loading = this.feedbackUI.createLoading();
+    const loading = this.feedbackUI.showRandomKeyLoading();
 
     const onTxCreate = txData => {
       loading.hide();

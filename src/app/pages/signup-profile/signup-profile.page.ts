@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterService } from '../../providers/router.service';
 
 import { NGXLogger } from 'ngx-logger';
-import { Header, Platform } from '@ionic/angular';
+import { IonHeader, Platform } from '@ionic/angular';
 
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
@@ -28,9 +28,9 @@ import {
 })
 export class SignupProfilePage implements OnInit {
   profileForm: FormGroup;
-  profileFormData = {
-    displayName: { value: '' },
-    phoneNumber: { value: '' }
+  profileFormData: {
+    displayName: { value: string };
+    phoneNumber: { value: string };
   };
 
   constructor(
@@ -43,6 +43,7 @@ export class SignupProfilePage implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.resetFormData();
     this.profileForm = new FormGroup({
       displayName: new FormControl('', [Validators.required]),
       phoneNumber: new FormControl('', [
@@ -50,6 +51,21 @@ export class SignupProfilePage implements OnInit {
         Validators.pattern(phoneNumberPattern)
       ])
     });
+  }
+
+  ionViewWillEnter() {
+    this.resetFormData();
+  }
+
+  ionViewDidLeave() {
+    this.resetFormData();
+  }
+
+  resetFormData() {
+    this.profileFormData = {
+      displayName: { value: '' },
+      phoneNumber: { value: '' }
+    };
   }
 
   onContinueBtnClick(termsAndConditionsChecked, privacyChecked) {

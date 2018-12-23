@@ -1,0 +1,82 @@
+@import '../theme/common.scss';
+
+
+ion-menu {
+  --width: 174px;
+  --background: linear-gradient(90deg, #000000 31.44%, rgba(0, 0, 0, 0) 225.29%);
+  box-shadow: 6px 4px 4px rgba(0, 0, 0, 0.25);
+
+  ion-item {
+    --background: transparent;
+    background: transparent;
+  }
+
+  ion-content {
+    --background: transparent;
+    background: transparent;
+  }
+
+  ion-list {
+    --background: transparent;
+    background: transparent;
+  }
+
+  .img-wrapper {
+    width: 100%;
+
+    .img-background {
+      position: relative;
+      width: 111px;
+      height: 111px;
+      background: url('/assets/img/profile-ellipse@2x.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+
+      .img-content {
+        position: relative;
+        width: 95px;
+        height: 95px;
+        clip-path: circle(47px at center);
+
+        .profile-img {
+          width: 100%;
+          height: 100%;
+          background-size: cover;
+          background-repeat: no-repeat;
+          background-position: center center;
+        }
+      }
+    }
+  }
+}
+
+
+.userDisplay {
+  color: var(--color-text-light-1);
+  text-align: center;
+  font-size: .85em;
+}
+
+.signout {
+  width: 95px;
+  font-size: .9em;
+}
+
+
+.version-info {
+  color: white;
+  z-index: 999;
+  position: fixed;
+  right: var(--space-normal);
+  bottom: 0;
+  font-size: .7em;
+}
+
+.back-button-simulater {
+  display: inline-block;
+  position: fixed;
+  bottom: 0;
+  left: var(--space-normal);
+  z-index: 999999;
+}

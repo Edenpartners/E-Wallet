@@ -1,6 +1,11 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 
-import { Platform, NavController, Menu, ModalController } from '@ionic/angular';
+import {
+  Platform,
+  NavController,
+  IonMenu,
+  ModalController
+} from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
@@ -19,7 +24,10 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { RouterService } from './providers/router.service';
 import { env } from '../environments/environment';
 import { Consts } from '../environments/constants';
-import { AppStorageService } from './providers/appStorage.service';
+import {
+  AppStorageService,
+  AppStorageTypes
+} from './providers/appStorage.service';
 import { Subscription } from 'rxjs';
 import { RouterPathsService } from './providers/routerPaths.service';
 import { EdnRemoteApiService } from './providers/ednRemoteApi.service';
@@ -31,10 +39,12 @@ import { PcEditPage } from './pages/pin-code/pc-edit/pc-edit.page';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 import { catchError } from 'rxjs/operators';
+import { FeedbackUIService } from './providers/feedbackUI.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
+  styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
   private env: any;
@@ -50,7 +60,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private latestDeeplink: any = null;
 
-  @ViewChild('sideMenu') private sideMenu: Menu;
+  private userProfileInfo: AppStorageTypes.User = null;
+  private defaultUserProfileImage =
+    'url(\'/assets/img/default-profile-image.jpg\')';
+
+  @ViewChild('sideMenu') private sideMenu: IonMenu;
 
   constructor(
     private appVersion: AppVersion,
@@ -69,13 +83,15 @@ export class AppComponent implements OnInit, OnDestroy {
     private dataTracker: DataTrackerService,
     private transactionLogger: TransactionLoggerService,
     private modalController: ModalController,
-    private deeplinks: Deeplinks
+    private deeplinks: Deeplinks,
+    private feedbackUI: FeedbackUIService
   ) {
     this.env = env;
     this.resetEnvConfigText();
     translate.setDefaultLang('en');
     // translate.use('en');
 
+    this.resetUserProfileInfo();
     this.initializeApp();
 
     //any page can attemp to open sidemenu
@@ -93,6 +109,23 @@ export class AppComponent implements OnInit, OnDestroy {
       this.logger.debug(Consts.EVENT_CLOSE_MODAL);
       this.hidePinCodeModal();
     });
+  }
+
+  getUserProfileImage() {
+    return this.userProfileInfo
+      ? this.defaultUserProfileImage
+      : this.defaultUserProfileImage;
+  }
+
+  getUserEmail() {
+    if (this.userProfileInfo) {
+      return this.userProfileInfo.fbUser.email;
+    }
+    return '';
+  }
+
+  resetUserProfileInfo() {
+    this.userProfileInfo = this.storage.user;
   }
 
   async showPinCodeModal() {
@@ -136,7 +169,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.transactionLogger.initEvents();
 
     this.platform.ready().then(() => {
-      this.handleHardwareBackButton();
+      this.setHardwareBackButtonHandler();
       this.appVersion.getVersionCode().then(val => {
         this.appVersionCode = val;
       });
@@ -145,7 +178,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.appVersionNumber = val;
       });
 
-      this.logger.debug('platform is ready!');
+      this.logger.info('platform is ready!');
       this.statusBar.styleDefault();
 
       this.storage.startFirebaseSigninCheck();
@@ -154,25 +187,52 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleHardwareBackButton() {
+  setHardwareBackButtonHandler() {
     //https://github.com/ionic-team/ionic/issues/15820
     this.subscriptionPack.removeSubscriptionsByKey('backButton');
     this.subscriptionPack.addSubscription(() => {
       return this.platform.backButton.subscribeWithPriority(9999, () => {
-        this.logger.debug('handle back button');
+        this.logger.info('handle back button');
+        this.handleHardwareBackButton();
       });
     }, 'backButton');
-
-    //
-    // this.platform.backButton.subscribe(
-    //   (val?: any) => {},
-    //   (error?: any) => {},
-    //   (complete?: any) => {}
-    // );
   }
+
+  handleHardwareBackButton() {
+    if (this.feedbackUI.hasLoading()) {
+      this.logger.info('loading is appeared, ignore back-button until it ends');
+      return;
+    }
+
+    if (this.feedbackUI.hasAlert()) {
+      this.logger.info('has alert, ignore back-button until it ends');
+      this.feedbackUI.popLastAlert();
+      return;
+    }
+
+    if (this.hasModal) {
+      this.hidePinCodeModal();
+      return;
+    }
+
+    if (this.rs.isCurrentUrlStartsWith('/home')) {
+      this.logger.info('current url is home. don\'t back');
+      return;
+    } else if (this.rs.isCurrentUrlStartsWith('/signin')) {
+      this.logger.info('current url is signin. don\'t back');
+      return;
+    }
+
+    if (this.rs.canGoBack()) {
+      this.rs.goBack();
+    } else {
+      this.logger.info('cannot go back!');
+    }
+  }
+
   async handleDeepLink() {
     if (this.latestDeeplink) {
-      this.logger.debug('found deep link');
+      this.logger.info('found deep link');
 
       if (this.storage.isSignedIn) {
         // {
@@ -208,7 +268,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
           const currentUserAccessToken: string = await this.ednApi.getUserAccessToken();
 
-          this.logger.debug('move to deeplink');
+          this.logger.info('move to deeplink');
           if (env.config.compareUserIDTokenOnDeeplinkHandling) {
             if (currentUserAccessToken === userIdHash && moveUrl) {
               this.rs.navigateByUrl(moveUrl);
@@ -217,10 +277,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.rs.navigateByUrl(moveUrl);
           }
         } catch (e) {
-          this.logger.debug(e);
+          this.logger.info(e);
         }
       } else {
-        this.logger.debug('there is no user signed-in. just ignore deeplink');
+        this.logger.info('there is no user signed-in. just ignore deeplink');
       }
     }
 
@@ -238,16 +298,18 @@ export class AppComponent implements OnInit, OnDestroy {
       return this.deeplinks.route([]).subscribe(
         deepLinkMatch => {
           //this will not happen
-          this.logger.debug('deep link match');
-          this.logger.debug(deepLinkMatch.$args);
-          this.logger.debug(deepLinkMatch.$route);
-          this.logger.debug(deepLinkMatch.$link);
-
+          this.logger.info(
+            'deep link match',
+            deepLinkMatch.$args,
+            deepLinkMatch.$route,
+            deepLinkMatch.$link
+          );
           this.resubscribeDeeplink();
         },
+
         deepLinkNotMatch => {
           // handle deep link from here.
-          this.logger.debug('deep link not match');
+          this.logger.info('deep link not match');
           this.logger.debug(deepLinkNotMatch);
 
           if (deepLinkNotMatch.$link) {
@@ -261,7 +323,7 @@ export class AppComponent implements OnInit, OnDestroy {
         },
         //complete
         () => {
-          this.logger.debug('deep link subscription complete');
+          this.logger.info('deep link subscription complete');
         }
       );
     }, 'deeplink');
@@ -293,6 +355,8 @@ export class AppComponent implements OnInit, OnDestroy {
             this.transactionLogger.trackUnclosedTxLogs();
           }
 
+          this.resetUserProfileInfo();
+
           this.logger.debug(userInfo);
           if (env.config.handleUserState) {
             if (isFirstUserStateEvent) {
@@ -311,26 +375,42 @@ export class AppComponent implements OnInit, OnDestroy {
             }
 
             this.logger.debug(window.location);
+            let gotoSignin = false;
+
             if (this.storage.isSignedIn) {
               if (this.storage.isUserInfoValidated) {
                 if (!this.storage.hasPinNumber) {
-                  this.logger.debug(
+                  this.logger.info(
                     'user signed in but no pincode, goto pincode'
                   );
                   this.rs.navigateByUrl('/pc-edit?isCreation=true');
                 } else {
-                  this.logger.debug('user signed in, goto home');
+                  this.logger.info('user signed in, goto home');
                   this.rs.navigateByUrl('/home');
                 }
               } else {
-                this.logger.debug(
-                  'user signed in but no profile, goto profile'
-                );
-                this.rs.navigateByUrl('/signup-profile');
+                this.logger.info('user signed in but no profile');
+                gotoSignin = true;
+                if (isFirstUserStateEvent) {
+                  this.rs.navigateToRoot('/signin');
+                } else {
+                  this.rs.navigateToRoot('/signin', true);
+                }
+
+                //this.rs.navigateByUrl('/signup-profile');
               }
             } else {
-              this.logger.debug('user signed out, goto signin');
-              this.rs.navigateByUrl('/signin');
+              gotoSignin = true;
+              this.logger.info('user signed out, goto signin');
+              //this.rs.navigateByUrl('/signin');
+            }
+
+            if (gotoSignin) {
+              if (isFirstUserStateEvent) {
+                this.rs.navigateToRoot('/signin');
+              } else {
+                this.rs.navigateToRoot('/signin', true);
+              }
             }
           } else {
             if (isFirstUserStateEvent) {
@@ -339,11 +419,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
             if (env.config.useRedirectorOnDebugMode) {
               const currentUrl = this.rs.getRouter().url;
+
               if (
                 currentUrl !== '/' &&
                 currentUrl.indexOf('/redirector') !== 0
               ) {
                 this.logger.debug('reload current url : ' + currentUrl);
+                //this.rs.navigateByUrl(currentUrl);
                 this.rs.navigate(['redirector', currentUrl]);
               }
             }
@@ -426,5 +508,9 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.logger.debug(e);
     }
+  }
+
+  navigateToUrlBySideMenu(url: string) {
+    this.rs.navigateByUrl(url);
   }
 }

@@ -47,13 +47,12 @@
         </form>
 
         <div class="margin-top">
-          <!-- href="/pc-edit" -->
           <ion-button class="signin" expand="block" color="theme-2" (click)="signin()">{{ 'Login' | translate }}</ion-button>
         </div>
 
         <div class="margin-top">
           <ion-button appBtnStyle color="text-dark-2" class="text-button" expand="block" fill="clear"
-            href="/signup">
+            (click)="onForgotPasswdClick()">
             {{ 'IsForgotPasswd' | translate }}
           </ion-button>
         </div>
@@ -71,7 +70,7 @@
           </ion-button>
         </div>
         <div>
-          <ion-button appBtnStyle color="text-dark-2" expand="block" fill="clear" href="/signup">
+          <ion-button appBtnStyle color="text-dark-2" expand="block" fill="clear" (click)="rs.navigateByUrl('/signup')">
             <div>{{ 'DontHaveAccount' | translate }}</div>
           </ion-button>
         </div>

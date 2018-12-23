@@ -2,14 +2,14 @@
   <common-nav-bar title="{{ 'BackupWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content no-bounce>
-  <div class="page-wrapper fill flex-ch-centered" padding ion-fixed>
-    <div class="hcf-layout">
-      <div class="content">
-        <ion-label color="danger">
+<ion-content class="page-wrapper" no-bounce>
+  <div class="page-content fill flex-ch-centered" padding ion-fixed>
+    <div class="inner-content">
+      <div class="content margin-top-2x">
+        <ion-label color="theme-1" class="title">
           {{ 'BackupWarningTitle' | translate }}
         </ion-label>
-        <p>
+        <p class="margin-top">
           {{ 'BackupWarningMessage1' | translate }}
         </p>
         <p>
@@ -21,7 +21,7 @@
       </div>
 
       <div class="footer">
-        <ion-button expand="block" color="danger" href="/backup-wallet">
+        <ion-button expand="block" color="theme-1" class="margin-top-2x" (click)="rs.navigateByUrl('/backup-wallet')">
           {{ 'ReadyBackup' | translate }}
         </ion-button>
       </div>

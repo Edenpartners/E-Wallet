@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
-import { Header, Platform, Input } from '@ionic/angular';
+import { IonHeader, Platform, IonInput } from '@ionic/angular';
 
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
@@ -36,12 +36,13 @@ export class SigninPage implements OnInit {
   ) {}
 
   signinForm: FormGroup;
-  signinFormData = {
-    email: { value: '' },
-    password: { value: '' }
+  signinFormData: {
+    email: { value: string };
+    password: { value: string };
   };
 
   ngOnInit() {
+    this.resetFormData();
     this.signinForm = new FormGroup({
       email: new FormControl('', [
         Validators.required,
@@ -52,6 +53,21 @@ export class SigninPage implements OnInit {
         Validators.minLength(1)
       ])
     });
+  }
+
+  ionViewWillEnter() {
+    this.resetFormData();
+  }
+
+  ionViewDidLeave() {
+    this.resetFormData();
+  }
+
+  resetFormData() {
+    this.signinFormData = {
+      email: { value: '' },
+      password: { value: '' }
+    };
   }
 
   async signin() {

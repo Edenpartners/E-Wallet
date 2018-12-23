@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild
+} from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,7 +23,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription, UnsubscriptionError } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
@@ -37,6 +43,7 @@ import { DecimalPipe } from '@angular/common';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
+import { Events } from '@ionic/angular';
 
 const countPerPage = 30;
 const useDummyData = false;
@@ -69,6 +76,8 @@ export class TwTxListPage implements OnInit, OnDestroy {
   tednBalance = null;
   tednBalanceFormatted = null;
 
+  @ViewChild('background') background: ElementRef;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -83,10 +92,20 @@ export class TwTxListPage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
+    this.events.subscribe('set.tw-main.height', height => {
+      this.background.nativeElement.style.height = height;
+    });
+    this.events.publish('get.tw-main.height');
+
     this.currentPage = 1;
 
     this.subscriptionPack.addSubscription(() => {
@@ -109,13 +128,15 @@ export class TwTxListPage implements OnInit, OnDestroy {
             });
           });
 
+          this.txList = [];
           this.loadList(this.currentPage, () => {});
         }
       });
     });
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
+    this.events.unsubscribe('set.tw-main.height');
     this.subscriptionPack.clear();
   }
 

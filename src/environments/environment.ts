@@ -12,7 +12,7 @@ export const environment = {
 
   config: {
     useRedirectorOnDebugMode: true,
-    handleUserState: false,
+    handleUserState: true,
     //alterStartPath: 'ednapitest',
     //alterStartPath: 'backup-wallet',
     alterStartPath: '',
@@ -29,7 +29,8 @@ export const environment = {
     },
     ednCoinKey: 'EDN',
     showDebugToast: false,
-    useDecryptPinCodeByPinCode: false
+    useDecryptPinCodeByPinCode: false,
+    simulateHardwareBackButton: true
   }
 };
 

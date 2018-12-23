@@ -6,10 +6,8 @@
   display: flex;
   flex-direction: column;
 
-
   ion-button {
-    --height: auto;
-    --width: 100%;
+    height: auto;
     --padding-left: 0px;
     text-transform: none;
 

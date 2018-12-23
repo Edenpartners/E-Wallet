@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,7 +23,7 @@ import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { Input } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
@@ -36,6 +42,7 @@ import { DecimalPipe } from '@angular/common';
 
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Events } from '@ionic/angular';
 
 @Component({
   selector: 'app-ew-tx-list',
@@ -49,6 +56,8 @@ export class EwTxListPage implements OnInit, OnDestroy {
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
   txList: Array<AppStorageTypes.TxRowData> = [];
+
+  @ViewChild('background') background: ElementRef;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -64,10 +73,14 @@ export class EwTxListPage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.parent.params.subscribe(params => {
         this.walletId = params['id'];
@@ -75,10 +88,16 @@ export class EwTxListPage implements OnInit, OnDestroy {
         this.loadList(0, addedCount => {});
       });
     });
+
+    this.events.subscribe('set.ew-main.height', height => {
+      this.background.nativeElement.style.height = height;
+    });
+    this.events.publish('get.ew-main.height');
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     this.subscriptionPack.clear();
+    this.events.unsubscribe('set.ew-main.height');
   }
 
   loadList(pageIndex: number, onComplete) {

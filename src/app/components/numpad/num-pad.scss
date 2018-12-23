@@ -12,9 +12,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f1f1f1;
+    background-color: #ffffff;
 
-    $button: #D57C47;
+    $button: #eeeeee;
     $active: darken($button, 5%);
 
     * {
@@ -37,8 +37,8 @@
       flex: 1 0 33.3333%;
 
       background-color: $button;
-      color: white;
-      border: 1px solid rgba(255, 255, 255, .5);
+      color: var(--color-text-dark-1-1);
+      border: 0.5px solid rgba(0, 0, 0, .3);
 
       &:nth-of-type(10) {
         flex-basis: 66.6667%;

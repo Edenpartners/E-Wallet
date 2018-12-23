@@ -2,50 +2,61 @@
   <common-nav-bar title="{{ 'BackupWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content no-bounce>
-  <div class="page-wrapper fill flex-ch-centered" padding ion-fixed>
-    <div class="hcf-layout">
-      <div class="content">
-        <div *ngIf="step === 0">
-          <ion-label>
+<ion-content class="page-wrapper" no-bounce>
+  <div class="page-content fill flex-ch-h-centered">
+    <div class="inner-content flex-ch-h-centered" *ngIf="step === 0">
+      <div class="content margin-top-2x">
+        <div class="flex-ch-h-centered fill-width">
+          <ion-label class="comment">
             {{ 'YourPhrase' | translate }}
           </ion-label>
 
-          <div class="user-input-container">
+          <div class="user-input-container text-box-field margin-top-2x">
             <div class="words-box user-input-box">
               {{ this.mnemonic }}
             </div>
           </div>
 
-        </div>
-
-        <div *ngIf="step === 1">
-          <ion-label>
-            {{ 'VerifyPhraseComment' | translate }}
-          </ion-label>
-
-          <div class="user-select-container">
-            <div class="words-box user-select-box" style="min-height:100px;">
-              <ion-button *ngFor="let item of userSelectedWords" (click)="onUserSelectWord(item)">{{ item.value }}</ion-button>
-            </div>
+          <div class="comment margin-top-2x">
+            {{ 'KeepPhrase' | translate }}
           </div>
+        </div>
+      </div>
+      <div class="footer margin-top-2x">
+        <ion-button expand="block" color="theme-1" (click)="onGotItBtnClick()">
+          {{ 'GotIt' | translate }}
+        </ion-button>
+      </div>
+    </div>
 
-          <div class="user-input-container">
-            <div class="words-box user-input-box" style="min-height:100px;">
-              <ion-button *ngFor="let item of userInputWords" [ngClass]="{'selected':item.selected}"
+    <div class="inner-content hcf-layout " *ngIf="step === 1">
+      <div class="header margin-top-2x">
+        <ion-label class="comment">
+          {{ 'VerifyPhraseComment' | translate }}
+        </ion-label>
+      </div>
+      <div class="content flex-ch-h-centered fill-width margin-top-2x">
+        <ion-content class="user-input-container text-box-field" padding>
+          <div class="flex-ch-centered">
+            <div class="words-box user-select-box">
+              <ion-button color="info" size="small" class="word-button" *ngFor="let item of userSelectedWords"
                 (click)="onUserSelectWord(item)">{{ item.value }}</ion-button>
             </div>
           </div>
-        </div>
+        </ion-content>
 
-
+        <ion-content class="user-select-container margin-top-2x" padding>
+          <div class="flex-ch-centered">
+            <div class="words-box user-input-box">
+              <ion-button color="info" size="small" class="word-button" *ngFor="let item of userInputWords"
+                [ngClass]="{'selected':item.selected}" (click)="onUserSelectWord(item)">{{ item.value }}</ion-button>
+            </div>
+          </div>
+        </ion-content>
       </div>
-      <div class="footer">
-        <ion-button expand="block" color="danger" (click)="onGotItBtnClick()" *ngIf="step === 0">
-          {{ 'GotIt' | translate }}
-        </ion-button>
-        <ion-button expand="block" color="danger" (click)="onVerifyBtnClick()" *ngIf="step === 1"
-          [disabled]="userSelectedWords.length !== correctWords.length">
+
+      <div class="footer fill-width margin-top margin-bottom">
+        <ion-button expand="block" color="theme-1" (click)="onVerifyBtnClick()" [disabled]="userSelectedWords.length !== correctWords.length">
           {{ 'Verify' | translate }}
         </ion-button>
       </div>

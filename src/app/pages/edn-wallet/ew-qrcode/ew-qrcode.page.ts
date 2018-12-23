@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ClipboardService } from 'ngx-clipboard';
 import { ActivatedRoute } from '@angular/router';
@@ -12,6 +18,7 @@ import {
 } from '../../../providers/appStorage.service';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Events } from '@ionic/angular';
 
 @Component({
   selector: 'app-ew-qrcode',
@@ -25,6 +32,8 @@ export class EwQrcodePage implements OnInit, OnDestroy {
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
 
+  @ViewChild('background') background: ElementRef;
+
   constructor(
     private logger: NGXLogger,
     private rs: RouterService,
@@ -32,10 +41,19 @@ export class EwQrcodePage implements OnInit, OnDestroy {
     private cbService: ClipboardService,
     private storage: AppStorageService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
+    this.events.subscribe('set.ew-main.height', height => {
+      this.background.nativeElement.style.height = height;
+    });
+    this.events.publish('get.ew-main.height');
+
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.parent.params.subscribe(params => {
         this.walletId = params['id'];
@@ -46,7 +64,9 @@ export class EwQrcodePage implements OnInit, OnDestroy {
       });
     });
   }
-  ngOnDestroy() {
+
+  ionViewDidLeave() {
+    this.events.unsubscribe('set.ew-main.height');
     this.subscriptionPack.clear();
   }
   onBackBtnClick() {
