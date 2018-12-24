@@ -43,7 +43,6 @@ export class SignupProfilePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.resetFormData();
     this.profileForm = new FormGroup({
       displayName: new FormControl('', [Validators.required]),
       phoneNumber: new FormControl('', [
@@ -51,6 +50,7 @@ export class SignupProfilePage implements OnInit {
         Validators.pattern(phoneNumberPattern)
       ])
     });
+    this.resetFormData();
   }
 
   ionViewWillEnter() {
@@ -66,6 +66,12 @@ export class SignupProfilePage implements OnInit {
       displayName: { value: '' },
       phoneNumber: { value: '' }
     };
+
+    Object.keys(this.profileForm.controls).forEach(field => {
+      // {1}
+      const control = this.profileForm.get(field); // {2}
+      control.markAsUntouched({ onlySelf: true }); // {3}
+    });
   }
 
   onContinueBtnClick(termsAndConditionsChecked, privacyChecked) {

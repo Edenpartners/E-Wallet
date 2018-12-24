@@ -42,8 +42,6 @@ export class SignupPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.resetFormData();
-
     this.signupForm = new FormGroup(
       {
         email: new FormControl('', [
@@ -74,6 +72,7 @@ export class SignupPage implements OnInit {
         ]
       }
     );
+    this.resetFormData();
   }
   ionViewWillEnter() {
     this.resetFormData();
@@ -89,6 +88,12 @@ export class SignupPage implements OnInit {
       password: { value: '' },
       passwordConfirm: { value: '' }
     };
+
+    Object.keys(this.signupForm.controls).forEach(field => {
+      // {1}
+      const control = this.signupForm.get(field); // {2}
+      control.markAsUntouched({ onlySelf: true }); // {3}
+    });
   }
 
   signup() {
@@ -134,10 +139,17 @@ export class SignupPage implements OnInit {
         userInfoResult => {
           if (userInfoResult.data) {
             this.storage.userInfo = userInfoResult.data;
+            //this.rs.navigateByUrl('/signup-profile');
           }
         },
         ednError => {
-          this.feedbackUI.showErrorDialog(ednError);
+          this.feedbackUI.showErrorAndRetryDialog(
+            ednError,
+            () => {
+              this.runEdnSignup();
+            },
+            () => {}
+          );
         }
       )
       .finally(() => {

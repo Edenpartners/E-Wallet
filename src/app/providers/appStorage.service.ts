@@ -411,7 +411,7 @@ export class AppStorageService {
     }
 
     if (env.config.signinWithEdnUserInfo) {
-      if (!this.userInfo.display_name) {
+      if (!this.userInfo || !this.userInfo.display_name) {
         return false;
       }
     }

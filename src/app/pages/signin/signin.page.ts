@@ -42,7 +42,6 @@ export class SigninPage implements OnInit {
   };
 
   ngOnInit() {
-    this.resetFormData();
     this.signinForm = new FormGroup({
       email: new FormControl('', [
         Validators.required,
@@ -53,6 +52,8 @@ export class SigninPage implements OnInit {
         Validators.minLength(1)
       ])
     });
+
+    this.resetFormData();
   }
 
   ionViewWillEnter() {
@@ -68,7 +69,15 @@ export class SigninPage implements OnInit {
       email: { value: '' },
       password: { value: '' }
     };
+
+    Object.keys(this.signinForm.controls).forEach(field => {
+      // {1}
+      const control = this.signinForm.get(field); // {2}
+      control.markAsUntouched({ onlySelf: true }); // {3}
+    });
   }
+
+  onForgotPasswdClick() {}
 
   async signin() {
     Object.keys(this.signinForm.controls).forEach(field => {

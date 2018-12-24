@@ -4,7 +4,8 @@ import {
   Platform,
   NavController,
   IonMenu,
-  ModalController
+  ModalController,
+  IonicModule
 } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -63,6 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private userProfileInfo: AppStorageTypes.User = null;
   private defaultUserProfileImage =
     'url(\'/assets/img/default-profile-image.jpg\')';
+  private lastBackButtonPressedTime = null;
 
   @ViewChild('sideMenu') private sideMenu: IonMenu;
 
@@ -215,18 +217,34 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
+    let runExitProcess = false;
+
     if (this.rs.isCurrentUrlStartsWith('/home')) {
       this.logger.info('current url is home. don\'t back');
-      return;
+      runExitProcess = true;
     } else if (this.rs.isCurrentUrlStartsWith('/signin')) {
       this.logger.info('current url is signin. don\'t back');
-      return;
+      runExitProcess = true;
+    } else if (this.rs.isCurrentUrlIsRoot()) {
+      runExitProcess = true;
     }
 
-    if (this.rs.canGoBack()) {
-      this.rs.goBack();
+    if (runExitProcess) {
+      if (!this.lastBackButtonPressedTime) {
+        this.lastBackButtonPressedTime = new Date().getTime();
+        this.feedbackUI.showToast(this.translate.instant('ExitGuide'));
+        setTimeout(() => {
+          this.lastBackButtonPressedTime = null;
+        }, 1000);
+      } else {
+        navigator['app'].exitApp();
+      }
     } else {
-      this.logger.info('cannot go back!');
+      if (this.rs.canGoBack()) {
+        this.rs.goBack();
+      } else {
+        this.logger.info('cannot go back!');
+      }
     }
   }
 
@@ -383,21 +401,21 @@ export class AppComponent implements OnInit, OnDestroy {
                   this.logger.info(
                     'user signed in but no pincode, goto pincode'
                   );
-                  this.rs.navigateByUrl('/pc-edit?isCreation=true');
+                  this.rs.navigateToRoot('/pc-edit?isCreation=true');
                 } else {
                   this.logger.info('user signed in, goto home');
-                  this.rs.navigateByUrl('/home');
+                  this.rs.navigateToRoot('/home');
                 }
               } else {
-                this.logger.info('user signed in but no profile');
-                gotoSignin = true;
+                this.logger.info(
+                  'user signed in but no profile. isFirstUserStateEvent ? ' +
+                    isFirstUserStateEvent
+                );
                 if (isFirstUserStateEvent) {
-                  this.rs.navigateToRoot('/signin');
+                  this.signout();
                 } else {
-                  this.rs.navigateToRoot('/signin', true);
+                  this.rs.navigateByUrl('/signup-profile');
                 }
-
-                //this.rs.navigateByUrl('/signup-profile');
               }
             } else {
               gotoSignin = true;

@@ -167,8 +167,9 @@ export class BackupWalletPage implements OnInit {
       return;
     }
 
+    const loading = this.feedbackUI.showRandomKeyLoading();
+
     setTimeout(() => {
-      const loading = this.feedbackUI.showRandomKeyLoading();
       this.addWallet()
         .then(
           () => {

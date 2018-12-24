@@ -59,6 +59,8 @@
   "From":"from",
   
   "TEST": "Test {{value}}",
+
+  "ExitGuide": "Press back button again to exit",
   
   "______________SIGN_IN": "",
   "Copyright": "Copyright by Eden Partners, Inc. Company Confidential.",

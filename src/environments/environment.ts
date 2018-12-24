@@ -16,21 +16,21 @@ export const environment = {
     //alterStartPath: 'ednapitest',
     //alterStartPath: 'backup-wallet',
     alterStartPath: '',
-    disableConsoleLogging: false,
+    disableConsoleLogging: true,
     compareUserIDTokenOnDeeplinkHandling: false,
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
     signinWithEdnUserInfo: true,
     useSideMenu: true,
-    useSideMenuForDebug: true,
+    useSideMenuForDebug: false,
     patches: {
       useSignupForSignin: true
     },
     ednCoinKey: 'EDN',
     showDebugToast: false,
     useDecryptPinCodeByPinCode: false,
-    simulateHardwareBackButton: true
+    simulateHardwareBackButton: false
   }
 };
 

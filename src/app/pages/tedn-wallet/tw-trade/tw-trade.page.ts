@@ -135,9 +135,12 @@ export class TwTradePage implements OnInit, OnDestroy {
         }
       });
     });
+
+    this.refreshList();
   }
 
   ngOnDestroy() {
+    this.logger.debug('destroy tw-trade');
     this.subscriptionPack.clear();
   }
 

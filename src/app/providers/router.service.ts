@@ -22,7 +22,11 @@ class HistoryData {
   commands: Array<string>;
   extras: NavigationExtras;
 
-  constructor(data: string | Array<string>, extras?: NavigationExtras) {
+  constructor(
+    data: string | Array<string>,
+    extras?: NavigationExtras,
+    public isRoot: boolean = false
+  ) {
     if (typeof data === 'string') {
       this.url = data;
     } else if (data instanceof Array) {
@@ -112,6 +116,10 @@ export class RouterService {
     this.histories = [];
   }
 
+  historyCount() {
+    return this.histories.length;
+  }
+
   navigateToRoot(url: string, animated: boolean = false) {
     this.clearHistory();
 
@@ -120,9 +128,19 @@ export class RouterService {
       animationDirection: 'back'
     };
 
-    this.histories.push(new HistoryData(url, extras));
+    this.histories.push(new HistoryData(url, extras, true));
 
     this.navCtl.navigateRoot(url, extras);
+  }
+
+  isCurrentUrlIsRoot(): boolean {
+    if (this.histories.length < 1) {
+      return false;
+    }
+
+    const lastIndex = this.histories.length - 1;
+    const lastHistory = this.histories[lastIndex];
+    return lastHistory.isRoot;
   }
 
   isCurrentUrlStartsWith(url: string): boolean {

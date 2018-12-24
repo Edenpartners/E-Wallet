@@ -70,14 +70,13 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     private events: Events
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.refreshWalletList();
+  }
   ngOnDestroy() {}
 
   ionViewWillEnter() {
-    this.wallets = this.storage.getWallets();
-    if (this.wallets.length > 0) {
-      this.selectedWalletId = this.wallets[0].id;
-    }
+    this.refreshWalletList();
     this.restartRateTracker();
 
     this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
@@ -93,6 +92,13 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
 
     this.dataTracker.stopTracker('ednRateTracker');
+  }
+
+  refreshWalletList() {
+    this.wallets = this.storage.getWallets();
+    if (this.wallets.length > 0) {
+      this.selectedWalletId = this.wallets[0].id;
+    }
   }
 
   restartRateTracker() {
