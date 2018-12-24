@@ -24,9 +24,9 @@
     "run:build-debug": "cd ..  && ionic cordova build android && ionic cordova build ios && cd app_build_helper",
     "run:build-release": "cd .. && ionic cordova build android --prod --release && ionic cordova build ios --prod --release && cd app_build_helper",
     "reset:ewallet-debug": "npm run clean && npm run apply:ewallet-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:ewallet-debug",
-    "reset:ewallet-release": "npm run clean && npm run apply:ewallet-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:ewallet-prod",
+    "reset:ewallet-prod": "npm run clean && npm run apply:ewallet-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:ewallet-prod",
     "reset:default-debug": "npm run clean && npm run apply:default-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:default-debug",
-    "reset:default-release": "npm run clean && npm run apply:default-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:default-prod"
+    "reset:default-prod": "npm run clean && npm run apply:default-config && cd .. && npm install && ionic cordova platform add browser && ionic cordova platform add android && ionic cordova platform add ios && ionic cordova prepare && cd app_build_helper && npm run apply:default-prod"
   },
   "author": "Jinho Yun",
   "license": "Owl Family Inc.",
