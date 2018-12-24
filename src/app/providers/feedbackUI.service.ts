@@ -26,7 +26,10 @@ class InnerLoadingHandler {
   private dismissLoading = false;
   private creatingLoading = false;
 
-  constructor(private loadingController: LoadingController) {}
+  constructor(
+    private loadingController: LoadingController,
+    private logger: NGXLogger
+  ) {}
 
   show(msg?: string): Promise<any> {
     const thisRef = this;
@@ -49,7 +52,7 @@ class InnerLoadingHandler {
   }
 
   hide() {
-    console.log('hide loading');
+    this.logger.debug('hide loading');
     if (this.creatingLoading) {
       this.dismissLoading = true;
       return;
@@ -61,7 +64,7 @@ class InnerLoadingHandler {
         .then(
           value => {},
           err => {
-            console.log(err);
+            this.logger.debug(err);
           }
         )
         .finally(() => {});
@@ -88,7 +91,10 @@ export class LoadingHandler {
   show(msg?: string): Promise<any> {
     this.hide(false);
 
-    this.innerHandler = new InnerLoadingHandler(this.loadingController);
+    this.innerHandler = new InnerLoadingHandler(
+      this.loadingController,
+      this.logger
+    );
     return this.innerHandler.show(msg);
   }
 

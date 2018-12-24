@@ -166,11 +166,11 @@ export class EthtestPage implements OnInit, OnDestroy {
   encryptWalletToJson(wallet: Wallet) {
     wallet.encrypt('1234').then(
       val => {
-        console.log('encripted');
-        console.log(val);
+        this.logger.debug('encripted');
+        this.logger.debug(val);
       },
       reason => {
-        console.log('enc failed');
+        this.logger.debug('enc failed');
       }
     );
   }
@@ -313,7 +313,7 @@ export class EthtestPage implements OnInit, OnDestroy {
     };
 
     const onSuccess = data => {
-      console.log(data);
+      this.logger.debug(data);
     };
     const onError = error => {
       this.feedbackUI.showErrorDialog(error);
@@ -350,8 +350,8 @@ export class EthtestPage implements OnInit, OnDestroy {
 
   encJsonToWallet(json: string, password: string) {
     ethers.Wallet.fromEncryptedJson(json, password).then(result => {
-      console.log('wallet restored');
-      console.log(result);
+      this.logger.debug('wallet restored');
+      this.logger.debug(result);
     });
   }
 

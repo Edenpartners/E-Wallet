@@ -610,7 +610,7 @@ export class EtherApiService {
       // may be 1 gwei
       const gasPrice: BigNumber = await this.getGasPrice(p);
       // or let maxGasPrice = await KyberNetworkProxyContract.methods.maxGasPrice().call()
-      console.log('got gas price : ' + gasPrice);
+      this.logger.debug('got gas price : ' + gasPrice);
 
       this.kyberNetworkGetExpectedTradeRate(
         contract,
@@ -698,7 +698,7 @@ export class EtherApiService {
         return;
       }
 
-      console.log('got estimated val : ' + estimatedGasBn);
+      this.logger.debug('got estimated val : ' + estimatedGasBn);
 
       const tradePromise = contract.functions.swapEtherToToken(
         destTokenAddress,

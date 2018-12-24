@@ -14,7 +14,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "progress": false,
+            "progress": true,
             "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -54,6 +54,9 @@
                 "maximumWarning": "2mb",
                 "maximumError": "5mb"
               }]
+            },
+            "ci": {
+              "progress": false
             }
           }
         },
@@ -66,6 +69,9 @@
           "configurations": {
             "production": {
               "browserTarget": "app:build:production"
+            },
+            "ci": {
+              "progress": false
             }
           }
         },
@@ -95,6 +101,12 @@
                 "output": "/assets"
               }
             ]
+          },
+          "configurations": {
+            "ci": {
+              "progress": false,
+              "watch": false
+            }
           }
         },
         "lint": {

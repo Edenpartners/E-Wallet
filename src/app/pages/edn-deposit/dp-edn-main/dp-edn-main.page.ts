@@ -240,7 +240,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     const onTxReceipt = txReceiptData => {};
 
     const onSuccess = data => {
-      console.log(data);
+      this.logger.debug(data);
     };
 
     const onError = error => {
