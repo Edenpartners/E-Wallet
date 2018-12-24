@@ -7,6 +7,9 @@ fs.readFile(f, 'utf8', function(err, data) {
   if (err) {
     return console.log(err);
   }
+
+  console.log('found browser.js start patching...');
+
   let result = data.replace(
     /node:[\s]*false/g,
     "node: {crypto: true, stream: true, http: true, https: true, os: true, vm: true, fs: 'empty', net: 'empty', child_process: 'empty'}"
