@@ -26,7 +26,7 @@ import { emailPattern } from '../../utils/regex-validations';
 })
 export class SigninPage implements OnInit {
   constructor(
-    private rs: RouterService,
+    public rs: RouterService,
     private storage: AppStorageService,
     private logger: NGXLogger,
     private ednApi: EdnRemoteApiService,

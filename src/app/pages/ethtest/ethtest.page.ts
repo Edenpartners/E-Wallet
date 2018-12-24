@@ -38,8 +38,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class EthtestPage implements OnInit, OnDestroy {
   title = '';
-  private pinCode = '';
-  private oldPinCode = '';
+  pinCode = '';
+  oldPinCode = '';
 
   @ViewChild(Bip39Handler) bip39Handler: Bip39Handler;
   @ViewChild(EthProviderMaker) ethProviderMaker: EthProviderMaker;
@@ -364,4 +364,5 @@ export class EthtestPage implements OnInit, OnDestroy {
     const bn = ethers.utils.bigNumberify(text);
     resultInput.value = bn.toString() + ' / ' + bn.toHexString();
   }
+  convertHexToText(text: string, resultInput: IonInput) {}
 }

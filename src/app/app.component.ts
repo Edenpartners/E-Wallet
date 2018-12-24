@@ -48,7 +48,7 @@ import { FeedbackUIService } from './providers/feedbackUI.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private env: any;
+  env: any;
   private envConfigText = '';
 
   private subscriptionPack: SubscriptionPack = new SubscriptionPack();
@@ -56,8 +56,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private currentModal: HTMLIonModalElement = null;
   private isUserStateEventFired = false;
 
-  private appVersionCode: any = '';
-  private appVersionNumber: any = '';
+  appVersionCode: any = '';
+  appVersionNumber: any = '';
 
   private latestDeeplink: any = null;
 

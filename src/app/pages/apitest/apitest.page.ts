@@ -60,6 +60,8 @@ export class ApitestPage implements OnInit, OnDestroy {
   private oldPinCode = '';
   private tdenTransactionList = [];
 
+  showChecker = false;
+
   @ViewChild(Bip39Handler) bip39Handler: Bip39Handler;
   @ViewChild(EthProviderMaker) ethProviderMaker: EthProviderMaker;
   @ViewChild(EthWalletManager) ethWalletManager: EthWalletManager;

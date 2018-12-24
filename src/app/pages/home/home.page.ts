@@ -66,7 +66,7 @@ interface TEDNWalletRow {
 export class HomePage implements OnInit, OnDestroy {
   constructor(
     private aRoute: ActivatedRoute,
-    private rs: RouterService,
+    public rs: RouterService,
     public eths: EthService,
     private cbService: ClipboardService,
     private store: LocalStorageService,

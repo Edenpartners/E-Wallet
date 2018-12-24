@@ -68,8 +68,8 @@ export interface ContractWorker {
   styleUrls: ['./tester.scss']
 })
 export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
-  private wallets: Array<WalletRow> = [];
-  private selectedWallet: WalletRow = null;
+  wallets: Array<WalletRow> = [];
+  selectedWallet: WalletRow = null;
 
   @Output() walletSelect = new EventEmitter<void>();
 

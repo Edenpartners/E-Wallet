@@ -102,4 +102,6 @@ export class TwMainPage implements OnInit, OnDestroy {
   ionViewDidLeave() {
     this.subscriptionPack.clear();
   }
+
+  handleAliasEditing() {}
 }

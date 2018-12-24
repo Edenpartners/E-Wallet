@@ -26,7 +26,7 @@ import { Events } from '@ionic/angular';
   styleUrls: ['./ew-qrcode.page.scss']
 })
 export class EwQrcodePage implements OnInit, OnDestroy {
-  private qrCodeData = '';
+  qrCodeData = '';
 
   private subscriptionPack: SubscriptionPack = new SubscriptionPack();
   walletId: string;
