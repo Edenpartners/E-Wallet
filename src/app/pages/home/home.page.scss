@@ -49,8 +49,14 @@
       .sub-title {
         margin-top: 4px;
         margin-bottom: 0px;
+        font-size: .9em;
       }
     }
+  }
+
+  .row-end-icon {
+    min-width: 32px;
+    position: relative;
   }
 }
 

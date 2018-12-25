@@ -538,3 +538,13 @@ ion-item.full-text-input {
 }
 
 
+.custom-loading {
+  --spinner-color: #ffffff;
+  .loading-wrapper {
+    border-radius: 0px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    --background:transparent;
+    background:transparent;
+  }
+}

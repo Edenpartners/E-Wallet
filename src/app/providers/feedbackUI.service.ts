@@ -14,6 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastController } from '@ionic/angular';
 import { Map } from '../utils/listutil';
 import { UUID } from 'angular2-uuid';
+import { LoadingOptions, SpinnerTypes } from '@ionic/core';
 
 export interface AlertOptions {
   title?: string | undefined;
@@ -36,9 +37,15 @@ class InnerLoadingHandler {
     this.creatingLoading = true;
 
     return new Promise<any>(async (finalResolve, finalReject) => {
-      thisRef.loadingElement = await this.loadingController.create({
-        message: msg
-      });
+      const spinner: SpinnerTypes = 'lines';
+      const opts: LoadingOptions = {
+        message: msg,
+        cssClass: 'custom-loading',
+        spinner: spinner
+      };
+
+      thisRef.loadingElement = await this.loadingController.create(opts);
+
       await this.loadingElement.present();
       this.creatingLoading = false;
 

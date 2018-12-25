@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="toggleSideMenu()">
-        <ion-icon name="menu"></ion-icon>
+        <ion-icon name="menu" color="text-light-1"></ion-icon>
       </ion-button>
     </ion-buttons>
 
@@ -14,7 +14,7 @@
 
     <ion-buttons slot="end">
       <ion-button class="invisible">
-        <ion-icon name="menu"></ion-icon>
+        <ion-icon name="menu" color="text-light-1"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -63,7 +63,7 @@
                 </div>
               </div>
 
-              <ion-button fill="clear" color="text-dark-2" *ngIf="showWalletsOrderIcon">
+              <ion-button class="row-end-icon" fill="clear" color="text-dark-2" *ngIf="showWalletsOrderIcon">
                 <ion-icon name="menu"></ion-icon>
               </ion-button>
             </ion-item>
