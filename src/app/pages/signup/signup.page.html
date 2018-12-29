@@ -4,7 +4,7 @@
 </ion-header>
 
 <ion-content class="page-wrapper">
-  <div class="page-content hfc-layout">
+  <div class="page-content">
     <div class="header" margin-bottom>
       <div margin-top class="logo-wrapper header">
         <div class="logo-img-big"></div>
@@ -20,8 +20,7 @@
           <ion-item class="input-field" lines="none">
             <span class="input-field-icon email"></span>
             <ion-input #userEmail [placeholder]="'InputEmail' | translate" type="email"
-              formControlName="email" [(ngModel)]="signupFormData.email.value" (keyup.enter)="userPasswd.setFocus()"
-              color="text-light-1"></ion-input>
+              formControlName="email" (keyup.enter)="userPasswd.setFocus()" color="text-light-1"></ion-input>
             <span class="input-field-icon email invisible"></span>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('email').touched && signupForm.get('email').invalid">
@@ -36,8 +35,8 @@
           <ion-item class="input-field field-space" lines="none">
             <span class="input-field-icon lock"></span>
             <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
-              [placeholder]="'InputPassword' | translate" [(ngModel)]="signupFormData.password.value"
-              (keyup.enter)="userPasswdConfirm.setFocus()" color="text-light-1"></ion-input>
+              [placeholder]="'InputPassword' | translate" (keyup.enter)="userPasswdConfirm.setFocus()"
+              color="text-light-1"></ion-input>
             <span class="input-field-icon lock invisible"></span>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('password').touched && signupForm.get('password').invalid">
@@ -54,8 +53,7 @@
 
           <ion-item class="input-field field-space" lines="none">
             <ion-input #userPasswdConfirm clearOnEdit="true" type="password" formControlName="passwordConfirm"
-              [placeholder]="'ConfigmPasswd' | translate" [(ngModel)]="signupFormData.passwordConfirm.value"
-              color="text-light-1"></ion-input>
+              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1" (keyup.enter)="userPasswdConfirm.nativeElement.blur()"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('passwordConfirm').touched && ( signupForm.get('passwordConfirm').invalid  || signupForm.hasError('areEqual') )">
             <div *ngIf="signupForm.get('passwordConfirm').hasError('required')">
@@ -67,7 +65,7 @@
           </div>
 
           <div class="margin-top">
-            <ion-button expand="block" color="theme-2" (click)="signup()">{{
+            <ion-button expand="block" color="theme-2" class="fw-bold" (click)="signup()">{{
                   'Continue' | translate
                 }}</ion-button>
           </div>

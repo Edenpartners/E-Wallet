@@ -1,11 +1,11 @@
-<ion-content class="page-wrapper" no-padding no-bounce>
+<ion-content class="page-wrapper" no-padding scrollY="false">
   <div class="background" #background style="z-index:-1;"></div>
 
   <div class="page-content fill">
     <div class="hcf-layout fill">
       <div class="header" padding>
         <div class="flex-h-dir-centered">
-          <ion-label class="field-label title"> {{ wallet.name }}</ion-label>
+          <ion-label class="field-label title"> {{ wallet ? wallet.name : '' }}</ion-label>
         </div>
         <div class="flex-h-dir-v-centered tedn">
           <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
@@ -64,10 +64,10 @@
         <ion-toolbar>
           <div class="flex-h-dir">
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle color="text-light-1" (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
+              <ion-button appBtnStyle class="fw-bold" color="text-light-1" (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
             </div>
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle color="text-light-1" (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
+              <ion-button appBtnStyle class="fw-bold" color="text-light-1" (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
             </div>
           </div>
         </ion-toolbar>

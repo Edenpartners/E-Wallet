@@ -30,12 +30,13 @@
   "valid.confirm-password.areEqual": "Password mismatch",
 
   "valid.terms.pattern": "You must accept terms and conditions",
-  "valid.privacy.pattern": "You must accept provacy",
+  "valid.privacy.pattern": "You must accept privacy",
 
   "valid.address.required": "Address is required",
   "valid.amount.required": "Amount is required",
   "valid.amount.pattern": "Invalid amount",
-
+  "valid.amount.positive": "A negative amount is not allowed",
+  
   "valid.wallet.required": "Wallet is required",
   "valid.tednWallet.required": "TEDN Wallet is required",
 
@@ -105,7 +106,7 @@
   "MyEDNWalletsTitle":"My EDN Wallets",
   "MyTEDNWalletsTitle":"My TEDN Wallets",
 
-  "AddEdn":"ADD EDN",
+  "AddEdn":"Add EDN",
   "Deposit":"DEPOSIT",
   "Withdraw":"WITHDRAW",
 
@@ -158,7 +159,7 @@
   "ImportWallet":"Import Wallet",
 
   "______________EDN_WALLET_MAIN": "",
-  "EwMainTitle":"My EDN Wallets",
+  "EwMainTitle":"My EDN Wallet",
   "Expenses":"Expenses",
   "Address":"Address",
   "CurrentBalance":"Current Balance",

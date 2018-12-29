@@ -27,6 +27,144 @@
   --color-divider: #909090;
   --color-item-underline: #585858;
   --color-item-underline-focused: #D57C48;
+
+  --ion-font-family: Lato, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Roboto", sans-serif;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-HairlineItalic.ttf');
+  font-weight: 100;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Hairline.ttf');
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-ThinItalic.ttf');
+  font-weight: 200;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Thin.ttf');
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-LightItalic.ttf');
+  font-weight: 300;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Light.ttf');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Italic.ttf');
+  font-weight: 400;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Regular.ttf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-MediumItalic.ttf');
+  font-weight: 500;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Medium.ttf');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-SemiboldItalic.ttf');
+  font-weight: 600;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Semibold.ttf');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-BoldItalic.ttf');
+  font-weight: 700;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Bold.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-HeavyItalic.ttf');
+  font-weight: 800;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Heavy.ttf');
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-BlackItalic.ttf');
+  font-weight: 900;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Black.ttf');
+  font-weight: 900;
+}
+
+* {
+  font-family: Lato;
+}
+
+.fw-bold{
+  font-weight: bold;
+}
+.fw-500{
+  font-weight: 500;
+}
+
+.fw-normal {
+  font-weight: 400;
+}
+
+.fw-medium{
+  font-weight: 500;
 }
 
 //https://stackoverflow.com/questions/46313640/iphone-x-8-8-plus-css-media-queries
@@ -318,18 +456,6 @@ ion-checkbox {
   opacity: 0;
 }
 
-.fw-medeum {
-  font-weight: 500;
-}
-
-.fw-bold {
-  font-weight: 700;
-}
-
-.title {
-  @extend .fw-bold;
-}
-
 /** Row Item */
 .row-icon-content {
   flex: 1;
@@ -346,11 +472,11 @@ ion-checkbox {
     margin-left: var(--space-normal);
 
     .title {
-      @extend .fw-medeum;
+      @extend .fw-medium;
     }
 
     .sub-title {
-      @extend .fw-medeum;
+      @extend .fw-medium;
       font-size: .95em;
     }
   }
@@ -480,7 +606,7 @@ ion-select.input-field {
     width: 148px;
     height: 30px;
     background: url('/assets/img/sscaa-big@2x.png');
-    background-size: cover;
+    background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
   }
@@ -489,7 +615,7 @@ ion-select.input-field {
     width: 225px;
     height: 45px;
     background: url('/assets/img/sscaa-big@2x.png');
-    background-size: cover;
+    background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
   }
@@ -547,4 +673,10 @@ ion-item.full-text-input {
     --background:transparent;
     background:transparent;
   }
+}
+
+
+//ios css patches
+.header-ios ion-toolbar:last-child {
+  --border-width: 0 0 0 0px;
 }

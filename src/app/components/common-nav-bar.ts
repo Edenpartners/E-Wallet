@@ -11,13 +11,17 @@ import { RouterService } from '../providers/router.service';
 @Component({
   selector: 'common-nav-bar',
   template: `
-    <ion-toolbar>
+    <ion-toolbar mode="md">
       <ion-buttons slot="start">
         <ion-button (click)="onBackBtnClick()">
-          <ion-icon name="arrow-back" color="text-light-1"></ion-icon>
+          <ion-icon
+            src="/assets/img/back.svg"
+            color="text-light-1"
+            style="width:.8em; height:.8em;"
+          ></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>{{ title }}</ion-title>
+      <ion-title class="fw-bold">{{ title }}</ion-title>
     </ion-toolbar>
   `,
   styles: [

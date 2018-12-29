@@ -1,5 +1,5 @@
-<ion-content class="page-wrapper" no-padding no-bounce>
-  <div class="background" #background></div>
+<ion-content class="page-wrapper" no-padding scrollY="false">
+  <div class="background" #background [hidden]="keyboardVisible"></div>
 
   <div class="page-content fill flex-ch-centered" padding>
     <div class="content free-form-area fill-width">
@@ -7,19 +7,19 @@
 
       <ion-item lines="full" class="full-text-input margin-top">
         <ion-input color="text-light-1" text-center [placeholder]="'Address' | translate"
-          [(ngModel)]="toAddress"></ion-input>
+          [(ngModel)]="toAddress" (keyup.enter)="amountInput.setFocus()"></ion-input>
       </ion-item>
 
 
-      <ion-label class="sub-header margin-top-3x">{{ 'Amount' | translate }}</ion-label>
+      <ion-label class="sub-header margin-top-2x">{{ 'Amount' | translate }}</ion-label>
 
       <ion-item lines="full" class="full-text-input margin-top">
         <ion-label class="invisible">{{ 'EDN' | translate }}</ion-label>
-        <ion-input type="number" color="text-light-1" text-center [(ngModel)]="amount"></ion-input>
+        <ion-input #amountInput type="number" color="text-light-1" text-center [(ngModel)]="amount"></ion-input>
         <ion-label>{{ 'EDN' | translate }}</ion-label>
       </ion-item>
 
-      <ion-button expand="block" color="theme-1" (click)="transferERC20Token()" class="margin-top-3x">{{ 'Send' | translate }}</ion-button>
+      <ion-button expand="block" color="theme-1" (click)="transferERC20Token()" class="margin-top-3x fw-bold">{{ 'Send' | translate }}</ion-button>
     </div>
   </div>
 

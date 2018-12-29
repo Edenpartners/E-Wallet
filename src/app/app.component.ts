@@ -5,7 +5,8 @@ import {
   NavController,
   IonMenu,
   ModalController,
-  IonicModule
+  IonicModule,
+  IonRouterOutlet
 } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -19,6 +20,7 @@ import {
   RouterEvent,
   NavigationEnd
 } from '@angular/router';
+
 import { NGXLogger } from 'ngx-logger';
 
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -29,7 +31,9 @@ import {
   AppStorageService,
   AppStorageTypes
 } from './providers/appStorage.service';
+
 import { Subscription } from 'rxjs';
+
 import { RouterPathsService } from './providers/routerPaths.service';
 import { EdnRemoteApiService } from './providers/ednRemoteApi.service';
 import { Events } from '@ionic/angular';
@@ -39,7 +43,7 @@ import { TransactionLoggerService } from './providers/transactionLogger.service'
 import { PcEditPage } from './pages/pin-code/pc-edit/pc-edit.page';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
-import { catchError } from 'rxjs/operators';
+
 import { FeedbackUIService } from './providers/feedbackUI.service';
 
 @Component({
@@ -107,9 +111,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.showPinCodeModal();
     });
 
+    this.events.subscribe(Consts.EVENT_SHOW_MODAL, page => {
+      this.logger.debug(Consts.EVENT_SHOW_MODAL);
+      this.showModal(page);
+    });
+
     this.events.subscribe(Consts.EVENT_CLOSE_MODAL, () => {
       this.logger.debug(Consts.EVENT_CLOSE_MODAL);
-      this.hidePinCodeModal();
+      this.hideModal();
     });
   }
 
@@ -131,18 +140,22 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async showPinCodeModal() {
+    this.showModal(PcEditPage);
+  }
+
+  async showModal(page: any) {
     if (this.hasModal) {
       return;
     }
     this.hasModal = true;
 
     this.currentModal = await this.modalController.create({
-      component: PcEditPage
+      component: page
     });
     return await this.currentModal.present();
   }
 
-  async hidePinCodeModal() {
+  async hideModal() {
     if (!this.hasModal) {
       return;
     }
@@ -181,7 +194,7 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
       this.logger.info('platform is ready!');
-      this.statusBar.styleDefault();
+      this.statusBar.styleLightContent();
 
       this.storage.startFirebaseSigninCheck();
       this.handleDefaultRoute();
@@ -213,7 +226,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     if (this.hasModal) {
-      this.hidePinCodeModal();
+      this.hideModal();
       return;
     }
 
@@ -396,6 +409,8 @@ export class AppComponent implements OnInit, OnDestroy {
             let gotoSignin = false;
 
             if (this.storage.isSignedIn) {
+              this.getBaseValues();
+
               if (this.storage.isUserInfoValidated) {
                 if (!this.storage.hasPinNumber) {
                   this.logger.info(
@@ -458,34 +473,70 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getBaseValues() {
-    const trackKey = 'coinHDAddress';
-    const coinHDAddressTracker = this.dataTracker.startTracker(trackKey, () => {
-      return new Promise<any>((finalResolve, finalReject) => {
-        this.ednApi.getCoinHDAddress().then(
-          result => {
-            if (result && result.data && result.data.hdaddress) {
-              finalResolve(result.data.hdaddress);
-            } else {
-              finalReject(new Error('unknown error'));
+    const coinHDTrackKey = 'coinHDAddress';
+    const coinHDAddressTracker = this.dataTracker.startTracker(
+      coinHDTrackKey,
+      () => {
+        return new Promise<any>((finalResolve, finalReject) => {
+          this.ednApi.getCoinHDAddress().then(
+            result => {
+              if (result && result.data && result.data.hdaddress) {
+                finalResolve(result.data.hdaddress);
+              } else {
+                finalReject(new Error('unknown error'));
+              }
+            },
+            error => {
+              finalReject(error);
             }
-          },
-          error => {
-            finalReject(error);
-          }
-        );
-      });
-    });
+          );
+        });
+      }
+    );
 
     coinHDAddressTracker.interval = 1000;
 
-    //resolve address only once.
+    //refresh coinHDaddress
     this.subscriptionPack.addSubscription(() => {
       return coinHDAddressTracker.trackObserver.subscribe(hdaddress => {
         this.storage.coinHDAddress = hdaddress;
-        this.dataTracker.stopTracker(trackKey, true);
-        this.subscriptionPack.removeSubscriptionsByKey(trackKey);
+        this.dataTracker.stopTracker(coinHDTrackKey, true);
+        this.subscriptionPack.removeSubscriptionsByKey(coinHDTrackKey);
       });
-    }, trackKey);
+    }, coinHDTrackKey);
+
+    //refresh latest userInfo
+    if (this.storage.isSignedIn) {
+      const userInfoTrackKey = 'userInfo';
+      const userInfoTracker = this.dataTracker.startTracker(
+        userInfoTrackKey,
+        () => {
+          return new Promise<any>((finalResolve, finalReject) => {
+            this.ednApi.getUserInfo().then(
+              userInfoResult => {
+                if (userInfoResult.data) {
+                  finalResolve(userInfoResult.data);
+                } else {
+                  finalReject(new Error('unknown error'));
+                }
+              },
+              err => {
+                finalReject(err);
+              }
+            );
+          });
+        }
+      );
+
+      userInfoTracker.interval = 1000;
+      this.subscriptionPack.addSubscription(() => {
+        return userInfoTracker.trackObserver.subscribe(userInfo => {
+          this.storage.userInfo = userInfo;
+          this.dataTracker.stopTracker(userInfoTrackKey, true);
+          this.subscriptionPack.removeSubscriptionsByKey(userInfoTrackKey);
+        });
+      }, coinHDTrackKey);
+    }
   }
 
   dumpRoutes() {

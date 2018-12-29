@@ -1,5 +1,5 @@
 <ion-content class="page-wrapper">
-  <div class="page-content hfc-layout">
+  <div class="page-content">
     <div class="header">
       <div margin-top class="logo-wrapper header">
         <div class="logo-img-big"></div>
@@ -14,8 +14,7 @@
         <form novalidate [formGroup]="profileForm" class="fill-width">
           <ion-item class="input-field field-space" lines="none">
             <ion-input #displayName [placeholder]="'DisplayName' | translate" formControlName="displayName"
-              [(ngModel)]="profileFormData.displayName.value" (keyup.enter)="phoneNumber.setFocus()"
-              color="text-light-1"></ion-input>
+              (keyup.enter)="phoneNumber.setFocus()" color="text-light-1"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="profileForm.get('displayName').touched && profileForm.get('displayName').invalid">
             <div *ngIf="profileForm.get('displayName').hasError('required')">
@@ -25,7 +24,7 @@
 
           <ion-item class="input-field field-space" lines="none">
             <ion-input #phoneNumber [placeholder]="'PhoneNumber' | translate" formControlName="phoneNumber"
-              [(ngModel)]="profileFormData.phoneNumber.value" color="text-light-1"></ion-input>
+              color="text-light-1"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="profileForm.get('phoneNumber').touched && profileForm.get('phoneNumber').invalid">
             <div *ngIf="profileForm.get('phoneNumber').hasError('required')">
@@ -36,17 +35,17 @@
             </div>
           </div>
 
-          <ion-item class="check-box margin-top-2x" lines="none">
-            <ion-checkbox color="theme-1" #termsAndConditionsCheckBox></ion-checkbox>
+          <ion-item class="check-box margin-top-2x" lines="none" (click)="openTermsAndConditions()">
+            <ion-checkbox mode="md" color="theme-1" #termsAndConditionsCheckBox></ion-checkbox>
             <ion-label color="text-light-1" class="checkbox-label">{{ 'TermsAndConditions' | translate }}</ion-label>
           </ion-item>
-          <ion-item class="check-box field-space" lines="none">
-            <ion-checkbox color="theme-1" #privacyCheckBox></ion-checkbox>
+          <ion-item class="check-box field-space" lines="none" (click)="openPrivacyPolicy()">
+            <ion-checkbox mode="md" color="theme-1" #privacyCheckBox></ion-checkbox>
             <ion-label color="text-light-1" class="checkbox-label">{{ 'Privacy' | translate }}</ion-label>
           </ion-item>
 
           <div class="margin-top">
-            <ion-button expand="block" color="theme-2" (click)="onContinueBtnClick(termsAndConditionsCheckBox.checked, privacyCheckBox.checked)">{{ 'Continue' | translate }}</ion-button>
+            <ion-button expand="block" color="theme-2" class="fw-bold" (click)="onContinueBtnClick()">{{ 'Continue' | translate }}</ion-button>
           </div>
         </form>
       </div>

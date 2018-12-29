@@ -1,4 +1,4 @@
-<ion-content class="page-wrapper" no-padding no-bounce>
+<ion-content class="page-wrapper" no-padding scrollY="false">
   <div class="background" #background></div>
   <div class="page-content fill">
     <div class="hcf-layout fill">
@@ -47,10 +47,10 @@
         <ion-toolbar>
           <div class="flex-h-dir">
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle color="text-light-1" (click)="onReceiveClick()">{{ "Receive" | translate }}</ion-button>
+              <ion-button appBtnStyle color="text-light-1" class="fw-bold" (click)="onReceiveClick()">{{ "Receive" | translate }}</ion-button>
             </div>
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle color="text-light-1" (click)="onSendClick()">{{ "Send" | translate }}</ion-button>
+              <ion-button appBtnStyle color="text-light-1" class="fw-bold" (click)="onSendClick()">{{ "Send" | translate }}</ion-button>
             </div>
           </div>
         </ion-toolbar>

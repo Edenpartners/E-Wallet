@@ -2,7 +2,7 @@
   <common-nav-bar title="{{ 'ImportWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-bounce>
+<ion-content class="page-wrapper">
   <div class="page-content fill flex-ch-centered" padding ion-fixed>
     <div class="inner-content">
       <div class="content margin-top">
@@ -15,7 +15,7 @@
       </div>
 
       <div class="footer margin-top">
-        <ion-button expand="block" color="danger" (click)="restoreWallet()">
+        <ion-button expand="block" color="danger" class="fw-bold" (click)="restoreWallet()">
           {{ 'Import' | translate }}
         </ion-button>
       </div>

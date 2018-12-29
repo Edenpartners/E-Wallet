@@ -19,12 +19,20 @@ import { TranslateService } from '@ngx-translate/core';
 import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { emailPattern } from '../../utils/regex-validations';
 
+import { SubscriptionPack } from '../../utils/listutil';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+
 @Component({
   selector: 'app-signin',
   templateUrl: './signin.page.html',
   styleUrls: ['./signin.page.scss']
 })
 export class SigninPage implements OnInit {
+  keyboardVisible = false;
+
+  subscriptionPack: SubscriptionPack = new SubscriptionPack();
+  signinForm: FormGroup;
+
   constructor(
     public rs: RouterService,
     private storage: AppStorageService,
@@ -32,14 +40,9 @@ export class SigninPage implements OnInit {
     private ednApi: EdnRemoteApiService,
     private appVersion: AppVersion,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private keyboard: Keyboard
   ) {}
-
-  signinForm: FormGroup;
-  signinFormData: {
-    email: { value: string };
-    password: { value: string };
-  };
 
   ngOnInit() {
     this.signinForm = new FormGroup({
@@ -58,17 +61,28 @@ export class SigninPage implements OnInit {
 
   ionViewWillEnter() {
     this.resetFormData();
+
+    this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardWillShow().subscribe((val: any) => {
+        this.keyboardVisible = true;
+      });
+    });
+
+    this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardWillHide().subscribe((val: any) => {
+        this.keyboardVisible = false;
+      });
+    });
   }
 
   ionViewDidLeave() {
     this.resetFormData();
+    this.subscriptionPack.clear();
   }
 
   resetFormData() {
-    this.signinFormData = {
-      email: { value: '' },
-      password: { value: '' }
-    };
+    this.signinForm.get('email').setValue('');
+    this.signinForm.get('password').setValue('');
 
     Object.keys(this.signinForm.controls).forEach(field => {
       // {1}
@@ -95,8 +109,8 @@ export class SigninPage implements OnInit {
 
     try {
       const userResult = await this.ednApi.signinFirebaseUser(
-        this.signinFormData.email.value,
-        this.signinFormData.password.value
+        this.signinForm.get('email').value,
+        this.signinForm.get('password').value
       );
       await this.runEdnSignup();
     } catch (e) {

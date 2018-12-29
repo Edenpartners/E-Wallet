@@ -27,7 +27,9 @@ export const environment = {
     ednCoinKey: 'EDN',
     showDebugToast: false,
     useDecryptPinCodeByPinCode: false,
-    simulateHardwareBackButton: false
+    simulateHardwareBackButton: false,
+    clearWalletsOnWipeStorage: false,
+    clearPincodeOnWipeStorage: false
   }
 };
 

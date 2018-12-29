@@ -15,7 +15,7 @@
           <ion-item class="input-field" lines="none">
             <span class="input-field-icon email"></span>
             <ion-input #userEmail type="email" formControlName="email" [placeholder]="'InputUserEmail' | translate"
-              [(ngModel)]="signinFormData.email.value" (keyup.enter)="userPasswd.setFocus()" color="text-light-1">
+              (keyup.enter)="userPasswd.setFocus()" color="text-light-1">
             </ion-input>
             <span class="input-field-icon email invisible"></span>
           </ion-item>
@@ -32,8 +32,7 @@
           <ion-item class="input-field field-space" lines="none">
             <span class="input-field-icon lock"></span>
             <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
-              [placeholder]="'InputPassword' | translate" [(ngModel)]="signinFormData.password.value"
-              (keyup.enter)="signin()" color="text-light-1"></ion-input>
+              [placeholder]="'InputPassword' | translate" (keyup.enter)="signin()" color="text-light-1"></ion-input>
             <span class="input-field-icon lock invisible"></span>
           </ion-item>
           <div class="form-error-msg" *ngIf="signinForm.get('password').touched && signinForm.get('password').invalid">
@@ -47,7 +46,7 @@
         </form>
 
         <div class="margin-top">
-          <ion-button class="signin" expand="block" color="theme-2" (click)="signin()">{{ 'Login' | translate }}</ion-button>
+          <ion-button class="signin fw-bold" expand="block" color="theme-2" (click)="signin()">{{ 'Login' | translate }}</ion-button>
         </div>
 
         <div class="margin-top">
@@ -77,6 +76,6 @@
       </div>
     </div>
   </div>
-
-  <div class="copyright">{{ 'Copyright' | translate }}</div>
 </ion-content>
+
+<div class="copyright" [hidden]="keyboardVisible">{{ 'Copyright' | translate }}</div>

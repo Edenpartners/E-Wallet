@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
@@ -52,6 +54,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
 
   pinCodeConfirmCallback = null;
 
+  subscriptionPack: SubscriptionPack = new SubscriptionPack();
+
   constructor(
     private rs: RouterService,
     public eths: EthService,
@@ -67,7 +71,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private keyboard: Keyboard
   ) {}
 
   ngOnInit() {
@@ -79,6 +84,10 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     this.refreshWalletList();
     this.restartRateTracker();
 
+    this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardShow().subscribe((val: any) => {});
+    });
+
     this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
       if (this.pinCodeConfirmCallback && walletPw) {
         this.pinCodeConfirmCallback(walletPw);
@@ -88,6 +97,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
   }
 
   ionViewDidLeave() {
+    this.subscriptionPack.clear();
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
 
@@ -95,7 +105,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
   }
 
   refreshWalletList() {
-    this.wallets = this.storage.getWallets();
+    this.wallets = this.storage.getWallets(true, true);
     if (this.wallets.length > 0) {
       this.selectedWalletId = this.wallets[0].id;
     }
@@ -218,6 +228,13 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     if (!ethAmountBn) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
+
+    if (ethAmountBn.lte(0)) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.positive')
       );
       return;
     }

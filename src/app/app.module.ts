@@ -35,8 +35,11 @@ import { Facebook } from '@ionic-native/facebook/ngx';
 import { environment } from '../environments/environment';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PcEditPageModule } from './pages/pin-code/pc-edit/pc-edit.module';
+import { PrivacyPolicyPageModule } from './pages/signup-profile/privacy-policy/privacy-policy.module';
+import { TermsAndConditionPageModule } from './pages/signup-profile/terms-and-condition/terms-and-condition.module';
 
 import { env } from '../environments/environment';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -75,12 +78,15 @@ export function createTranslateLoader(http: HttpClient) {
       }
     }),
 
-    PcEditPageModule
+    PcEditPageModule,
+    PrivacyPolicyPageModule,
+    TermsAndConditionPageModule
   ],
   exports: [ClipboardModule, QRCodeModule],
   providers: [
     StatusBar,
     SplashScreen,
+    Keyboard,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     HTTP,
     AppVersion,

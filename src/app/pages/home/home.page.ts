@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterService } from '../../providers/router.service';
 
 import { ActivatedRoute } from '@angular/router';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
@@ -77,7 +78,8 @@ export class HomePage implements OnInit, OnDestroy {
     private ednApi: EdnRemoteApiService,
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
-    private events: Events
+    private events: Events,
+    private keyboard: Keyboard
   ) {}
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
@@ -168,7 +170,7 @@ export class HomePage implements OnInit, OnDestroy {
       i -= 1;
     }
 
-    const allWallet = this.storage.getWallets();
+    const allWallet = this.storage.getWallets(true, true);
     this.logger.debug('refresh list : ' + allWallet.length);
     this.logger.debug('refresh list : ' + this.wallets.length);
 

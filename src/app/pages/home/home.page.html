@@ -14,18 +14,18 @@
 
     <ion-buttons slot="end">
       <ion-button class="invisible">
-        <ion-icon name="menu" color="text-light-1"></ion-icon>
+        <ion-icon src="/assets/img/menu.svg" color="text-light-1"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-padding no-bounce>
+<ion-content class="page-wrapper" no-padding scrollY="false">
   <div class="page-content fill hcf-layout">
     <div padding class="content lists-wrapper">
       <div margin-bottom class="hcf-layout wallet-container edn">
         <ion-toolbar class="header" color="main2">
-          <ion-label color="text-light-1">{{ 'MyEDNWalletsTitle' | translate }}</ion-label>
+          <ion-label color="text-light-1" class="fw-bold">{{ 'MyEDNWalletsTitle' | translate }}</ion-label>
           <ion-buttons slot="end">
             <ion-button (click)="rs.navigateByUrl('/add-wallet')">
               <ion-icon name="add" color="text-light-1"></ion-icon>
@@ -51,13 +51,13 @@
                 </div>
                 <div class="inner-content">
                   <div>
-                    <ion-label color="text-dark-1-1" class="title">
+                    <ion-label color="text-dark-1-1" class="title fw-500">
                       {{ item.data.profile.alias }}
                     </ion-label>
                     <ion-label text-right color="text-dark-3" class="sub-title">
                       {{ item.ethBalanceEther | number: '.0-5' }} ETH /
                       {{ item.ednBalanceDisplay  | number: '.0-5' }}
-                      EDN
+                      {{ 'EDN' | translate }}
                     </ion-label>
                   </div>
                 </div>
@@ -74,7 +74,8 @@
           <ion-toolbar style="border:none;" no-border-top no-border>
             <div class="flex-h-dir">
               <div class="flex-item-fill flex-ch-centered">
-                <ion-button appBtnStyle (click)="rs.navigateByUrl('/dp-edn-list')" color="text-dark-1">{{
+                <ion-button appBtnStyle class="fw-bold" (click)="rs.navigateByUrl('/dp-edn-list')"
+                  color="text-dark-1" style="text-transform:none;">{{
                         'AddEdn' | translate
                       }}</ion-button>
               </div>
@@ -85,7 +86,7 @@
 
       <div class="hcf-layout wallet-container tedn">
         <ion-toolbar class="header" color="main2">
-          <ion-label color="text-light-1">{{ 'MyTEDNWalletsTitle' | translate }}</ion-label>
+          <ion-label class="fw-bold" color="text-light-1">{{ 'MyTEDNWalletsTitle' | translate }}</ion-label>
         </ion-toolbar>
         <ion-content class="content">
           <ion-list lines="none" no-margin padding class="content-list">
@@ -106,7 +107,7 @@
                 </div>
                 <div class="inner-content">
                   <div>
-                    <ion-label color="text-dark-1-1" class="title">
+                    <ion-label color="text-dark-1-1" class="title fw-500">
                       {{ item.data.name }}
                     </ion-label>
                     <ion-label text-right color="text-dark-3" class="sub-title">
@@ -129,10 +130,10 @@
           <ion-toolbar>
             <div class="flex-h-dir">
               <div class="flex-item-fill flex-ch-centered">
-                <ion-button appBtnStyle color="text-dark-1" (click)="onTEDNDepositClick()">{{ 'Deposit' | translate }}</ion-button>
+                <ion-button appBtnStyle color="text-dark-1" class="fw-bold" (click)="onTEDNDepositClick()">{{ 'Deposit' | translate }}</ion-button>
               </div>
               <div class="flex-item-fill flex-ch-centered">
-                <ion-button appBtnStyle color="text-dark-1" (click)="onTEDNWithdrawClick()">{{ 'Withdraw' | translate }}</ion-button>
+                <ion-button appBtnStyle color="text-dark-1" class="fw-bold" (click)="onTEDNWithdrawClick()">{{ 'Withdraw' | translate }}</ion-button>
               </div>
             </div>
           </ion-toolbar>

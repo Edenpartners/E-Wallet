@@ -1,5 +1,5 @@
 <ion-app>
-  <ion-menu #sideMenu side="start" [hidden]="!env.config.useSideMenu">
+  <ion-menu #sideMenu mode="md" side="start" [hidden]="!env.config.useSideMenu">
     <ion-content>
       <ion-list>
         <div class="img-wrapper flex-ch-centered margin-top-3x">
@@ -13,7 +13,7 @@
           <ion-label class="userDisplay">{{ getUserEmail() }}</ion-label>
         </div>
         <div class="flex-ch-centered margin-top-2x">
-          <ion-button class="signout" color="theme-2" (click)="signout()">
+          <ion-button class="signout fw-bold" color="theme-2" (click)="signout()">
             Signout
           </ion-button>
         </div>
@@ -46,7 +46,7 @@
       </ion-list>
     </ion-content>
   </ion-menu>
-  <ion-router-outlet main></ion-router-outlet>
+  <ion-router-outlet mode="md" main></ion-router-outlet>
 
   <span class="version-info">
     <span>{{ appVersionNumber ? ('ver' + appVersionNumber) : 'ver?' }} </span>

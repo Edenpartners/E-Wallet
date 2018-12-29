@@ -2,7 +2,7 @@
   <common-nav-bar title="{{ 'DpEdnMainTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-padding no-bounce>
+<ion-content class="page-wrapper" no-padding scrollY="false">
   <div class="page-content fill flex-ch-centered" padding>
     <div class="content free-form-area fill-width">
       <ion-label>{{ 'Exchange' | translate }}</ion-label>
@@ -31,7 +31,7 @@
         <ion-label>{{ 'EDN' | translate }}</ion-label>
       </ion-item>
 
-      <ion-button expand="block" color="theme-1" (click)="tradeEthToEdn()" class="margin-top-2x">{{ 'Add' | translate }}</ion-button>
+      <ion-button expand="block" color="theme-1" (click)="tradeEthToEdn()" class="margin-top-2x fw-bold">{{ 'Add' | translate }}</ion-button>
     </div>
   </div>
 

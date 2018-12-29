@@ -112,13 +112,9 @@ export class RestoreWalletPage implements OnInit {
         return;
       }
 
-      if (this.storage.findWalletByInfo(walletInfo)) {
-        finalReject(new Error('the wallet already using!'));
-        return;
-      }
-
       this.ednApi.addEthAddress(walletInfo.address).then(
         result => {
+          this.storage.addEthAddressToUserInfoTemporary(walletInfo.address);
           this.storage.addWallet(walletInfo);
           finalResolve();
         },

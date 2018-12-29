@@ -96,6 +96,16 @@ const routes: Routes = [
   {
     path: 'landing',
     loadChildren: './pages/landing/landing.module#LandingPageModule'
+  },
+  {
+    path: 'terms-and-condition',
+    loadChildren:
+      './pages/signup-profile/terms-and-condition/terms-and-condition.module#TermsAndConditionPageModule'
+  },
+  {
+    path: 'privacy-policy',
+    loadChildren:
+      './pages/signup-profile/privacy-policy/privacy-policy.module#PrivacyPolicyPageModule'
   }
 ];
 

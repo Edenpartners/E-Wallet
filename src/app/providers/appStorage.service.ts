@@ -108,7 +108,7 @@ export class AppStorageService {
   //   "tedn_public_key": "xSY0TNfyQYBNle9hdV05GNWZHnctOdzPFhNXyNlcB98"
   // }
   @LocalStorage() private _userInfo: AppStorageTypes.UserInfo = null;
-  @LocalStorage() private insecureWallets = [];
+  @LocalStorage() private _wallets = [];
   @LocalStorage() private _coinHDAddr = '';
   @LocalStorage()
   private _additionalInfo: AppStorageTypes.UserAdditionalInfo = {
@@ -161,11 +161,22 @@ export class AppStorageService {
     const pinNumber = this.pinNumber;
     const salt = this.salt;
 
+    const wallets = this._wallets;
+
+    const coinHDAddr = this.coinHDAddress;
+
     this.store.clear();
 
-    this.internalPinNumber = pinNumber;
-    this.salt = salt;
-    this.insecureWallets = [];
+    if (!env.config.clearPincodeOnWipeStorage) {
+      this.internalPinNumber = pinNumber;
+      this.salt = salt;
+    }
+
+    if (!env.config.clearWalletsOnWipeStorage) {
+      this._wallets = wallets;
+    }
+
+    this.coinHDAddress = coinHDAddr;
   }
 
   get hasPinNumber(): boolean {
@@ -430,6 +441,64 @@ export class AppStorageService {
     return this._userInfo;
   }
 
+  private getExtractedUserEthAddresses(): Array<string> {
+    if (!this.isSignedIn) {
+      return [];
+    }
+    const result = [];
+    this._userInfo.eth_address.split('|').forEach(item => {
+      if (item.length > 0) {
+        result.push(item);
+      }
+    });
+    return result;
+  }
+
+  addEthAddressToUserInfoTemporary(address: string) {
+    const userInfo = this.userInfo;
+    if (!userInfo) {
+      return;
+    }
+
+    if (!userInfo.eth_address) {
+      userInfo.eth_address = '';
+    }
+
+    let isAddressExists = false;
+    userInfo.eth_address.split('|').forEach(item => {
+      if (item.length > 0 && item.toLowerCase() === address.toLowerCase()) {
+        isAddressExists = true;
+      }
+    });
+
+    if (!isAddressExists) {
+      userInfo.eth_address = this.userInfo.eth_address + '|' + address;
+    }
+
+    this.userInfo = userInfo;
+  }
+
+  removeEthAddressToUserInfoTemporary(address: string) {
+    const userInfo = this.userInfo;
+    if (!userInfo) {
+      return;
+    }
+
+    if (!userInfo.eth_address) {
+      userInfo.eth_address = '';
+    }
+
+    let newAddrs = userInfo.eth_address;
+    userInfo.eth_address.split('|').forEach(item => {
+      if (item.toLowerCase() !== address.toLowerCase()) {
+        newAddrs += '|' + item;
+      }
+    });
+
+    userInfo.eth_address = newAddrs;
+    this.userInfo = userInfo;
+  }
+
   get fbUser(): firebase.User {
     return this._fbUser;
   }
@@ -485,19 +554,6 @@ export class AppStorageService {
     listutil.notifyToObservers(this.userStateSubscribers, this.user);
   }
 
-  private getExtractedUserEthAddresses(): Array<string> {
-    if (!this.isSignedIn) {
-      return [];
-    }
-    const result = [];
-    this._userInfo.eth_address.split('|').forEach(item => {
-      if (item.length > 0) {
-        result.push(item);
-      }
-    });
-    return result;
-  }
-
   get coinHDAddress() {
     return this._coinHDAddr;
   }
@@ -527,7 +583,7 @@ export class AppStorageService {
   }
 
   setWallets(wallets: Array<WalletTypes.WalletInfo>) {
-    this.insecureWallets = wallets;
+    this._wallets = wallets;
   }
 
   /**
@@ -544,7 +600,7 @@ export class AppStorageService {
     }
 
     const result: Array<WalletTypes.WalletInfo> = [];
-    const currentWallets = this.insecureWallets;
+    const currentWallets = this._wallets;
     if (filteredWalletsByUserInfo === false && currentWallets) {
       currentWallets.forEach(item => {
         if (item.type === WalletTypes.WalletType.Ethereum) {
@@ -555,7 +611,7 @@ export class AppStorageService {
     }
 
     const userEthAddressses = this.getExtractedUserEthAddresses();
-    userEthAddressses.filter((val, idx) => {
+    userEthAddressses.forEach(val => {
       const foundStoredWallet = this.findWallet(
         WalletTypes.WalletType.Ethereum,
         val,
@@ -583,7 +639,7 @@ export class AppStorageService {
   }
 
   syncDataToLocalStorage(wallet: WalletTypes.WalletInfo, notifyChange = false) {
-    this.insecureWallets.forEach((item, index) => {
+    this._wallets.forEach((item, index) => {
       if (item.id === wallet.id) {
         item.profile.alias = wallet.profile.alias;
         if (wallet.type === WalletTypes.WalletType.Ethereum) {
@@ -598,10 +654,10 @@ export class AppStorageService {
   }
 
   findWalletById(walletId: string): WalletTypes.WalletInfo | null {
-    if (!this.insecureWallets) {
+    if (!this._wallets) {
       return null;
     }
-    const foundStoredWallet = this.insecureWallets.find(
+    const foundStoredWallet = this._wallets.find(
       (item: WalletTypes.WalletInfo) => {
         if (walletId === item.id) {
           return true;
@@ -619,14 +675,14 @@ export class AppStorageService {
     providerType: EthProviders.Type,
     providerConnectionInfo: string
   ): WalletTypes.EthWalletInfo | null {
-    if (!this.insecureWallets) {
+    if (!this._wallets) {
       return null;
     }
-    const foundStoredWallet = this.insecureWallets.find(
+    const foundStoredWallet = this._wallets.find(
       (item: WalletTypes.WalletInfo) => {
         if (
           type === item.type &&
-          walletAddress === item.address &&
+          walletAddress.toLowerCase() === item.address.toLowerCase() &&
           providerType === item.info.provider.type &&
           providerConnectionInfo === item.info.provider.connectionInfo
         ) {
@@ -650,7 +706,8 @@ export class AppStorageService {
       if (!walletInfo.profile.color) {
         walletInfo.profile.color = this.getNewWalletColor();
       }
-      this.insecureWallets.push(walletInfo);
+
+      this._wallets.push(walletInfo);
       listutil.notifyToObservers(this.walletsSubscribers);
     }
   }
@@ -658,7 +715,7 @@ export class AppStorageService {
   getNewWalletAlias(): string {
     let result = '';
     let num = 0;
-    const wallets = this.insecureWallets;
+    const wallets = this._wallets;
     while (true) {
       num += 1;
       const alias = 'Wallet ' + num;
@@ -678,7 +735,7 @@ export class AppStorageService {
   }
 
   getNewWalletOrderIndex(): number {
-    return this.insecureWallets.length;
+    return this._wallets.length;
   }
 
   getColorPallete(): Array<string> {
@@ -717,13 +774,13 @@ export class AppStorageService {
 
   removeWallet(walletInfo: WalletTypes.WalletInfo) {
     if (this.findWalletByInfo(walletInfo)) {
-      for (let i = 0; i < this.insecureWallets.length; i++) {
-        const item: WalletTypes.WalletInfo = this.insecureWallets[i];
+      for (let i = 0; i < this._wallets.length; i++) {
+        const item: WalletTypes.WalletInfo = this._wallets[i];
         if (
           walletInfo.type === item.type &&
           item.address === walletInfo.address
         ) {
-          this.insecureWallets.splice(i, 1);
+          this._wallets.splice(i, 1);
           listutil.notifyToObservers(this.walletsSubscribers);
           break;
         }

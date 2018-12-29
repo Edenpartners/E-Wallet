@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { RouterService } from '../../providers/router.service';
-
+import { IonCheckbox } from '@ionic/angular';
 import { NGXLogger } from 'ngx-logger';
 import { IonHeader, Platform } from '@ionic/angular';
 
@@ -21,17 +21,30 @@ import {
   phoneNumberPattern
 } from '../../utils/regex-validations';
 
+import { Events } from '@ionic/angular';
+import { Consts } from 'src/environments/constants';
+
+import {
+  EVENT_PRIVACY_POLICY_RESULT,
+  PrivacyPolicyPage
+} from './privacy-policy/privacy-policy.page';
+
+import {
+  EVENT_TERMS_AND_CONDITION_RESULT,
+  TermsAndConditionPage
+} from './terms-and-condition/terms-and-condition.page';
+
 @Component({
   selector: 'app-signup-profile',
   templateUrl: './signup-profile.page.html',
   styleUrls: ['./signup-profile.page.scss']
 })
-export class SignupProfilePage implements OnInit {
+export class SignupProfilePage implements OnInit, OnDestroy {
   profileForm: FormGroup;
-  profileFormData: {
-    displayName: { value: string };
-    phoneNumber: { value: string };
-  };
+
+  @ViewChild('termsAndConditionsCheckBox')
+  termsAndConditionsCheckBox: IonCheckbox;
+  @ViewChild('privacyCheckBox') privacyCheckBox: IonCheckbox;
 
   constructor(
     private rs: RouterService,
@@ -39,7 +52,8 @@ export class SignupProfilePage implements OnInit {
     private logger: NGXLogger,
     private ednApi: EdnRemoteApiService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private events: Events
   ) {}
 
   ngOnInit() {
@@ -51,9 +65,26 @@ export class SignupProfilePage implements OnInit {
       ])
     });
     this.resetFormData();
+
+    this.events.subscribe(EVENT_PRIVACY_POLICY_RESULT, result => {
+      this.privacyCheckBox.checked = result;
+    });
+
+    this.events.subscribe(EVENT_TERMS_AND_CONDITION_RESULT, result => {
+      this.termsAndConditionsCheckBox.checked = result;
+    });
+  }
+
+  ngOnDestroy() {
+    this.events.unsubscribe(EVENT_PRIVACY_POLICY_RESULT);
+    this.events.unsubscribe(EVENT_TERMS_AND_CONDITION_RESULT);
   }
 
   ionViewWillEnter() {
+    this.termsAndConditionsCheckBox.checked = false;
+    this.privacyCheckBox.checked = false;
+
+    this.logger.debug('ion view will enter');
     this.resetFormData();
   }
 
@@ -62,10 +93,8 @@ export class SignupProfilePage implements OnInit {
   }
 
   resetFormData() {
-    this.profileFormData = {
-      displayName: { value: '' },
-      phoneNumber: { value: '' }
-    };
+    this.profileForm.get('displayName').setValue('');
+    this.profileForm.get('phoneNumber').setValue('');
 
     Object.keys(this.profileForm.controls).forEach(field => {
       // {1}
@@ -74,7 +103,7 @@ export class SignupProfilePage implements OnInit {
     });
   }
 
-  onContinueBtnClick(termsAndConditionsChecked, privacyChecked) {
+  onContinueBtnClick() {
     Object.keys(this.profileForm.controls).forEach(field => {
       // {1}
       const control = this.profileForm.get(field); // {2}
@@ -86,6 +115,9 @@ export class SignupProfilePage implements OnInit {
       this.logger.debug('invalidated');
       return;
     }
+
+    const termsAndConditionsChecked = this.termsAndConditionsCheckBox.checked;
+    const privacyChecked = this.privacyCheckBox.checked;
 
     if (!termsAndConditionsChecked) {
       this.feedbackUI.showErrorDialog(
@@ -103,8 +135,8 @@ export class SignupProfilePage implements OnInit {
     const userInfo = this.storage.userInfo;
     const additionalInfo = this.storage.additionalInfo;
 
-    userInfo.display_name = this.profileFormData.displayName.value;
-    userInfo.phone_number = this.profileFormData.phoneNumber.value;
+    userInfo.display_name = this.profileForm.get('displayName').value;
+    userInfo.phone_number = this.profileForm.get('phoneNumber').value;
 
     additionalInfo.termsAndConditionsAllowed = termsAndConditionsChecked;
     additionalInfo.privacyAllowed = privacyChecked;
@@ -134,5 +166,12 @@ export class SignupProfilePage implements OnInit {
       .finally(() => {
         this.feedbackUI.hideLoading();
       });
+  }
+
+  openTermsAndConditions() {
+    this.events.publish(Consts.EVENT_SHOW_MODAL, TermsAndConditionPage);
+  }
+  openPrivacyPolicy() {
+    this.events.publish(Consts.EVENT_SHOW_MODAL, PrivacyPolicyPage);
   }
 }

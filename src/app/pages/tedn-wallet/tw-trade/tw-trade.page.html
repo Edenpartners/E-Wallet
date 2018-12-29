@@ -1,18 +1,20 @@
-<ion-content class="page-wrapper" no-padding no-bounce>
+<ion-content class="page-wrapper" no-padding scrollY="false">
   <div class="background" #background style="z-index:-1;"></div>
 
   <div class="page-content free-form-area fill flex-ch-centered" padding>
     <div>
-      <div class="header flex-h-dir-v-centered">
-        <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
-        </ion-label>
-        <ion-label text-right class="tedn flex-item-fill"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
-          {{ 'TEDN' | translate }}
-        </ion-label>
+      <div class="header">
+        <div class="flex-h-dir-v-centered margin-top-2x">
+          <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
+          </ion-label>
+          <ion-label text-right class="tedn flex-item-fill"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
+            {{ 'TEDN' | translate }}
+          </ion-label>
+        </div>
       </div>
 
       <div class="content fill-width">
-        <div *ngIf="mode === 'deposit'">
+        <div *ngIf="mode === 'deposit'" class="margin-top-3x">
           <ion-label>{{ 'WithdrawEDNFrom' | translate }}</ion-label>
           <ion-select class="input-field margin-top-half" [(ngModel)]="selectedEthWalletId">
             <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
@@ -24,7 +26,7 @@
           </ion-select>
         </div>
 
-        <div *ngIf="mode === 'withdraw'">
+        <div *ngIf="mode === 'withdraw'" class="margin-top-3x">
           <ion-label>{{ 'WithdrawTEDNFrom' | translate }}</ion-label>
           <ion-select class="input-field margin-top-half" [(ngModel)]="selectedTednWalletId">
             <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">{{ item.name }}</ion-select-option>
@@ -34,7 +36,6 @@
           <ion-select class="input-field margin-top-half" [(ngModel)]="selectedEthWalletId">
             <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
           </ion-select>
-
         </div>
 
 
@@ -52,8 +53,8 @@
       </div>
 
       <div class="footer fill-width margin-top-2x">
-        <ion-button expand="block" color="theme-1" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
-        <ion-button expand="block" color="theme-1" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
+        <ion-button expand="block" class="fw-bold" color="theme-1" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
+        <ion-button expand="block" class="fw-bold" color="theme-1" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
       </div>
     </div>
 

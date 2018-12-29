@@ -26,11 +26,6 @@ import { emailPattern } from '../../utils/regex-validations';
 })
 export class SignupPage implements OnInit {
   signupForm: FormGroup;
-  signupFormData: {
-    email: { value: string };
-    password: { value: string };
-    passwordConfirm: { value: string };
-  };
 
   constructor(
     private rs: RouterService,
@@ -83,11 +78,9 @@ export class SignupPage implements OnInit {
   }
 
   resetFormData() {
-    this.signupFormData = {
-      email: { value: '' },
-      password: { value: '' },
-      passwordConfirm: { value: '' }
-    };
+    this.signupForm.get('email').setValue('');
+    this.signupForm.get('password').setValue('');
+    this.signupForm.get('passwordConfirm').setValue('');
 
     Object.keys(this.signupForm.controls).forEach(field => {
       // {1}
@@ -113,8 +106,8 @@ export class SignupPage implements OnInit {
 
     this.ednApi
       .registerFirebaseUser(
-        this.signupFormData.email.value,
-        this.signupFormData.password.value
+        this.signupForm.get('email').value,
+        this.signupForm.get('password').value
       )
       .then(
         success => {

@@ -2,7 +2,7 @@
   <common-nav-bar title="{{ 'BackupWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-bounce>
+<ion-content class="page-wrapper" scrollY="false">
   <div class="page-content fill flex-ch-h-centered">
     <div class="inner-content flex-ch-h-centered" *ngIf="step === 0">
       <div class="content margin-top-2x">
@@ -16,6 +16,10 @@
               {{ this.mnemonic }}
             </div>
           </div>
+          <ion-button>
+            <ion-icon name="copy" color="text-light-1"></ion-icon>
+            <span>Copy to clipboard</span>
+          </ion-button>
 
           <div class="comment margin-top-2x">
             {{ 'KeepPhrase' | translate }}
@@ -23,7 +27,7 @@
         </div>
       </div>
       <div class="footer margin-top-2x">
-        <ion-button expand="block" color="theme-1" (click)="onGotItBtnClick()">
+        <ion-button expand="block" color="theme-1" class="fw-bold" (click)="onGotItBtnClick()">
           {{ 'GotIt' | translate }}
         </ion-button>
       </div>
@@ -56,7 +60,8 @@
       </div>
 
       <div class="footer fill-width margin-top margin-bottom">
-        <ion-button expand="block" color="theme-1" (click)="onVerifyBtnClick()" [disabled]="userSelectedWords.length !== correctWords.length">
+        <ion-button expand="block" color="theme-1" class="fw-bold" (click)="onVerifyBtnClick()"
+          [disabled]="userSelectedWords.length !== correctWords.length">
           {{ 'Verify' | translate }}
         </ion-button>
       </div>

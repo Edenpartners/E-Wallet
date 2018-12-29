@@ -41,3 +41,13 @@
     }
   }
 }
+
+.check-box {
+  ion-checkbox {
+    pointer-events: none;
+  }
+
+  ion-label {
+    pointer-events: none;
+  }
+}

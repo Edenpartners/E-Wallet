@@ -85,7 +85,9 @@ export class RedirectorPage implements OnInit, OnDestroy {
       this.logger.debug('redirect to : ' + this.redirect);
       setTimeout(() => {
         //this.rs.navigateByUrl(this.redirect);
-        this.rs.goBack();
+        //this.rs.goBack();
+
+        this.rs.navigateToRoot(this.redirect);
       }, 100);
     }
   }

@@ -255,7 +255,7 @@ export class TransactionLoggerService {
       return false;
     };
 
-    const wallets = this.storage.getWallets(true, false);
+    const wallets = this.storage.getWallets(false, false);
     wallets.forEach(wallet => {
       //{ filter: 'tedn.deposit', postedToEdnServer: false }
 

@@ -1,0 +1,38 @@
+@import '../../../../theme/common.scss';
+
+.page-content {
+  background: #ffffff;
+  border-radius: 10px 10px 10px 10px;
+
+  .content {
+    font-size: .7em;
+  }
+
+  .divider {
+    background-color: var(--color-divider);
+    height: 1px;
+    margin-left: 19px;
+    margin-right: 19px;
+  }
+
+  .footer {
+    background-color: #ffffff;
+    border-radius: 0px 0px 10px 10px;
+
+    ion-toolbar {
+      --background: none;
+      --height: 43px;
+      --min-height: 43px;
+      --border-color: transparent;
+      --border-width: 0px;
+    }
+
+    ion-button {
+      height: auto;
+      --padding-top: 4px;
+      --padding-bottom: 4px;
+      font-size: .85em;
+    }
+  }
+
+}

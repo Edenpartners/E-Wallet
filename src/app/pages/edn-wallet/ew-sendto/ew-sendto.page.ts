@@ -49,6 +49,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
 
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+
 @Component({
   selector: 'app-ew-sendto',
   templateUrl: './ew-sendto.page.html',
@@ -67,6 +69,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   @ViewChild('background') background: ElementRef;
 
+  keyboardVisible = false;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -82,7 +86,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private keyboard: Keyboard
   ) {}
 
   ngOnInit() {}
@@ -107,6 +112,18 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       this.background.nativeElement.style.height = height;
     });
     this.events.publish('get.ew-main.height');
+
+    this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardWillShow().subscribe((val: any) => {
+        this.keyboardVisible = true;
+      });
+    });
+
+    this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardWillHide().subscribe((val: any) => {
+        this.keyboardVisible = false;
+      });
+    });
   }
 
   ionViewDidLeave() {
@@ -115,6 +132,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
     this.subscriptionPack.clear();
+    this.keyboardVisible = false;
   }
 
   setEvents() {}
@@ -151,6 +169,13 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     } catch (e) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
+
+    if (adjustedAmount.lte(0)) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.positive')
       );
       return;
     }

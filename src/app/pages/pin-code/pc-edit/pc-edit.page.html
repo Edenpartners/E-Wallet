@@ -1,8 +1,9 @@
 <ion-header>
-  <common-nav-bar title="{{ 'CreatePinTitle' | translate }}" (handleBack)="handleBack()"></common-nav-bar>
+  <common-nav-bar title="{{ isCreation ? ('CreatePinTitle' | translate) : ('ConfirmPinTitle' | translate) }}"
+    (handleBack)="handleBack()"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-bounce>
+<ion-content class="page-wrapper" scrollY="false">
   <div class="page-content fill hcf-layout flex-col-h-center">
     <div class="hcf-layout header">
       <div class="content flex-ch-centered">
@@ -11,13 +12,15 @@
           <span class="comment">{{ 'PinComment' | translate }}</span>
 
           <ion-item lines="none" class="margin-top-2x">
-            <ion-label text-center class="title"> {{ 'CreatePinComment' | translate }} </ion-label>
+            <ion-label text-center class="fw-bold"> {{ 'CreatePinComment' | translate }}
+            </ion-label>
           </ion-item>
         </div>
 
         <div *ngIf="isConfirmStep">
           <ion-item lines="none">
-            <ion-label text-center class="title"> {{ 'ConfirmPinComment' | translate }} </ion-label>
+            <ion-label text-center class="fw-bold"> {{ 'ConfirmPinComment' | translate }}
+            </ion-label>
           </ion-item>
         </div>
 

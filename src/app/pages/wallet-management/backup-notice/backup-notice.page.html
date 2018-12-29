@@ -2,7 +2,7 @@
   <common-nav-bar title="{{ 'BackupWalletTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-bounce>
+<ion-content class="page-wrapper" scrollY="false">
   <div class="page-content fill flex-ch-centered" padding ion-fixed>
     <div class="inner-content">
       <div class="content margin-top-2x">
@@ -21,7 +21,7 @@
       </div>
 
       <div class="footer">
-        <ion-button expand="block" color="theme-1" class="margin-top-2x" (click)="rs.navigateByUrl('/backup-wallet')">
+        <ion-button expand="block" color="theme-1" class="margin-top-2x fw-bold" (click)="rs.navigateByUrl('/backup-wallet')">
           {{ 'ReadyBackup' | translate }}
         </ion-button>
       </div>

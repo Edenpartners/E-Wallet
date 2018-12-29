@@ -202,13 +202,11 @@ export class BackupWalletPage implements OnInit {
         return;
       }
 
-      if (this.storage.findWalletByInfo(createdWalletInfo)) {
-        finalReject(new Error('the wallet already using!'));
-        return;
-      }
-
       this.ednApi.addEthAddress(createdWalletInfo.address).then(
         result => {
+          this.storage.addEthAddressToUserInfoTemporary(
+            createdWalletInfo.address
+          );
           this.storage.addWallet(createdWalletInfo);
           finalResolve();
         },

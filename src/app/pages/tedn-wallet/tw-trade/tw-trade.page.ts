@@ -171,7 +171,7 @@ export class TwTradePage implements OnInit, OnDestroy {
   }
 
   refreshList() {
-    this.wallets = this.storage.getWallets();
+    this.wallets = this.storage.getWallets(true, true);
     if (this.wallets.length > 0) {
       this.selectedEthWalletId = this.wallets[0].id;
     }
@@ -233,6 +233,13 @@ export class TwTradePage implements OnInit, OnDestroy {
     } catch (e) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.amount.pattern')
+      );
+      return;
+    }
+
+    if (adjustedAmount.lte(0)) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.amount.positive')
       );
       return;
     }

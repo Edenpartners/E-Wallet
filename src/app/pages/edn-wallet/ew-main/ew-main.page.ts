@@ -7,6 +7,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+
 import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
@@ -63,6 +65,8 @@ export class EwMainPage implements OnInit, OnDestroy {
 
   @ViewChild('aliasInput') aliasInput: IonInput;
 
+  keyboardVisible = false;
+
   constructor(
     private element: ElementRef,
     private logger: NGXLogger,
@@ -77,7 +81,8 @@ export class EwMainPage implements OnInit, OnDestroy {
     private cbService: ClipboardService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private keyboard: Keyboard
   ) {}
 
   ngOnInit() {
@@ -96,6 +101,18 @@ export class EwMainPage implements OnInit, OnDestroy {
 
   ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardWillShow().subscribe((val: any) => {
+        this.keyboardVisible = true;
+      });
+    });
+
+    this.subscriptionPack.addSubscription(() => {
+      return this.keyboard.onKeyboardWillHide().subscribe((val: any) => {
+        this.keyboardVisible = false;
+      });
+    });
+
+    this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
           this.walletId = String(params['id']); // (+) converts string 'id' to a number
@@ -110,6 +127,7 @@ export class EwMainPage implements OnInit, OnDestroy {
   }
 
   ionViewDidLeave() {
+    this.keyboardVisible = false;
     this.subscriptionPack.clear();
   }
 

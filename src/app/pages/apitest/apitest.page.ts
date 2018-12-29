@@ -557,6 +557,7 @@ export class ApitestPage implements OnInit, OnDestroy {
 
     this.ednApi.addEthAddress(this.ethaddressToSend).then(
       result => {
+        this.storage.addEthAddressToUserInfoTemporary(this.ethaddressToSend);
         this.getUserInfo();
       },
       error => {

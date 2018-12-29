@@ -3,7 +3,7 @@
 </ion-header>
 
 
-<ion-content no-bounce>
+<ion-content scrollY="false">
   <div class="page-wrapper fill">
     <div class="hcf-layout">
       <div class="header" [hidden]="true">
@@ -21,8 +21,8 @@
           </ion-item>
         </ion-list>
       </div>
-      <ion-content class="content" no-bounce>
-        <ion-router-outlet name="sub"></ion-router-outlet>
+      <ion-content class="content" scrollY="false">
+        <ion-router-outlet mode="md" name="sub"></ion-router-outlet>
       </ion-content>
     </div>
   </div>

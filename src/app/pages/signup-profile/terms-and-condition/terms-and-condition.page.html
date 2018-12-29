@@ -1,0 +1,21 @@
+<ion-content class="page-wrapper" scrollY="false" padding>
+  <div class="page-content hcf-layout fill">
+    <ion-content class="content" padding>
+      <div [innerHTML]="contentHtml">
+      </div>
+    </ion-content>
+    <div class="footer">
+      <div class="divider"></div>
+      <ion-toolbar>
+        <div class="flex-h-dir">
+          <div class="flex-item-fill flex-ch-centered">
+            <ion-button appBtnStyle color="text-dark-1" class="fw-bold" (click)="disagree()">{{ 'Disagree' | translate }}</ion-button>
+          </div>
+          <div class="flex-item-fill flex-ch-centered">
+            <ion-button appBtnStyle color="theme-2" class="fw-bold" (click)="agree()">{{ 'Agree' | translate }}</ion-button>
+          </div>
+        </div>
+      </ion-toolbar>
+    </div>
+  </div>
+</ion-content>

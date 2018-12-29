@@ -2,18 +2,18 @@
   <common-nav-bar title="{{ 'EwMainTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-bounce>
+<ion-content class="page-wrapper" scrollY="false">
   <div class="page-content fill">
     <div class="hcf-layout fill-height">
-      <div class="header">
+      <div class="header" [hidden]="keyboardVisible && !aliasEditing">
         <ion-list>
           <ion-item lines="none" [hidden]="aliasEditing">
-            <ion-label text-center color="theme-1" class="wallet-name title" (click)="onWalletAliasClick()">
+            <ion-label text-center color="theme-1" class="wallet-name fw-bold" (click)="onWalletAliasClick()">
               {{ wallet ? wallet.profile.alias : '' }}
             </ion-label>
           </ion-item>
           <ion-item lines="none" [hidden]="!aliasEditing">
-            <ion-input text-center color="theme-1" class="wallet-name title" #aliasInput
+            <ion-input text-center color="theme-1" class="wallet-name fw-bold" #aliasInput
               [(ngModel)]="editingAlias" (keyup.enter)="handleAliasEditing()">
             </ion-input>
           </ion-item>
@@ -32,8 +32,8 @@
           </ion-item>
         </ion-list>
       </div>
-      <ion-content class="content" no-bounce>
-        <ion-router-outlet name="sub"></ion-router-outlet>
+      <ion-content class="content" scrollY="false">
+        <ion-router-outlet mode="md" name="sub"></ion-router-outlet>
       </ion-content>
     </div>
   </div>
