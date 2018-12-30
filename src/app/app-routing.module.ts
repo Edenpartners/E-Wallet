@@ -78,12 +78,14 @@ const routes: Routes = [
       './pages/edn-wallet/ew-tx-list/ew-tx-list.module#EwTxListPageModule'
   },
   {
-    path: 'ew-main',
-    loadChildren: './pages/edn-wallet/ew-main/ew-main.module#EwMainPageModule'
+    path: 'tw-trade',
+    loadChildren:
+      './pages/tedn-wallet/tw-trade/tw-trade.module#TwTradePageModule'
   },
   {
-    path: 'tw-main',
-    loadChildren: './pages/tedn-wallet/tw-main/tw-main.module#TwMainPageModule'
+    path: 'tw-tx-list',
+    loadChildren:
+      './pages/tedn-wallet/tw-tx-list/tw-tx-list.module#TwTxListPageModule'
   },
   {
     path: 'ednapitest',

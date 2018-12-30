@@ -1,7 +1,13 @@
+<ion-header>
+  <common-nav-bar title="{{ 'EwMainTitle' | translate }}"></common-nav-bar>
+</ion-header>
+
 <ion-content class="page-wrapper" no-padding scrollY="false">
-  <div class="background" #background></div>
   <div class="page-content fill">
     <div class="hcf-layout fill">
+      <div class="header">
+        <ew-summary #summary></ew-summary>
+      </div>
       <ion-content class="content" class="content" [hidden]="txList.length < 1">
         <ion-list *ngIf="txList.length > 0">
           <ion-item lines="none" *ngFor="let item of txList">

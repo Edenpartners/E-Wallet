@@ -34,7 +34,8 @@
         </ion-toolbar>
         <ion-content class="content">
           <ion-list lines="none" no-margin padding class="content-list">
-            <ion-item lines="none" no-margin (click)="onWalletItemClick(item)" *ngFor="
+            <ion-item style="flex-wrap:wrap;" lines="none" no-margin (click)="onWalletItemClick(item)"
+              *ngFor="
             let item of wallets;
             let i = index;
             let isOdd = odd;
@@ -54,15 +55,15 @@
                     <ion-label color="text-dark-1-1" class="title fw-500">
                       {{ item.data.profile.alias }}
                     </ion-label>
-                    <ion-label text-right color="text-dark-3" class="sub-title">
-                      {{ item.ethBalanceEther | number: '.0-5' }} ETH /
-                      {{ item.ednBalanceDisplay  | number: '.0-5' }}
-                      {{ 'EDN' | translate }}
-                    </ion-label>
+                    <div class="sub-title" style="display:flex; flex-direction: row-reverse; align-items:flex-end; flex-wrap:wrap;">
+                      <span #info1>{{ item.ednBalanceDisplay  | number: '.0-3' }}
+                        {{ 'EDN' | translate }}</span>
+                      <span [ngClass]="{'invisible':!isSameLine(info1,info2)}">&nbsp;/&nbsp;</span>
+                      <span #info2>{{ item.ethBalanceEther | number: '.0-3' }} ETH</span>
+                    </div>
                   </div>
                 </div>
               </div>
-
               <ion-button class="row-end-icon" fill="clear" color="text-dark-2" *ngIf="showWalletsOrderIcon">
                 <ion-icon name="menu"></ion-icon>
               </ion-button>
@@ -111,7 +112,7 @@
                       {{ item.data.name }}
                     </ion-label>
                     <ion-label text-right color="text-dark-3" class="sub-title">
-                      {{ item.tednBalanceFormatted === null ? '-' : (item.tednBalanceFormatted | number: '.0-5') }}
+                      {{ item.tednBalanceFormatted === null ? '-' : (item.tednBalanceFormatted | number: '.0-3') }}
                       TEDN
                     </ion-label>
                   </div>
@@ -141,5 +142,4 @@
       </div>
     </div>
   </div>
-
 </ion-content>

@@ -39,7 +39,7 @@ export const EVENT_TERMS_AND_CONDITION_RESULT = 'terms-and-condition-result';
 export class TermsAndConditionPage implements OnInit {
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
-  private contentHtml = '';
+  contentHtml = '';
 
   constructor(
     private aRoute: ActivatedRoute,

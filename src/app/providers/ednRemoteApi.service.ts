@@ -412,8 +412,10 @@ export class EdnRemoteApiService {
         const headers = {};
         headers[contentTypeKey] = contentTypeVal;
 
-        this.logger.debug('send edn api : ' + this.baseUrl);
-        this.logger.debug(body);
+        if (env.config.logEdnApi) {
+          this.logger.debug('send edn api : ' + this.baseUrl);
+          this.logger.debug(body);
+        }
 
         this.cordovaHttp.setDataSerializer('json');
         const promise: Promise<HTTPResponse> = this.cordovaHttp.post(
@@ -424,7 +426,9 @@ export class EdnRemoteApiService {
 
         promise.then(
           response => {
-            this.logger.debug(response);
+            if (env.config.logEdnApi) {
+              this.logger.debug(response);
+            }
             if (String(response.status).startsWith('2') && response.data) {
               let responseData = null;
               try {
@@ -447,13 +451,17 @@ export class EdnRemoteApiService {
             }
           },
           error => {
-            this.logger.debug('http response error');
+            if (env.config.logEdnApi) {
+              this.logger.debug('http response error');
+            }
             finalReject(error);
           }
         );
       } else {
-        this.logger.debug('run with angular http');
-        this.logger.debug(body);
+        if (env.config.logEdnApi) {
+          this.logger.debug('run with angular http');
+          this.logger.debug(body);
+        }
 
         const headers = new HttpHeaders();
         headers.set(contentTypeKey, contentTypeVal);
@@ -467,11 +475,15 @@ export class EdnRemoteApiService {
 
         promise.then(
           response => {
-            this.logger.debug(response);
+            if (env.config.logEdnApi) {
+              this.logger.debug(response);
+            }
             this.judgeEdnResponseResult(response, finalResolve, finalReject);
           },
           error => {
-            this.logger.debug(error);
+            if (env.config.logEdnApi) {
+              this.logger.debug(error);
+            }
             finalReject(error);
           }
         );

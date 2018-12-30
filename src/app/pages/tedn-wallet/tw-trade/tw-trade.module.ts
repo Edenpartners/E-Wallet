@@ -6,11 +6,7 @@ import { TwTradePage } from './tw-trade.page';
 
 const routes: Routes = [
   {
-    path: '',
-    component: TwTradePage
-  },
-  {
-    path: '/:mode',
+    path: ':id',
     component: TwTradePage
   }
 ];

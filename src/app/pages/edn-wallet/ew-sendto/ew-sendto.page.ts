@@ -50,6 +50,7 @@ import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
 
 import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
 @Component({
   selector: 'app-ew-sendto',
@@ -67,9 +68,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   pinCodeConfirmCallback = null;
 
-  @ViewChild('background') background: ElementRef;
-
-  keyboardVisible = false;
+  @ViewChild('summary') summary: EwSummary;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -95,9 +94,14 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.parent.params.subscribe(params => {
-        this.walletId = params['id'];
-        this.wallet = this.storage.findWalletById(this.walletId);
+      return this.aRoute.params.subscribe(params => {
+        try {
+          this.walletId = String(params['id']); // (+) converts string 'id' to a number
+          this.wallet = this.storage.findWalletById(this.walletId);
+          this.summary.startGetInfo(this.walletId);
+        } catch (e) {
+          this.logger.debug(e);
+        }
       });
     });
 
@@ -107,32 +111,16 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       }
       this.pinCodeConfirmCallback = null;
     });
+  }
 
-    this.events.subscribe('set.ew-main.height', height => {
-      this.background.nativeElement.style.height = height;
-    });
-    this.events.publish('get.ew-main.height');
-
-    this.subscriptionPack.addSubscription(() => {
-      return this.keyboard.onKeyboardWillShow().subscribe((val: any) => {
-        this.keyboardVisible = true;
-      });
-    });
-
-    this.subscriptionPack.addSubscription(() => {
-      return this.keyboard.onKeyboardWillHide().subscribe((val: any) => {
-        this.keyboardVisible = false;
-      });
-    });
+  ionViewWillLeave() {
+    this.summary.stopGetInfo();
   }
 
   ionViewDidLeave() {
-    this.events.unsubscribe('set.ew-main.height');
-
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
     this.subscriptionPack.clear();
-    this.keyboardVisible = false;
   }
 
   setEvents() {}

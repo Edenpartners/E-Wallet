@@ -10,6 +10,7 @@ import { Bip39Handler } from './testers/bip39-handler';
 import { EthProviderMaker } from './testers/eth-provider-maker';
 import { EthWalletManager } from './testers/eth-wallet-manager';
 import { NumPad } from './numpad/num-pad';
+import { EwSummary } from './ew-summary/ew-summary';
 
 @NgModule({
   imports: [IonicModule, TranslateModule, FormsModule, CommonModule],
@@ -19,7 +20,8 @@ import { NumPad } from './numpad/num-pad';
     Bip39Handler,
     EthProviderMaker,
     EthWalletManager,
-    NumPad
+    NumPad,
+    EwSummary
   ],
   exports: [
     CommonNavBar,
@@ -27,7 +29,8 @@ import { NumPad } from './numpad/num-pad';
     Bip39Handler,
     EthProviderMaker,
     EthWalletManager,
-    NumPad
+    NumPad,
+    EwSummary
   ],
   providers: []
 })

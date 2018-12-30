@@ -1,7 +1,14 @@
-<ion-content class="page-wrapper" no-padding scrollY="false">
-  <div class="background" #background></div>
-  <div class="page-content fill" padding>
-    <div class="hcf-wrapper fill flex-ch-centered">
+<ion-header>
+  <common-nav-bar title="{{ 'EwMainTitle' | translate }}"></common-nav-bar>
+</ion-header>
+
+<ion-content class="page-wrapper" no-padding>
+  <div class="page-content fill hcf-layout">
+    <div class="header">
+      <ew-summary #summary></ew-summary>
+    </div>
+
+    <div class="content margin-top-3x flex-ch-h-centered">
       <div>
         <ion-button class="qr-wrapper" (click)="onQrCodeClick()" fill="clear" *ngIf="qrCodeData">
           <qrcode [qrdata]="qrCodeData" [size]="200" [level]="'M'"></qrcode>

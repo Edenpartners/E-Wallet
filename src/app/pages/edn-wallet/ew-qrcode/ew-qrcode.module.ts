@@ -7,13 +7,14 @@ import { QRCodeModule } from 'angularx-qrcode';
 
 const routes: Routes = [
   {
-    path: '',
+    path: ':id',
     component: EwQrcodePage
   }
 ];
 
 @NgModule({
   imports: [SharedPageModule, RouterModule.forChild(routes), QRCodeModule],
-  declarations: [EwQrcodePage]
+  declarations: [EwQrcodePage],
+  exports: []
 })
 export class EwQrcodePageModule {}

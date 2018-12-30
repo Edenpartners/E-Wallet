@@ -46,6 +46,9 @@ import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
 import { FeedbackUIService } from './providers/feedbackUI.service';
 
+const TRACKER_KEY_COINHD = 'coinHDAddress';
+const TRACKER_KEY_USERINFO = 'userInfo';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -292,9 +295,9 @@ export class AppComponent implements OnInit, OnDestroy {
           let moveUrl = null;
           const linkPath = link.path;
           if (linkPath && linkPath.indexOf('/deposit') === 0) {
-            moveUrl = 'tw-main/sub/_default_/(sub:trade)?mode=deposit';
+            moveUrl = 'tw-trade/_default_?mode=deposit';
           } else if (linkPath && linkPath.indexOf('/withdraw') === 0) {
-            moveUrl = 'tw-main/sub/_default_/(sub:trade)?mode=withdraw';
+            moveUrl = 'tw-trade/_default_?mode=withdraw';
           }
 
           const currentUserAccessToken: string = await this.ednApi.getUserAccessToken();
@@ -433,9 +436,9 @@ export class AppComponent implements OnInit, OnDestroy {
                 }
               }
             } else {
+              this.stopBaseValuesTracking();
               gotoSignin = true;
               this.logger.info('user signed out, goto signin');
-              //this.rs.navigateByUrl('/signin');
             }
 
             if (gotoSignin) {
@@ -472,10 +475,17 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  stopBaseValuesTracking() {
+    this.subscriptionPack.removeSubscriptionsByKey(TRACKER_KEY_COINHD);
+    this.dataTracker.stopTracker(TRACKER_KEY_COINHD, true);
+
+    this.subscriptionPack.removeSubscriptionsByKey(TRACKER_KEY_USERINFO);
+    this.dataTracker.stopTracker(TRACKER_KEY_USERINFO, true);
+  }
+
   getBaseValues() {
-    const coinHDTrackKey = 'coinHDAddress';
     const coinHDAddressTracker = this.dataTracker.startTracker(
-      coinHDTrackKey,
+      TRACKER_KEY_COINHD,
       () => {
         return new Promise<any>((finalResolve, finalReject) => {
           this.ednApi.getCoinHDAddress().then(
@@ -500,16 +510,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscriptionPack.addSubscription(() => {
       return coinHDAddressTracker.trackObserver.subscribe(hdaddress => {
         this.storage.coinHDAddress = hdaddress;
-        this.dataTracker.stopTracker(coinHDTrackKey, true);
-        this.subscriptionPack.removeSubscriptionsByKey(coinHDTrackKey);
+        this.dataTracker.stopTracker(TRACKER_KEY_COINHD, true);
+        this.subscriptionPack.removeSubscriptionsByKey(TRACKER_KEY_COINHD);
       });
-    }, coinHDTrackKey);
+    }, TRACKER_KEY_COINHD);
 
     //refresh latest userInfo
     if (this.storage.isSignedIn) {
-      const userInfoTrackKey = 'userInfo';
       const userInfoTracker = this.dataTracker.startTracker(
-        userInfoTrackKey,
+        TRACKER_KEY_USERINFO,
         () => {
           return new Promise<any>((finalResolve, finalReject) => {
             this.ednApi.getUserInfo().then(
@@ -532,10 +541,10 @@ export class AppComponent implements OnInit, OnDestroy {
       this.subscriptionPack.addSubscription(() => {
         return userInfoTracker.trackObserver.subscribe(userInfo => {
           this.storage.userInfo = userInfo;
-          this.dataTracker.stopTracker(userInfoTrackKey, true);
-          this.subscriptionPack.removeSubscriptionsByKey(userInfoTrackKey);
+          this.dataTracker.stopTracker(TRACKER_KEY_USERINFO, true);
+          this.subscriptionPack.removeSubscriptionsByKey(TRACKER_KEY_USERINFO);
         });
-      }, coinHDTrackKey);
+      }, TRACKER_KEY_USERINFO);
     }
   }
 

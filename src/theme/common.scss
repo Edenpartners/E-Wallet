@@ -182,26 +182,6 @@
   background-size: cover;
 }
 
-app-tw-trade.ion-page,
-app-tw-tx-list.ion-page,
-app-ew-qrcode.ion-page,
-app-ew-sendto.ion-page,
-app-ew-tx-list.ion-page {
-  background: none;
-  background-size: cover;
-}
-
-.page-wrapper>.background {
-  background: url('/assets/img/ssscccczzzz_750x1334.png');
-  background-size: cover;
-
-  position: absolute;
-  bottom:0;
-
-  width:100%;
-  height:100%;
-}
-
 .page-wrapper {
   --background: var(--common-background-color);
   background: var(--common-background-color);

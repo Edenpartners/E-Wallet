@@ -11,12 +11,7 @@ export class RouterPathsService {
   constructor(private logger: NGXLogger) {}
 
   paths: Array<string> = [];
-  customPaths: Array<string> = [
-    '/ew-main/sub/1',
-    '/ew-main/sub/(sub:list)',
-    '/ew-main/sub/(sub:qrcode)',
-    '/ew-main/sub/(sub:send)'
-  ];
+  customPaths: Array<string> = [];
   showUrlTree(configs: Array<Route>) {
     if (!configs) {
       return;

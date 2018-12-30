@@ -1,7 +1,9 @@
-<ion-content class="page-wrapper" no-padding scrollY="false">
-  <div class="background" #background style="z-index:-1;"></div>
+<ion-header>
+  <common-nav-bar title="{{ 'TednWalletMain' | translate }}"></common-nav-bar>
+</ion-header>
 
-  <div class="page-content free-form-area fill flex-ch-centered" padding>
+<ion-content class="page-wrapper" no-padding>
+  <div class="page-content free-form-area fill flex-ch-h-centered" padding>
     <div>
       <div class="header">
         <div class="flex-h-dir-v-centered margin-top-2x">
@@ -53,8 +55,10 @@
       </div>
 
       <div class="footer fill-width margin-top-2x">
-        <ion-button expand="block" class="fw-bold" color="theme-1" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
-        <ion-button expand="block" class="fw-bold" color="theme-1" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
+        <ion-button expand="block" class="fw-bold margin-bottom" color="theme-1" (click)="tradeEdnToTedn()"
+          *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
+        <ion-button expand="block" class="fw-bold margin-bottom" color="theme-1" (click)="tradeTednToEdn()"
+          *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
       </div>
     </div>
 

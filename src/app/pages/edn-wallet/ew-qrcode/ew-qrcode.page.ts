@@ -19,6 +19,7 @@ import {
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
+import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
 @Component({
   selector: 'app-ew-qrcode',
@@ -32,7 +33,7 @@ export class EwQrcodePage implements OnInit, OnDestroy {
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
 
-  @ViewChild('background') background: ElementRef;
+  @ViewChild('summary') summary: EwSummary;
 
   constructor(
     private logger: NGXLogger,
@@ -49,31 +50,38 @@ export class EwQrcodePage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
-    this.events.subscribe('set.ew-main.height', height => {
-      this.background.nativeElement.style.height = height;
-    });
-    this.events.publish('get.ew-main.height');
-
+    this.logger.debug('will enter qr');
     this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.parent.params.subscribe(params => {
-        this.walletId = params['id'];
-        this.wallet = this.storage.findWalletById(this.walletId);
-        const prefix = '';
-        this.qrCodeData = prefix + this.wallet.address;
-        this.logger.debug('a wallet ' + this.wallet.id);
+      return this.aRoute.params.subscribe(params => {
+        try {
+          this.walletId = String(params['id']); // (+) converts string 'id' to a number
+          this.wallet = this.storage.findWalletById(this.walletId);
+          const prefix = '';
+          this.qrCodeData = prefix + this.wallet.address;
+          this.logger.debug('a wallet ' + this.wallet.id);
+
+          this.summary.startGetInfo(this.walletId);
+        } catch (e) {
+          this.logger.debug(e);
+        }
       });
     });
   }
 
+  ionViewWillLeave() {
+    this.logger.debug('will leave qr');
+    this.summary.stopGetInfo();
+  }
   ionViewDidLeave() {
-    this.events.unsubscribe('set.ew-main.height');
+    this.logger.debug('did leave qr');
     this.subscriptionPack.clear();
   }
+
   onBackBtnClick() {
     this.rs.goBack();
   }
 
-  private async onQrCodeClick() {
+  async onQrCodeClick() {
     this.cbService.copyFromContent(this.qrCodeData);
     this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
   }

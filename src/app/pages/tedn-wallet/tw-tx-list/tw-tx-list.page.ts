@@ -76,8 +76,6 @@ export class TwTxListPage implements OnInit, OnDestroy {
   tednBalance = null;
   tednBalanceFormatted = null;
 
-  @ViewChild('background') background: ElementRef;
-
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -96,51 +94,49 @@ export class TwTxListPage implements OnInit, OnDestroy {
     private events: Events
   ) {}
 
-  ngOnInit() {}
-
-  ngOnDestroy() {}
-
-  ionViewWillEnter() {
-    this.events.subscribe('set.tw-main.height', height => {
-      this.background.nativeElement.style.height = height;
-    });
-    this.events.publish('get.tw-main.height');
-
-    this.currentPage = 1;
-
+  ngOnInit() {
     this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.parent.params.subscribe(params => {
-        this.walletId = params['id'];
-        this.wallet = this.storage.findTednWalletById(this.walletId);
+      return this.aRoute.params.subscribe(params => {
+        try {
+          this.walletId = String(params['id']);
+          this.wallet = this.storage.findTednWalletById(this.walletId);
 
-        if (this.wallet) {
-          const tednTracker = this.dataTracker.startTEDNBalanceTracker(
-            this.walletId
-          );
+          if (this.wallet) {
+            const tednTracker = this.dataTracker.startTEDNBalanceTracker(
+              this.walletId
+            );
 
-          this.subscriptionPack.addSubscription(() => {
-            return tednTracker.trackObserver.subscribe(balance => {
-              this.tednBalance = balance;
-              this.tednBalanceFormatted = ethers.utils.formatUnits(
-                balance,
-                Consts.TEDN_DECIMAL
-              );
+            this.subscriptionPack.addSubscription(() => {
+              return tednTracker.trackObserver.subscribe(balance => {
+                this.tednBalance = balance;
+                this.tednBalanceFormatted = ethers.utils.formatUnits(
+                  balance,
+                  Consts.TEDN_DECIMAL
+                );
+              });
             });
-          });
 
-          this.txList = [];
-          this.loadList(this.currentPage, () => {});
+            this.txList = [];
+            this.loadList(this.currentPage, () => {});
+          }
+        } catch (e) {
+          this.logger.debug(e);
         }
       });
     });
   }
 
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
+    this.currentPage = 1;
+  }
+
   ionViewDidLeave() {
-    this.events.unsubscribe('set.tw-main.height');
     this.subscriptionPack.clear();
   }
 
-  loadList(pageNum, onComplete: () => void) {
+  loadList(pageNum: number, onComplete: () => void) {
     this.logger.debug('load page : ' + pageNum);
     this.feedbackUI.showLoading();
 
@@ -247,14 +243,10 @@ export class TwTxListPage implements OnInit, OnDestroy {
   }
 
   onReceiveClick() {
-    this.rs.navigateByUrl(
-      `/tw-main/sub/${this.walletId}/(sub:trade)?mode=deposit`
-    );
+    this.rs.navigateByUrl(`/tw-trade/${this.walletId}?mode=deposit`);
   }
 
   onSendClick() {
-    this.rs.navigateByUrl(
-      `/tw-main/sub/${this.walletId}/(sub:trade)?mode=withdraw`
-    );
+    this.rs.navigateByUrl(`/tw-trade/${this.walletId}?mode=withdraw`);
   }
 }

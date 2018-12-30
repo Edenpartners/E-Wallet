@@ -14,6 +14,8 @@ export const environment = {
     handleUserState: true,
     alterStartPath: '',
     disableConsoleLogging: false,
+    logBlockchain: false,
+    logEdnApi: false,
     compareUserIDTokenOnDeeplinkHandling: false,
 
     /** this is the ethereum network information which edn server running. */

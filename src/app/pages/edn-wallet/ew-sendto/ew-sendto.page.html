@@ -1,8 +1,14 @@
-<ion-content class="page-wrapper" no-padding scrollY="false">
-  <div class="background" #background [hidden]="keyboardVisible"></div>
+<ion-header>
+  <common-nav-bar title="{{ 'EwMainTitle' | translate }}"></common-nav-bar>
+</ion-header>
 
-  <div class="page-content fill flex-ch-centered" padding>
-    <div class="content free-form-area fill-width">
+<ion-content class="page-wrapper" no-padding>
+  <div class="page-content fill hcf-layout flex-col-h-center">
+    <div class="header fill-width">
+      <ew-summary #summary></ew-summary>
+    </div>
+
+    <div class="content margin-top-3x">
       <ion-label class="sub-header">{{ 'SendTo' | translate }}</ion-label>
 
       <ion-item lines="full" class="full-text-input margin-top">
@@ -11,15 +17,16 @@
       </ion-item>
 
 
-      <ion-label class="sub-header margin-top-2x">{{ 'Amount' | translate }}</ion-label>
+      <ion-label class="sub-header margin-top-3x">{{ 'Amount' | translate }}</ion-label>
 
       <ion-item lines="full" class="full-text-input margin-top">
         <ion-label class="invisible">{{ 'EDN' | translate }}</ion-label>
-        <ion-input #amountInput type="number" color="text-light-1" text-center [(ngModel)]="amount"></ion-input>
+        <ion-input #amountInput type="number" color="text-light-1" text-center (keyup.enter)="amountInput.nativeElement.blur()"
+          [(ngModel)]="amount"></ion-input>
         <ion-label>{{ 'EDN' | translate }}</ion-label>
       </ion-item>
 
-      <ion-button expand="block" color="theme-1" (click)="transferERC20Token()" class="margin-top-3x fw-bold">{{ 'Send' | translate }}</ion-button>
+      <ion-button expand="block" color="theme-1" (click)="transferERC20Token()" class="margin-top-3x margin-bottom fw-bold">{{ 'Send' | translate }}</ion-button>
     </div>
   </div>
 

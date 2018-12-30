@@ -79,8 +79,6 @@ export class TwTradePage implements OnInit, OnDestroy {
   tradeAmount = 0;
   pinCodeConfirmCallback = null;
 
-  @ViewChild('background') background: ElementRef;
-
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -101,24 +99,28 @@ export class TwTradePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.parent.params.subscribe(params => {
-        this.walletId = params['id'];
-        this.wallet = this.storage.findTednWalletById(this.walletId);
+      return this.aRoute.params.subscribe(params => {
+        try {
+          this.walletId = String(params['id']);
+          this.wallet = this.storage.findTednWalletById(this.walletId);
 
-        if (this.wallet) {
-          const tednTracker = this.dataTracker.startTEDNBalanceTracker(
-            this.walletId
-          );
+          if (this.wallet) {
+            const tednTracker = this.dataTracker.startTEDNBalanceTracker(
+              this.walletId
+            );
 
-          this.subscriptionPack.addSubscription(() => {
-            return tednTracker.trackObserver.subscribe(balance => {
-              this.tednBalance = balance;
-              this.tednBalanceFormatted = ethers.utils.formatUnits(
-                balance,
-                Consts.TEDN_DECIMAL
-              );
+            this.subscriptionPack.addSubscription(() => {
+              return tednTracker.trackObserver.subscribe(balance => {
+                this.tednBalance = balance;
+                this.tednBalanceFormatted = ethers.utils.formatUnits(
+                  balance,
+                  Consts.TEDN_DECIMAL
+                );
+              });
             });
-          });
+          }
+        } catch (e) {
+          this.logger.debug(e);
         }
       });
     });
@@ -145,11 +147,6 @@ export class TwTradePage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
-    this.events.subscribe('set.tw-main.height', height => {
-      this.background.nativeElement.style.height = height;
-    });
-    this.events.publish('get.tw-main.height');
-
     this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
       if (this.pinCodeConfirmCallback && walletPw) {
         this.pinCodeConfirmCallback(walletPw);
@@ -165,7 +162,6 @@ export class TwTradePage implements OnInit, OnDestroy {
   }
 
   ionViewDidLeave() {
-    this.events.unsubscribe('set.tw-main.height');
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
   }

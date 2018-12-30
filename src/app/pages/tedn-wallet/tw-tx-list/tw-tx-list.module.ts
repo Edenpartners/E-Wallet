@@ -6,7 +6,7 @@ import { TwTxListPage } from './tw-tx-list.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: ':id',
     component: TwTxListPage
   }
 ];

@@ -110,11 +110,11 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onWalletItemClick(walletRow: WalletRow) {
-    this.rs.navigateByUrl(`/ew-main/sub/${walletRow.data.id}/(sub:list)`);
+    this.rs.navigateByUrl(`/ew-tx-list/${walletRow.data.id}`);
   }
 
   onTednWalletItemClick(tednWalletRow: TEDNWalletRow) {
-    this.rs.navigateByUrl(`/tw-main/sub/${tednWalletRow.data.id}/(sub:list)`);
+    this.rs.navigateByUrl(`/tw-tx-list/${tednWalletRow.data.id}`);
   }
 
   refreshTednList() {
@@ -241,9 +241,27 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onTEDNDepositClick() {
-    this.rs.navigateByUrl('tw-main/sub/_default_/(sub:trade)?mode=deposit');
+    this.rs.navigateByUrl('tw-trade/_default_?mode=deposit');
   }
   onTEDNWithdrawClick() {
-    this.rs.navigateByUrl('tw-main/sub/_default_/(sub:trade)?mode=withdraw');
+    this.rs.navigateByUrl('tw-trade/_default_?mode=withdraw');
+  }
+
+  isSameLine(info1: Element, info2: Element): boolean {
+    //this.logger.debug(edn, eth);
+    if (
+      info1.getBoundingClientRect().top !== info2.getBoundingClientRect().top
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  getSeperatorOpacity(info1: Element, info2: Element) {
+    if (this.isSameLine(info1, info2)) {
+      return '1.0';
+    }
+    return '0.0';
   }
 }

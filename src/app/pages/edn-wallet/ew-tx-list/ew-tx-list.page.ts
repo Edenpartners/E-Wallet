@@ -43,6 +43,7 @@ import { DecimalPipe } from '@angular/common';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
+import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
 @Component({
   selector: 'app-ew-tx-list',
@@ -57,7 +58,7 @@ export class EwTxListPage implements OnInit, OnDestroy {
   wallet: WalletTypes.EthWalletInfo;
   txList: Array<AppStorageTypes.TxRowData> = [];
 
-  @ViewChild('background') background: ElementRef;
+  @ViewChild('summary') summary: EwSummary;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -81,23 +82,30 @@ export class EwTxListPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
+    this.logger.debug('will enter tx');
     this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.parent.params.subscribe(params => {
-        this.walletId = params['id'];
-        this.wallet = this.storage.findWalletById(this.walletId);
-        this.loadList(0, addedCount => {});
+      return this.aRoute.params.subscribe(params => {
+        try {
+          this.walletId = String(params['id']); // (+) converts string 'id' to a number
+          this.wallet = this.storage.findWalletById(this.walletId);
+          this.logger.debug('a wallet ' + this.wallet.id);
+          this.loadList(0, addedCount => {});
+
+          this.summary.startGetInfo(this.walletId);
+        } catch (e) {
+          this.logger.debug(e);
+        }
       });
     });
-
-    this.events.subscribe('set.ew-main.height', height => {
-      this.background.nativeElement.style.height = height;
-    });
-    this.events.publish('get.ew-main.height');
   }
 
+  ionViewWillLeave() {
+    this.logger.debug('will leave tx');
+    this.summary.stopGetInfo();
+  }
   ionViewDidLeave() {
+    this.logger.debug('did leave tx');
     this.subscriptionPack.clear();
-    this.events.unsubscribe('set.ew-main.height');
   }
 
   loadList(pageIndex: number, onComplete) {
@@ -135,11 +143,11 @@ export class EwTxListPage implements OnInit, OnDestroy {
   }
 
   onSendClick() {
-    this.rs.navigateByUrl(`/ew-main/sub/${this.wallet.id}/(sub:send)`);
+    this.rs.navigateByUrl(`/ew-sendto/${this.wallet.id}`);
   }
 
   onReceiveClick() {
-    this.rs.navigateByUrl(`/ew-main/sub/${this.wallet.id}/(sub:qrcode)`);
+    this.rs.navigateByUrl(`/ew-qrcode/${this.wallet.id}`);
   }
 
   getDateString(timeVal) {

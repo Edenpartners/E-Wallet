@@ -9,9 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 
-import { RouterService } from '../../../providers/router.service';
-
-import { EthService, EthProviders } from '../../../providers/ether.service';
+import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
@@ -24,35 +22,35 @@ import {
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
-import { EtherDataService } from '../../../providers/etherData.service';
-import { WalletService, WalletTypes } from '../../../providers/wallet.service';
+import { EtherDataService } from '../../providers/etherData.service';
+import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { IonInput } from '@ionic/angular';
-import { KyberNetworkService } from '../../../providers/kybernetwork.service';
-import { EtherApiService } from '../../../providers/etherApi.service';
-import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
+import { KyberNetworkService } from '../../providers/kybernetwork.service';
+import { EtherApiService } from '../../providers/etherApi.service';
+import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import {
   AppStorageTypes,
   AppStorageService
-} from '../../../providers/appStorage.service';
+} from '../../providers/appStorage.service';
 
 import {
   DataTrackerService,
   ValueTracker
-} from '../../../providers/dataTracker.service';
+} from '../../providers/dataTracker.service';
 
-import { SubscriptionPack } from '../../../utils/listutil';
-import { env } from '../../../../environments/environment';
-import { FeedbackUIService } from '../../../providers/feedbackUI.service';
+import { SubscriptionPack } from '../../utils/listutil';
+import { env } from '../../../environments/environment';
+import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Events } from '@ionic/angular';
 
 @Component({
-  selector: 'app-ew-main',
-  templateUrl: './ew-main.page.html',
-  styleUrls: ['./ew-main.page.scss']
+  selector: 'ew-summary',
+  templateUrl: './ew-summary.html',
+  styleUrls: ['./ew-summary.scss']
 })
-export class EwMainPage implements OnInit, OnDestroy {
+export class EwSummary {
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
 
@@ -70,8 +68,6 @@ export class EwMainPage implements OnInit, OnDestroy {
   constructor(
     private element: ElementRef,
     private logger: NGXLogger,
-    private rs: RouterService,
-    private aRoute: ActivatedRoute,
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private etherApi: EtherApiService,
@@ -85,49 +81,18 @@ export class EwMainPage implements OnInit, OnDestroy {
     private keyboard: Keyboard
   ) {}
 
-  ngOnInit() {
-    this.events.subscribe('get.ew-main.height', () => {
-      const firstRect = this.element.nativeElement.getBoundingClientRect();
-      this.logger.debug('send first rect');
-      if (firstRect) {
-        this.events.publish('set.ew-main.height', firstRect.height + 'px');
-      }
-    });
+  startGetInfo(walletId: string) {
+    try {
+      this.walletId = walletId;
+      this.wallet = this.storage.findWalletById(this.walletId);
+      this.logger.debug('a wallet ' + this.wallet.id);
+      this.setWalletEvents();
+    } catch (e) {
+      this.logger.debug(e);
+    }
   }
 
-  ngOnDestroy() {
-    this.events.unsubscribe('get.ew-main.height');
-  }
-
-  ionViewWillEnter() {
-    this.subscriptionPack.addSubscription(() => {
-      return this.keyboard.onKeyboardWillShow().subscribe((val: any) => {
-        this.keyboardVisible = true;
-      });
-    });
-
-    this.subscriptionPack.addSubscription(() => {
-      return this.keyboard.onKeyboardWillHide().subscribe((val: any) => {
-        this.keyboardVisible = false;
-      });
-    });
-
-    this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.params.subscribe(params => {
-        try {
-          this.walletId = String(params['id']); // (+) converts string 'id' to a number
-          this.wallet = this.storage.findWalletById(this.walletId);
-          this.logger.debug('a wallet ' + this.wallet.id);
-          this.setWalletEvents();
-        } catch (e) {
-          this.logger.debug(e);
-        }
-      });
-    });
-  }
-
-  ionViewDidLeave() {
-    this.keyboardVisible = false;
+  stopGetInfo() {
     this.subscriptionPack.clear();
   }
 
@@ -153,6 +118,7 @@ export class EwMainPage implements OnInit, OnDestroy {
       this.ednBalance = value.balance;
       this.ednBalanceAdjusted = value.adjustedBalance;
     };
+
     this.subscriptionPack.addSubscription(() => {
       return ednTracker.trackObserver.subscribe(applyEdnValue);
     }, this.wallet);
@@ -160,10 +126,6 @@ export class EwMainPage implements OnInit, OnDestroy {
     if (ednTracker.value) {
       applyEdnValue(ednTracker.value);
     }
-  }
-
-  onBackBtnClick() {
-    this.rs.goBack();
   }
 
   onWalletAliasClick() {
@@ -188,13 +150,5 @@ export class EwMainPage implements OnInit, OnDestroy {
     this.wallet.profile.alias = this.editingAlias;
     this.storage.syncDataToLocalStorage(this.wallet);
     this.aliasEditing = false;
-  }
-
-  isTracsactionTab() {
-    if (this.rs.getRouter().url.indexOf('sub:list') >= 0) {
-      return true;
-    } else {
-      return false;
-    }
   }
 }
