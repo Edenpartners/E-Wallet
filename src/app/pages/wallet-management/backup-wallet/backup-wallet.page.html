@@ -12,15 +12,19 @@
           </ion-label>
 
           <div class="user-input-container text-box-field margin-top-2x">
-            <div class="words-box user-input-box">
-              {{ this.mnemonic }}
+            <div class="words-box user-input-box flex-item-fill">
+              <div class="flex-item-fill">
+                {{ this.mnemonic }}
+              </div>
+
+              <div>
+                <ion-button fill="clear" size="small" color="theme-2" class="no-uppercase" (click)="onCopyToClipboardClick()">
+                  <ion-icon name="copy" color="text-dark-2"></ion-icon>
+                  <ion-label color="text-dark-2">&nbsp; {{ 'CopyToClipboard' | translate }}</ion-label>
+                </ion-button>
+              </div>
             </div>
           </div>
-          <ion-button>
-            <ion-icon name="copy" color="text-light-1"></ion-icon>
-            <span>Copy to clipboard</span>
-          </ion-button>
-
           <div class="comment margin-top-2x">
             {{ 'KeepPhrase' | translate }}
           </div>

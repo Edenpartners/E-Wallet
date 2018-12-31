@@ -182,6 +182,7 @@ export class SigninPage implements OnInit {
     } else {
       signinPromise = this.ednApi.signin();
     }
+
     return new Promise<any>((finalResolve, finalReject) => {
       signinPromise.then(
         ednResult => {

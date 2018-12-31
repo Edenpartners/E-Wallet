@@ -216,4 +216,11 @@ export class BackupWalletPage implements OnInit {
       );
     });
   }
+
+  onCopyToClipboardClick() {
+    this.cbService.copyFromContent(this.mnemonic);
+    this.feedbackUI.showToast(
+      this.translate.instant('TextCopiedIntoClipboard')
+    );
+  }
 }

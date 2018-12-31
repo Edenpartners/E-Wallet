@@ -436,6 +436,10 @@ ion-checkbox {
   opacity: 0;
 }
 
+.no-uppercase {
+ text-transform: none;
+}
+
 /** Row Item */
 .row-icon-content {
   flex: 1;
@@ -659,4 +663,33 @@ ion-item.full-text-input {
 //ios css patches
 .header-ios ion-toolbar:last-child {
   --border-width: 0 0 0 0px;
+}
+
+.dialog-button-text-align-center {
+  text-transform: none;
+
+  .alert-message {
+    text-align: center;
+  }
+
+  .alert-button-group {
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .alert-button {
+    margin:0px;
+  }
+
+  .alert-button-inner {
+    color: var(--color-theme-2);
+    text-transform: none;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+  }
+}
+
+.toast-text-center {
+  text-align: center;
 }

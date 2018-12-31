@@ -45,6 +45,7 @@ import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
 import { FeedbackUIService } from './providers/feedbackUI.service';
+import { CssSelector } from '@angular/compiler';
 
 const TRACKER_KEY_COINHD = 'coinHDAddress';
 const TRACKER_KEY_USERINFO = 'userInfo';
@@ -268,7 +269,13 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.latestDeeplink) {
       this.logger.info('found deep link');
 
-      if (this.storage.isSignedIn) {
+      if (
+        this.storage.isSignedIn &&
+        this.storage.isUserInfoValidated &&
+        (!env.config.emailVerificationRequired ||
+          (env.config.emailVerificationRequired &&
+            this.storage.isUserEmailVerified))
+      ) {
         // {
         //   "$link": {
         //     "path": "/deposit",
@@ -304,7 +311,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
           this.logger.info('move to deeplink');
           if (env.config.compareUserIDTokenOnDeeplinkHandling) {
-            if (currentUserAccessToken === userIdHash && moveUrl) {
+            if (
+              currentUserAccessToken &&
+              userIdHash &&
+              currentUserAccessToken.toLowerCase().trim() ===
+                userIdHash.toLowerCase().trim() &&
+              moveUrl
+            ) {
               this.rs.navigateByUrl(moveUrl);
             }
           } else if (moveUrl) {
@@ -380,6 +393,10 @@ export class AppComponent implements OnInit, OnDestroy {
         userInfo => {
           this.logger.debug('user state changed');
 
+          if (env.config.emailVerificationRequired) {
+            this.hideEmailVerificationPopupLoading();
+          }
+
           const isFirstUserStateEvent =
             this.isUserStateEventFired === true ? false : true;
 
@@ -415,14 +432,21 @@ export class AppComponent implements OnInit, OnDestroy {
               this.getBaseValues();
 
               if (this.storage.isUserInfoValidated) {
-                if (!this.storage.hasPinNumber) {
-                  this.logger.info(
-                    'user signed in but no pincode, goto pincode'
-                  );
-                  this.rs.navigateToRoot('/pc-edit?isCreation=true');
+                if (
+                  !env.config.emailVerificationRequired ||
+                  this.storage.isUserEmailVerified
+                ) {
+                  if (!this.storage.hasPinNumber) {
+                    this.logger.info(
+                      'user signed in but no pincode, goto pincode'
+                    );
+                    this.rs.navigateToRoot('/pc-edit?isCreation=true');
+                  } else {
+                    this.logger.info('user signed in, goto home');
+                    this.rs.navigateToRoot('/home');
+                  }
                 } else {
-                  this.logger.info('user signed in, goto home');
-                  this.rs.navigateToRoot('/home');
+                  this.showEmailVerificationPopup(userInfo);
                 }
               } else {
                 this.logger.info(
@@ -475,6 +499,76 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  hideEmailVerificationPopupLoading() {
+    this.feedbackUI.hideLoading('email-verification-popup');
+  }
+  showEmailVerificationPopupLoading() {
+    this.feedbackUI.showLoading(null, 'email-verification-popup');
+  }
+
+  showEmailVerificationPopup(userInfo: AppStorageTypes.User) {
+    const startSigncheckAgain = () => {
+      setTimeout(() => {
+        this.storage.startFirebaseSigninCheck();
+      }, 1000);
+    };
+
+    const signoutAction = {
+      text: this.translate.instant('Cancel'),
+      role: 'cancel',
+      cssClass: 'dialog-button-text-align-center',
+      handler: () => {
+        this.showEmailVerificationPopupLoading();
+        this.signout();
+      }
+    };
+
+    const retryVerificationCheckAction = {
+      text: this.translate.instant('Retry'),
+      cssClass: 'dialog-button-text-align-center',
+      handler: () => {
+        this.showEmailVerificationPopupLoading();
+        startSigncheckAgain();
+      }
+    };
+
+    this.splashScreen.hide();
+    this.feedbackUI.showAlertDialog({
+      title: null,
+      cssClass: 'dialog-button-text-align-center',
+      cancelDisabled: true,
+      backdropDismiss: false,
+      message: `${this.translate.instant('valid.email.verification')}<br><b>${
+        userInfo.fbUser.email
+      }</b>`,
+      buttons: [
+        signoutAction,
+        {
+          text: this.translate.instant('SendEmailVerification'),
+          cssClass: 'dialog-button-text-align-center',
+          handler: () => {
+            this.showEmailVerificationPopupLoading();
+
+            userInfo.fbUser.sendEmailVerification().then(
+              () => {
+                this.feedbackUI.showToast(
+                  this.translate.instant('EmailVerificationSent')
+                );
+                this.signout();
+              },
+              () => {
+                this.feedbackUI.showToast(
+                  this.translate.instant('EmailVerificationSendingFailed')
+                );
+                startSigncheckAgain();
+              }
+            );
+          }
+        }
+      ]
+    });
+  }
+
   stopBaseValuesTracking() {
     this.subscriptionPack.removeSubscriptionsByKey(TRACKER_KEY_COINHD);
     this.dataTracker.stopTracker(TRACKER_KEY_COINHD, true);
@@ -484,6 +578,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getBaseValues() {
+    this.stopBaseValuesTracking();
     const coinHDAddressTracker = this.dataTracker.startTracker(
       TRACKER_KEY_COINHD,
       () => {

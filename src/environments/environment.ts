@@ -17,6 +17,7 @@ export const environment = {
     logBlockchain: false,
     logEdnApi: false,
     compareUserIDTokenOnDeeplinkHandling: false,
+    emailVerificationRequired: true,
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
@@ -29,7 +30,7 @@ export const environment = {
     ednCoinKey: 'EDN',
     showDebugToast: false,
     useDecryptPinCodeByPinCode: false,
-    simulateHardwareBackButton: false,
+    simulateHardwareBackButton: true,
     clearWalletsOnWipeStorage: false,
     clearPincodeOnWipeStorage: false
   }

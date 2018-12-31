@@ -151,7 +151,7 @@ export class SignupProfilePage implements OnInit, OnDestroy {
               if (userInfoResult.data) {
                 this.storage.userInfo = userInfoResult.data;
                 this.storage.additionalInfo = additionalInfo;
-                this.storage.notifyToUserStateObservers();
+                this.storage.startFirebaseSigninCheck();
               }
             },
             userInfoError => {

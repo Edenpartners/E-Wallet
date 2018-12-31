@@ -8,7 +8,7 @@ import { UUID } from 'angular2-uuid';
 
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { LocalStorageService, LocalStorage } from 'ngx-store';
-import { Observable, Subscriber } from 'rxjs';
+import { Observable, Subscriber, Subscription } from 'rxjs';
 import { WalletTypes } from './wallet.service';
 import { EthProviders } from '../providers/ether.service';
 import { environment as env } from '../../environments/environment';
@@ -99,6 +99,7 @@ const LOG_COUNT_PER_GROUP = 30;
 export class AppStorageService {
   private firebaseAuthEventFired = false;
   private _fbUser: firebase.User = null;
+  private fbUserSubscription: Subscription = null;
 
   // {
   //   "display_name": null,
@@ -128,6 +129,15 @@ export class AppStorageService {
   ) {}
 
   startFirebaseSigninCheck() {
+    this.logger.debug('start firebase signgin check');
+
+    this.firebaseAuthEventFired = false;
+
+    if (this.fbUserSubscription) {
+      this.fbUserSubscription.unsubscribe();
+      this.fbUserSubscription = null;
+    }
+
     //listen firebase auth state
     const handler = (user: firebase.User) => {
       this.logger.debug('user state change');
@@ -147,11 +157,11 @@ export class AppStorageService {
       }
     };
 
-    this.afAuth.user.subscribe(handler);
-    //this.afAuth.authState.subscribe(handler);
+    this.fbUserSubscription = this.afAuth.authState.subscribe(handler);
 
-    this.logger.debug('check current user');
-    this.logger.debug(this.afAuth.auth.currentUser);
+    //this.afAuth.authState.
+
+    //this.afAuth.authState.subscribe(handler);
     //or use authState? 'this.afAuth.user' is faster one step.
     //this.afAuth.authState.subscribe((user: firebase.User) => {
   }
@@ -427,6 +437,14 @@ export class AppStorageService {
       }
     }
     return true;
+  }
+
+  get isUserEmailVerified(): boolean {
+    if (!this.isSignedIn) {
+      return false;
+    }
+
+    return this.fbUser.emailVerified;
   }
 
   set userInfo(info: AppStorageTypes.UserInfo) {

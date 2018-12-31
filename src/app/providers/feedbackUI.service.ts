@@ -14,12 +14,15 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastController } from '@ionic/angular';
 import { Map } from '../utils/listutil';
 import { UUID } from 'angular2-uuid';
-import { LoadingOptions, SpinnerTypes } from '@ionic/core';
+import { LoadingOptions, SpinnerTypes, AlertButton } from '@ionic/core';
 
 export interface AlertOptions {
   title?: string | undefined;
   message?: string | undefined;
-  buttons?: Array<any> | undefined;
+  buttons?: Array<AlertButton> | Array<string> | undefined;
+  cancelDisabled?: boolean | undefined;
+  cssClass?: string | undefined;
+  backdropDismiss?: boolean | undefined;
 }
 
 class InnerLoadingHandler {
@@ -219,6 +222,10 @@ export class FeedbackUIService {
       result = opt;
     }
 
+    if (result && result.cancelDisabled === undefined) {
+      result.cancelDisabled = false;
+    }
+
     return result;
   }
 
@@ -236,6 +243,11 @@ export class FeedbackUIService {
 
     const lastIndex = this.alertMap.length - 1;
     const lastAlertHandler: AlertHandler = this.alertMap[lastIndex];
+
+    if (lastAlertHandler.opt.cancelDisabled) {
+      return;
+    }
+
     this.alertMap.splice(lastIndex, 1);
 
     lastAlertHandler.alertElement.dismiss();
@@ -270,7 +282,9 @@ export class FeedbackUIService {
     const alert: HTMLIonAlertElement = await this.alertController.create({
       header: opt.title,
       message: opt.message,
-      buttons: opt.buttons
+      buttons: opt.buttons,
+      cssClass: opt.cssClass,
+      backdropDismiss: opt.backdropDismiss
     });
 
     const alertHandler = new AlertHandler(alert, opt);
@@ -337,7 +351,11 @@ export class FeedbackUIService {
     return this.showAlertDialog(opt);
   }
 
-  async showToast(message: string | Error, duration = 3000) {
+  async showToast(
+    message: string | Error,
+    duration = 5000,
+    cssClass = 'toast-text-center'
+  ) {
     let toastMessage: string = null;
     if (typeof message === 'string') {
       toastMessage = message;
@@ -347,7 +365,8 @@ export class FeedbackUIService {
 
     const toast = await this.toastController.create({
       message: toastMessage,
-      duration: duration
+      duration: duration,
+      cssClass: cssClass
     });
     toast.present();
   }

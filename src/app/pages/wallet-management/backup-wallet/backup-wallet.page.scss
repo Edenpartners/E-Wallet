@@ -47,13 +47,14 @@ ion-button.selected {
   align-items: center;
   flex-direction: column;
   color: var(--color-text-dark-1);
+  padding-bottom: 0px;
 }
 
 .words-box {
   width: 100%;
   max-width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;

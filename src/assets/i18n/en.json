@@ -20,6 +20,7 @@
 
   "valid.email.required": "Email is required",
   "valid.email.pattern": "Enter a valid email",
+  "valid.email.verification": "Email verification required",
   
   "valid.password.required": "Password is required",
   "valid.password.minlength": "Password must be at least 8 characters long",
@@ -53,7 +54,7 @@
   "valid.phoneNumber.required": "Mobile number is required",
   "valid.phoneNumber.pattern": "Invalid mobile number",
   
-  "wallet.address.copied":"The wallet address has been placed in the clipboard.",
+  "wallet.address.copied":"The wallet address has been placed in the clipboard",
   "NoTransactions":"No transactions found",
 
   "To":"to",
@@ -62,6 +63,17 @@
   "TEST": "Test {{value}}",
 
   "ExitGuide": "Press back button again to exit",
+
+  "CopyToClipboard":"Copy into clipboard",
+  "TextCopiedIntoClipboard":"Text has been placed in the clipboard",
+
+  "Signout":"Sign out",
+  "Signin":"Sign in",
+
+  "SendEmailVerification":"Send email verification",
+  "EmailVerificationSent":"The verification email has been sent. Try sign-in again.",
+  "EmailVerificationSendingFailed":"Failed to send verification email",
+
   
   "______________SIGN_IN": "",
   "Copyright": "Copyright by Eden Partners, Inc. Company Confidential.",
