@@ -53,7 +53,7 @@
 
           <ion-item class="input-field field-space" lines="none">
             <ion-input #userPasswdConfirm clearOnEdit="true" type="password" formControlName="passwordConfirm"
-              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1"></ion-input>
+              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1" (keyup.enter)="signup()"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('passwordConfirm').touched && ( signupForm.get('passwordConfirm').invalid  || signupForm.hasError('areEqual') )">
             <div *ngIf="signupForm.get('passwordConfirm').hasError('required')">

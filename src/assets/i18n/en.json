@@ -71,7 +71,7 @@
   "Signin":"Sign in",
 
   "SendEmailVerification":"Send email verification",
-  "EmailVerificationSent":"The verification email has been sent. Try sign-in again.",
+  "EmailVerificationSent":"The verification email has been sent. Please verify your email and try sign-in again.",
   "EmailVerificationSendingFailed":"Failed to send verification email",
 
   

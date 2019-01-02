@@ -446,7 +446,26 @@ export class AppComponent implements OnInit, OnDestroy {
                     this.rs.navigateToRoot('/home');
                   }
                 } else {
-                  this.showEmailVerificationPopup(userInfo);
+                  if (
+                    userInfo.fbUser.metadata.lastSignInTime ===
+                      userInfo.fbUser.metadata.creationTime &&
+                    !isFirstUserStateEvent
+                  ) {
+                    this.sendEmailVerification(userInfo, (error: any) => {
+                      if (error) {
+                        this.feedbackUI.showToast(error);
+                      } else {
+                        this.feedbackUI.showToast(
+                          this.translate.instant(
+                            'EmailVerificationSendingFailed'
+                          )
+                        );
+                      }
+                      this.showEmailVerificationPopup(userInfo);
+                    });
+                  } else {
+                    this.showEmailVerificationPopup(userInfo);
+                  }
                 }
               } else {
                 this.logger.info(
@@ -506,13 +525,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.feedbackUI.showLoading(null, 'email-verification-popup');
   }
 
-  showEmailVerificationPopup(userInfo: AppStorageTypes.User) {
-    const startSigncheckAgain = () => {
-      setTimeout(() => {
-        this.storage.startFirebaseSigninCheck();
-      }, 1000);
-    };
+  startSigninCheckAgain() {
+    setTimeout(() => {
+      this.storage.startFirebaseSigninCheck();
+    }, 1000);
+  }
 
+  showEmailVerificationPopup(userInfo: AppStorageTypes.User) {
     const signoutAction = {
       text: this.translate.instant('Cancel'),
       role: 'cancel',
@@ -528,7 +547,7 @@ export class AppComponent implements OnInit, OnDestroy {
       cssClass: 'dialog-button-text-align-center',
       handler: () => {
         this.showEmailVerificationPopupLoading();
-        startSigncheckAgain();
+        this.startSigninCheckAgain();
       }
     };
 
@@ -547,26 +566,46 @@ export class AppComponent implements OnInit, OnDestroy {
           text: this.translate.instant('SendEmailVerification'),
           cssClass: 'dialog-button-text-align-center',
           handler: () => {
-            this.showEmailVerificationPopupLoading();
-
-            userInfo.fbUser.sendEmailVerification().then(
-              () => {
-                this.feedbackUI.showToast(
-                  this.translate.instant('EmailVerificationSent')
-                );
-                this.signout();
-              },
-              () => {
-                this.feedbackUI.showToast(
-                  this.translate.instant('EmailVerificationSendingFailed')
-                );
-                startSigncheckAgain();
-              }
-            );
+            this.sendEmailVerification(userInfo);
           }
         }
       ]
     });
+  }
+
+  sendEmailVerification(
+    userInfo: AppStorageTypes.User,
+    onError: (error: any) => void = null
+  ) {
+    this.showEmailVerificationPopupLoading();
+
+    userInfo.fbUser.sendEmailVerification().then(
+      () => {
+        this.hideEmailVerificationPopupLoading();
+        this.feedbackUI.showAlertDialog({
+          title: null,
+          message: this.translate.instant('EmailVerificationSent'),
+          cancelDisabled: true
+        });
+        this.signout();
+      },
+      err => {
+        this.hideEmailVerificationPopupLoading();
+        if (onError) {
+          onError(err);
+        } else {
+          if (err) {
+            this.feedbackUI.showToast(err);
+          } else {
+            this.feedbackUI.showToast(
+              this.translate.instant('EmailVerificationSendingFailed')
+            );
+          }
+
+          this.startSigninCheckAgain();
+        }
+      }
+    );
   }
 
   stopBaseValuesTracking() {
