@@ -89,6 +89,7 @@ export class EwTxListPage implements OnInit, OnDestroy {
           this.walletId = String(params['id']); // (+) converts string 'id' to a number
           this.wallet = this.storage.findWalletById(this.walletId);
           this.logger.debug('a wallet ' + this.wallet.id);
+          this.txList = [];
           this.loadList(0, addedCount => {});
 
           this.summary.startGetInfo(this.walletId);

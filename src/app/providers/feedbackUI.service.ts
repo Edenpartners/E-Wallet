@@ -353,7 +353,7 @@ export class FeedbackUIService {
 
   async showToast(
     message: string | Error,
-    duration = 5000,
+    duration = 3500,
     cssClass = 'toast-text-center'
   ) {
     let toastMessage: string = null;

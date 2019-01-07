@@ -1,21 +1,21 @@
 <ion-content no-padding class="page-wrapper">
   <div class="page-content">
     <div class="header">
-      <div margin-top class="logo-wrapper header">
+      <div class="logo-wrapper header">
         <div class="logo-img-big"></div>
       </div>
     </div>
     <div class="content flex-ch-h-centered">
-      <div class="flex-ch-centered form-area">
+      <div class="flex-ch-centered form-area page-width-normal">
         <div class="text-center text-light-1">
-          <ion-label>{{ 'SigninComment' | translate }}</ion-label>
+          <ion-label class="font-size-12">{{ 'SigninComment' | translate }}</ion-label>
         </div>
 
         <form novalidate [formGroup]="signinForm" class="fill-width">
           <ion-item class="input-field" lines="none">
             <span class="input-field-icon email"></span>
             <ion-input #userEmail type="email" formControlName="email" [placeholder]="'InputUserEmail' | translate"
-              (keyup.enter)="userPasswd.setFocus()" color="text-light-1">
+              (keyup.enter)="userPasswd.setFocus()" class="font-size-10" color="text-light-1">
             </ion-input>
             <span class="input-field-icon email invisible"></span>
           </ion-item>
@@ -32,7 +32,8 @@
           <ion-item class="input-field field-space" lines="none">
             <span class="input-field-icon lock"></span>
             <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
-              [placeholder]="'InputPassword' | translate" (keyup.enter)="signin()" color="text-light-1"></ion-input>
+              [placeholder]="'InputPassword' | translate" (keyup.enter)="signin()" class="font-size-10"
+              color="text-light-1"></ion-input>
             <span class="input-field-icon lock invisible"></span>
           </ion-item>
           <div class="form-error-msg" *ngIf="signinForm.get('password').touched && signinForm.get('password').invalid">
@@ -46,12 +47,13 @@
         </form>
 
         <div class="margin-top">
-          <ion-button class="signin fw-bold" expand="block" color="theme-2" (click)="signin()">{{ 'Signin' | translate }}</ion-button>
+          <ion-button class="signin fw-bold radius-10 font-size-12 no-uppercase" expand="block"
+            color="theme-2" (click)="signin()">{{ 'Signin' | translate }}</ion-button>
         </div>
 
-        <div class="margin-top">
-          <ion-button appBtnStyle color="text-dark-2" class="text-button" expand="block" fill="clear"
-            (click)="onForgotPasswdClick()">
+        <div class="margin-top-half">
+          <ion-button appBtnStyle color="text-dark-2" class="text-button no-uppercase font-size-14"
+            expand="block" fill="clear" (click)="onForgotPasswdClick()">
             {{ 'IsForgotPasswd' | translate }}
           </ion-button>
         </div>
@@ -69,7 +71,8 @@
           </ion-button>
         </div>
         <div>
-          <ion-button appBtnStyle color="text-dark-2" expand="block" fill="clear" (click)="rs.navigateByUrl('/signup')">
+          <ion-button appBtnStyle color="text-dark-2" expand="block" fill="clear" class="text-button no-uppercase font-size-14"
+            (click)="rs.navigateByUrl('/signup')">
             <div>{{ 'DontHaveAccount' | translate }}</div>
           </ion-button>
         </div>
@@ -78,4 +81,4 @@
   </div>
 </ion-content>
 
-<div class="copyright" [hidden]="keyboardVisible">{{ 'Copyright' | translate }}</div>
+<div class="copyright font-size-07" [hidden]="keyboardVisible">{{ 'Copyright' | translate }}</div>

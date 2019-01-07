@@ -13,7 +13,6 @@
   height: auto;
   text-align: center;
   color: var(--color-text-dark-4);
-  font-size: .6em;
   margin-bottom: var(--space-normal);
 }
 
@@ -25,17 +24,13 @@
     height: 100%;
 
     .header {
-      margin-top: 23%;
+      margin-top: 32%;
       width: 100%;
     }
 
     .content {
-      margin-top: 20%;
+      margin-top: 24%;
       width: 100%;
-
-      .form-area {
-        width: 70%;
-      }
 
       form {
         margin-top: var(--space-half);

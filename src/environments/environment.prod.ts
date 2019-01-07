@@ -28,7 +28,8 @@ export const environment = {
     useDecryptPinCodeByPinCode: false,
     simulateHardwareBackButton: false,
     clearWalletsOnWipeStorage: false,
-    clearPincodeOnWipeStorage: false
+    clearPincodeOnWipeStorage: false,
+    clearTxHistoryOnWipeStorage: false
   }
 };
 

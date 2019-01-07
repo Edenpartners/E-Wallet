@@ -3,13 +3,13 @@
 </ion-header>
 
 <ion-content class="page-wrapper" scrollY="false">
-  <div class="page-content fill flex-ch-centered" padding ion-fixed>
-    <div class="inner-content">
-      <div class="content margin-top-2x">
-        <ion-label color="theme-1" class="title">
+  <div class="page-content fill flex-ch-centered" ion-fixed>
+    <div class="inner-content page-width-wide">
+      <div class="content margin-top-36">
+        <ion-label color="theme-1" class="title font-size-18 fw-bold">
           {{ 'BackupWarningTitle' | translate }}
         </ion-label>
-        <p class="margin-top">
+        <p class="margin-top-30">
           {{ 'BackupWarningMessage1' | translate }}
         </p>
         <p>
@@ -21,7 +21,8 @@
       </div>
 
       <div class="footer">
-        <ion-button expand="block" color="theme-1" class="margin-top-2x fw-bold" (click)="rs.navigateByUrl('/backup-wallet')">
+        <ion-button expand="block" color="theme-1" class="fw-bold font-size-10 radius-10 height-41 margin-top-49"
+          (click)="rs.navigateByUrl('/backup-wallet')">
           {{ 'ReadyBackup' | translate }}
         </ion-button>
       </div>

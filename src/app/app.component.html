@@ -9,11 +9,13 @@
             </div>
           </div>
         </div>
-        <div class="flex-ch-centered margin-top-3x">
-          <ion-label class="userDisplay">{{ getUserEmail() }}</ion-label>
+        <div class="flex-ch-centered margin-top-24">
+          <ion-label class="font-size-07 fw-900" color="text-light-1">{{ 'ID' | translate }}</ion-label>
+          <ion-label class="userDisplay margin-top-05 font-size-07" color="text-light-1">{{ getUserEmail() }}</ion-label>
         </div>
-        <div class="flex-ch-centered margin-top-2x">
-          <ion-button class="signout fw-bold" color="theme-2" (click)="signout()">
+        <div class="flex-ch-centered margin-top-22">
+          <ion-button class="signout fw-bold radius-05 no-uppercase height-23 font-size-10"
+            no-margin color="theme-2" (click)="signout()">
             {{ 'Signout' | translate }}
           </ion-button>
         </div>

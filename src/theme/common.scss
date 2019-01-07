@@ -1,4 +1,6 @@
 :root {
+  --ion-font-family: Lato, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Roboto", sans-serif;
+
   --tcol-mainback: #efefef;
   --tcol-lightest: #ffffff;
 
@@ -14,7 +16,6 @@
   --color-text-dark-3: #7F7F7F;
   --color-text-dark-4: #9A9A9A;
 
-
   --color-theme-1: #D57C47;
   --color-theme-2: #614DA0;
 
@@ -24,139 +25,88 @@
   --space-half: 8px;
   --space-qt: 4px;
 
+  --space-05: 5px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-18: 18px;
+  --space-22: 22px;
+  --space-24: 24px;
+  --space-30: 30px;
+  --space-32: 32px;
+  --space-34: 34px;
+  --space-36: 36px;
+  --space-40: 40px;
+  --space-49: 49px;
+  --space-60: 60px;
+
+  --space-page-side: 40px;
+
   --color-divider: #909090;
   --color-item-underline: #585858;
   --color-item-underline-focused: #D57C48;
 
-  --ion-font-family: Lato, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Roboto", sans-serif;
+  --radius : 10px;
+  --radius-05 : 5px;
+  --radius-10 : 10px;
+
+  --height-22: 22px;
+  --height-23: 23px;
+  --height-31: 31px;
+  --height-37: 37px;
+  --height-41: 41px;
+
+  --font-size-07: 7px;
+  --font-size-09: 9px;
+  --font-size-10: 10px;
+  --font-size-12: 12px;
+  --font-size-13: 13px;
+  --font-size-14: 14px;
+  --font-size-15: 15px;
+  --font-size-16: 16px;
+  --font-size-18: 18px;
+  --font-size-24: 24px;
+
+  --ion-placeholder-color: #000000;
+
+  --page-width-normal:70%; 
+  --page-width-wide:80%;
 }
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-HairlineItalic.ttf');
-  font-weight: 100;
-  font-style: italic, oblique;
+.height-22 {
+  height: var(--height-22);
+  --height: var(--height-22);
 }
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Hairline.ttf');
-  font-weight: 100;
+.height-23 {
+  height: var(--height-23);
+  --height: var(--height-23);
 }
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-ThinItalic.ttf');
-  font-weight: 200;
-  font-style: italic, oblique;
+.height-41 {
+  height: var(--height-41);
+  --height: var(--height-41);
 }
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Thin.ttf');
-  font-weight: 200;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-LightItalic.ttf');
-  font-weight: 300;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Light.ttf');
-  font-weight: 300;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Italic.ttf');
-  font-weight: 400;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Regular.ttf');
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-MediumItalic.ttf');
-  font-weight: 500;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Medium.ttf');
-  font-weight: 500;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-SemiboldItalic.ttf');
-  font-weight: 600;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Semibold.ttf');
-  font-weight: 600;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-BoldItalic.ttf');
-  font-weight: 700;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Bold.ttf');
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-HeavyItalic.ttf');
-  font-weight: 800;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Heavy.ttf');
-  font-weight: 800;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-BlackItalic.ttf');
-  font-weight: 900;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Black.ttf');
-  font-weight: 900;
-}
-
-* {
-  font-family: Lato;
-}
+.font-size-07 { font-size: var(--font-size-07); }
+.font-size-09 { font-size: var(--font-size-09); }
+.font-size-10 { font-size: var(--font-size-10); }
+.font-size-12 { font-size: var(--font-size-12); }
+.font-size-13 { font-size: var(--font-size-13); }
+.font-size-14 { font-size: var(--font-size-14); }
+.font-size-15 { font-size: var(--font-size-15); }
+.font-size-16 { font-size: var(--font-size-16); }
+.font-size-18 { font-size: var(--font-size-18); }
+.font-size-24 { font-size: var(--font-size-24); }
 
 .fw-bold{
   font-weight: bold;
 }
 .fw-500{
   font-weight: 500;
+}
+
+.fw-900{
+  font-weight: 900;
 }
 
 .fw-normal {
@@ -226,6 +176,14 @@ ion-header {
 
 .fill-height {
   height: 100%;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-column {
+  flex-direction: column;
 }
 
 .flex-ch-centered {
@@ -399,6 +357,8 @@ ion-checkbox {
   --border-color: var(--color-theme-1);
   --border-color-checked: var(--color-theme-1);
   --checkmark-color: var(--color-theme-1);
+  width:12px;
+  height:12px;
 }
 
 /**
@@ -456,17 +416,14 @@ ion-checkbox {
     margin-left: var(--space-normal);
 
     .title {
-      @extend .fw-medium;
+      @extend .fw-500;
     }
 
     .sub-title {
-      @extend .fw-medium;
-      font-size: .95em;
+      @extend .fw-500;
     }
   }
 }
-
-//.free-form-area {}
 
 /** Signin & Signup Form */
 .form-area {
@@ -490,15 +447,23 @@ ion-checkbox {
   }
 
   ion-input {
-    --height: 37px;
+    --placeholder-color: #838383;
+    --placeholder-opacity: 1.0;
+
+    --height: var(--height-31);
+    height: var(--height-31);
+    --padding-start:0px;
+    --padding-end:0px;
+    --padding-bottom:12px;
+    --padding-top:10px;
   }
 
   ion-button {
-    height: 37px;
+    --height: var(--height-31);
+    height: var(--height-31);
   }
 
   ion-button.text-button {
-    height: 1.15em;
     --margin-top: 0px;
     --margin-bottom: 0px;
 
@@ -539,7 +504,7 @@ ion-checkbox {
   background-color: rgba(255, 255, 255, 0.28);
   --background: none;
 
-  border-radius: 10px;
+  border-radius: var(--radius-10);
   font-size: .96em;
   --padding: 0px;
   --margin: 0px;
@@ -551,6 +516,13 @@ ion-checkbox {
 
 ion-select.input-field {
   background-color: rgba(255, 255, 255, 0.56);
+}
+
+ion-select {
+  padding-left:39px;
+  padding-right:20px;
+  padding-top:14px;
+  padding-bottom:14px;
 }
 
 .input-field-icon {
@@ -605,6 +577,24 @@ ion-select.input-field {
   }
 }
 
+.page-width-normal {
+  width:var(--page-width-normal);
+}
+
+.page-width-wide {
+  width:var(--page-width-wide);
+}
+
+.radius-05 {
+  border-radius: var(--radius-05);
+  --border-radius: var(--radius-05);
+}
+
+.radius-10 {
+  border-radius: var(--radius-10);
+  --border-radius: var(--radius-10);
+}
+
 .social-icon {
   color: rgba(255, 255, 255, 0);
   height: 24px;
@@ -615,9 +605,99 @@ ion-select.input-field {
   height: 11px;
 }
 
+.page-margin-left {
+  --margin-left: var(--space-page-side);
+  margin-left: var(--space-page-side);
+}
+
+.page-margin-right {
+  --margin-left: var(--space-page-side);
+  margin-left: var(--space-page-side);
+}
+
 .margin-bottom {
   --margin-bottom: var(--space-normal);
   margin-bottom: var(--space-normal);
+}
+
+.margin-left-10 {
+  --margin-left: var(--space-10);
+  margin-left: var(--space-10);
+}
+
+.margin-left-30 {
+  --margin-left: var(--space-30);
+  margin-left: var(--space-30);
+}
+
+.margin-left-36 {
+  --margin-left: var(--space-36);
+  margin-left: var(--space-36);
+}
+
+.margin-left-40 {
+  --margin-left: var(--space-40);
+  margin-left: var(--space-40);
+}
+
+.margin-right-10 {
+  --margin-right: var(--space-10);
+  margin-right: var(--space-10);
+}
+
+.margin-top-05 {
+  --margin-top: var(--space-05);
+  margin-top: var(--space-05);
+}
+
+.margin-top-12 {
+  --margin-top: var(--space-12);
+  margin-top: var(--space-12);
+}
+
+.margin-top-18 {
+  --margin-top: var(--space-18);
+  margin-top: var(--space-18);
+}
+
+.margin-top-22 {
+  --margin-top: var(--space-22);
+  margin-top: var(--space-22);
+}
+
+.margin-top-24 {
+  --margin-top: var(--space-24);
+  margin-top: var(--space-24);
+}
+
+.margin-top-30 {
+  --margin-top: var(--space-30);
+  margin-top: var(--space-30);
+}
+
+.margin-top-32 {
+  --margin-top: var(--space-32);
+  margin-top: var(--space-32);
+}
+
+.margin-top-34 {
+  --margin-top: var(--space-34);
+  margin-top: var(--space-34);
+}
+
+.margin-top-36 {
+  --margin-top: var(--space-36);
+  margin-top: var(--space-36);
+}
+
+.margin-top-49 {
+  --margin-top: var(--space-49);
+  margin-top: var(--space-49);
+}
+
+.margin-top-60 {
+  --margin-top: var(--space-60);
+  margin-top: var(--space-60);
 }
 
 .margin-top {
@@ -641,10 +721,20 @@ ion-select.input-field {
 }
 
 
+.margin-bottom-24 {
+  --margin-bottom: var(--space-24);
+  margin-bottom: var(--space-24);
+}
+
+
 ion-item.full-text-input {
   --border-color: var(--color-item-underline);
   --border-width: 0px 0px 3px 0px;
-  --highlight-color-focused: var(--color-item-underline-focused);
+  --highlight-color-focused: var(--color-transparent);
+}
+
+ion-item.full-text-input.selected {
+  --border-color: var(--color-item-underline-focused);
 }
 
 
@@ -692,4 +782,129 @@ ion-item.full-text-input {
 
 .toast-text-center {
   text-align: center;
+}
+
+.indent {
+  margin-left: var(--space-12);
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-HairlineItalic.ttf');
+  font-weight: 100;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Hairline.ttf');
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-ThinItalic.ttf');
+  font-weight: 200;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Thin.ttf');
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-LightItalic.ttf');
+  font-weight: 300;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Light.ttf');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Italic.ttf');
+  font-weight: 400;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Regular.ttf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-MediumItalic.ttf');
+  font-weight: 500;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Medium.ttf');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-SemiboldItalic.ttf');
+  font-weight: 600;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Semibold.ttf');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-BoldItalic.ttf');
+  font-weight: 700;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Bold.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-HeavyItalic.ttf');
+  font-weight: 800;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Heavy.ttf');
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-BlackItalic.ttf');
+  font-weight: 900;
+  font-style: italic, oblique;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/assets/fonts/Lato/Lato-Black.ttf');
+  font-weight: 900;
+}
+
+* {
+  font-family: Lato;
 }

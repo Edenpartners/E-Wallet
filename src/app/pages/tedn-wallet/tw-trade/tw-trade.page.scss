@@ -4,25 +4,15 @@
   padding-bottom: 18%;
 
   .tedn {
-    font-size: 1.5em;
-  }
-
-  .free-form-area {
-    width: 85%;
+    font-size: var(--font-size-24);
   }
 
   .centered-label {
     display: block;
     width: 100%;
     text-align: center;
-    font-size: .95em;
   }
 
-  .content {
-    .sub-header {
-      font-size: 1.2em;
-    }
-  }
 
   .content>ion-label {
     @extend .centered-label;
@@ -60,7 +50,6 @@
     }
 
     ion-label {
-      font-size: .93em;
       margin-bottom: 0px;
     }
   }

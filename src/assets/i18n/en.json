@@ -9,6 +9,8 @@
   "EmailRequired":"Enter your email",
   "PasswdRequired":"Enter your password",
 
+  "ID":"ID",
+  
   "Retry":"Retry",
   "Cancel":"Cancel",
 
@@ -33,7 +35,6 @@
   "valid.terms.pattern": "You must accept terms and conditions",
   "valid.privacy.pattern": "You must accept privacy",
 
-  "valid.address.required": "Address is required",
   "valid.amount.required": "Amount is required",
   "valid.amount.pattern": "Invalid amount",
   "valid.amount.positive": "A negative amount is not allowed",
@@ -53,8 +54,12 @@
   "valid.displayName.required": "Display name is required",
   "valid.phoneNumber.required": "Mobile number is required",
   "valid.phoneNumber.pattern": "Invalid mobile number",
+
+  "valid.wallet-address.nonEqual": "Same wallet addresses are not allowed.",
+  "valid.wallet-address.required": "Address is required",
   
   "wallet.address.copied":"The wallet address has been placed in the clipboard",
+  
   "NoTransactions":"No transactions found",
 
   "To":"to",
@@ -80,10 +85,11 @@
   "AppName": "E-Wallets",
   "SigninComment": "Sign-in into EdenChain",
   "IsForgotPasswd": "Forgot your password?",
-  "InputUserEmail": "User Email",
-  "DisplayName": "Display Name",
+  "InputUserEmail": "email address",
+  "DisplayName": "Name",
   "InputUserId": "User ID",
-  "InputPassword": "Password",
+  "InputPassword": "password",
+  "EnterPassword": "enter password",
   "Login": "Log In",
   "Facebook": "Facebook",
   "Twitter": "Twitter",
@@ -99,8 +105,7 @@
   "______________SIGN_UP": "",
   "SignupTitle": "Sign-up",
   "SignupComment": "Sign-up into EdenChain",
-  "InputEmail": "Email",
-  "ConfigmPasswd": "Re-enter password",
+  "ConfigmPasswd": "Re-type password",
   "Continue": "Continue",
 
   "OrSignupWith": "or Sign-up with",

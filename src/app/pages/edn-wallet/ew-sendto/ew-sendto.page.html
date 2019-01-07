@@ -8,24 +8,25 @@
       <ew-summary #summary></ew-summary>
     </div>
 
-    <div class="content margin-top-3x">
-      <ion-label class="sub-header">{{ 'SendTo' | translate }}</ion-label>
+    <div class="content margin-top-3x page-width-wide">
+      <ion-label class="sub-header font-size-18">{{ 'SendTo' | translate }}</ion-label>
 
-      <ion-item lines="full" class="full-text-input margin-top">
-        <ion-input color="text-light-1" text-center [placeholder]="'Address' | translate"
-          [(ngModel)]="toAddress" (keyup.enter)="amountInput.setFocus()"></ion-input>
+      <ion-item lines="full" class="full-text-input margin-top-24" [ngClass]="{'selected':isInputHasValue(toAddressInput)}">
+        <ion-input #toAddressInput color="text-light-1" text-center [placeholder]="'Address' | translate"
+          [(ngModel)]="toAddress" class="font-size-24" (keyup.enter)="amountInput.setFocus()"></ion-input>
       </ion-item>
 
 
-      <ion-label class="sub-header margin-top-3x">{{ 'Amount' | translate }}</ion-label>
+      <ion-label class="sub-header font-size-18 margin-top-60">{{ 'Amount' | translate }}</ion-label>
 
-      <ion-item lines="full" class="full-text-input margin-top">
-        <ion-label class="invisible">{{ 'EDN' | translate }}</ion-label>
-        <ion-input #amountInput type="number" color="text-light-1" text-center [(ngModel)]="amount"></ion-input>
-        <ion-label>{{ 'EDN' | translate }}</ion-label>
+      <ion-item lines="full" class="full-text-input margin-top-24" [ngClass]="{'selected':isInputHasNonZero(amountInput)}">
+        <ion-label class="invisible font-size-14">{{ 'EDN' | translate }}</ion-label>
+        <ion-input #amountInput class="font-size-24" type="number" color="text-light-1" text-center
+          [(ngModel)]="amount"></ion-input>
+        <ion-label class="font-size-14">{{ 'EDN' | translate }}</ion-label>
       </ion-item>
 
-      <ion-button expand="block" color="theme-1" (click)="transferERC20Token()" class="margin-top-3x margin-bottom fw-bold">{{ 'Send' | translate }}</ion-button>
+      <ion-button expand="block" color="theme-1" (click)="transferERC20Token()" class="margin-top-3x margin-bottom fw-bold radius-10 font-size-12">{{ 'Send' | translate }}</ion-button>
     </div>
   </div>
 

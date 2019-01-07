@@ -26,6 +26,8 @@ import {
   AppStorageService
 } from '../../../providers/appStorage.service';
 
+import { IonInput, Platform } from '@ionic/angular';
+
 import {
   DataTrackerService,
   ValueTracker
@@ -38,6 +40,8 @@ import { Consts } from '../../../../environments/constants';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
+
+import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
 @Component({
   selector: 'app-dp-edn-main',
@@ -277,5 +281,9 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
         onTxReceipt
       )
       .then(onSuccess, onError);
+  }
+
+  isInputHasNonZero(input: IonInput): boolean {
+    return IonComponentUtils.isInputHasNonZero(input);
   }
 }

@@ -51,16 +51,8 @@ ion-menu {
   }
 }
 
-
-.userDisplay {
-  color: var(--color-text-light-1);
-  text-align: center;
-  font-size: .85em;
-}
-
 .signout {
   width: 95px;
-  font-size: .9em;
 }
 
 
@@ -70,7 +62,6 @@ ion-menu {
   position: fixed;
   right: var(--space-normal);
   bottom: 0;
-  font-size: .7em;
 }
 
 .back-button-simulater {

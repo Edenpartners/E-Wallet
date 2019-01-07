@@ -5,14 +5,14 @@
 <ion-content class="page-wrapper" no-padding>
   <div class="page-content fill">
     <div class="hcf-layout fill">
-      <div class="header" padding>
-        <div class="flex-h-dir-centered">
-          <ion-label class="field-label title"> {{ wallet ? wallet.name : '' }}</ion-label>
+      <div class="header flex-ch-centered">
+        <div class="flex-h-dir-centered margin-top-22">
+          <ion-label class="field-label title fw-bold font-size-24"> {{ wallet ? wallet.name : '' }}</ion-label>
         </div>
-        <div class="flex-h-dir-v-centered tedn">
-          <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
+        <div class="flex-h-dir-centered tedn page-width-normal">
+          <ion-label class="field-label font-size-13"> {{ 'CurrentBalance' | translate }}
           </ion-label>
-          <ion-label text-right class="field-value flex-item-fill"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
+          <ion-label text-right class="field-value flex-item-fill font-size-18"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
             {{ 'TEDN' | translate }}
           </ion-label>
         </div>
@@ -28,15 +28,15 @@
               </div>
               <div class="inner-content">
                 <div class="flex-h-dir">
-                  <ion-label class="label flex-item-auto" color="text-dark-1-1">
+                  <ion-label class="label fw-bold flex-item-auto font-size-16" color="text-dark-1-1">
                     {{ item.amountDisplay | number: '.0-5' }} {{ 'TEDN' | translate }}
                   </ion-label>
                 </div>
                 <div class="flex-h-dir">
-                  <ion-label class="flex-item-fill address" color="text-dark-2" *ngIf="item.isSend">
+                  <ion-label class="flex-item-fill address font-size-14" color="text-dark-2" *ngIf="item.isSend">
                     {{ ('To' | translate) }} {{ item.to_addr }}
                   </ion-label>
-                  <ion-label class="flex-item-fill address" color="text-dark-2" *ngIf="!item.isSend">
+                  <ion-label class="flex-item-fill address font-size-14" color="text-dark-2" *ngIf="!item.isSend">
                     {{ ('From' | translate ) }} {{ item.from_addr }}
                   </ion-label>
 
@@ -66,10 +66,10 @@
         <ion-toolbar>
           <div class="flex-h-dir">
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle class="fw-bold" color="text-light-1" (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
+              <ion-button appBtnStyle class="fw-bold font-size-14" color="text-light-1" (click)="onReceiveClick()">{{ "Deposit" | translate }}</ion-button>
             </div>
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle class="fw-bold" color="text-light-1" (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
+              <ion-button appBtnStyle class="fw-bold font-size-14" color="text-light-1" (click)="onSendClick()">{{ "Withdraw" | translate }}</ion-button>
             </div>
           </div>
         </ion-toolbar>

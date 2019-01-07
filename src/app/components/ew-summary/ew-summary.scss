@@ -10,7 +10,7 @@ ion-list {
 }
 
 .wallet-name {
-  font-size: 1.4em;
+  font-size: var(--font-size-24);
 }
 
 .sub-item {
@@ -19,10 +19,10 @@ ion-list {
   .field-label {
     flex: none;
     margin-right: var(--space-normal);
-    font-size: .85em;
+    font-size: var(--font-size-13);
   }
 
   .field-value {
-    font-size: 1.1em;
+    font-size: var(--font-size-18);
   }
 }

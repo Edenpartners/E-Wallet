@@ -93,6 +93,15 @@ export namespace AppStorageTypes {
 
 const LOG_COUNT_PER_GROUP = 30;
 
+enum StoreKeys {
+  _userInfo = '_userInfo',
+  _wallets = '_wallets',
+  _coinHDAddr = '_coinHDAddr',
+  _additionalInfo = '_additionalInfo',
+  pinCode = 'pin-code',
+  salt = 'salt'
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -167,31 +176,29 @@ export class AppStorageService {
   }
 
   wipeData() {
-    //keep the pinnumber from wipe
-    const pinNumber = this.pinNumber;
-    const salt = this.salt;
+    this._userInfo = null;
+    this._additionalInfo = null;
 
-    const wallets = this._wallets;
-
-    const coinHDAddr = this.coinHDAddress;
-
-    this.store.clear();
-
-    if (!env.config.clearPincodeOnWipeStorage) {
-      this.internalPinNumber = pinNumber;
-      this.salt = salt;
+    if (env.config.clearPincodeOnWipeStorage) {
+      this.store.remove(StoreKeys.pinCode);
+      this.store.remove(StoreKeys.salt);
     }
 
-    if (!env.config.clearWalletsOnWipeStorage) {
-      this._wallets = wallets;
+    if (env.config.clearTxHistoryOnWipeStorage) {
+      if (this._wallets) {
+        // TODO : if to delete every tx history
+        this._wallets.forEach(item => {});
+      }
     }
 
-    this.coinHDAddress = coinHDAddr;
+    if (env.config.clearWalletsOnWipeStorage) {
+      this._wallets = [];
+    }
   }
 
   get hasPinNumber(): boolean {
     //null | undefined | empty
-    if (!this.store.get('pin-code')) {
+    if (!this.store.get(StoreKeys.pinCode)) {
       return false;
     }
     return true;
@@ -306,7 +313,7 @@ export class AppStorageService {
     }
 
     this.salt = newSalt;
-    this.store.set('pin-code', newPinCodeToSave);
+    this.store.set(StoreKeys.pinCode, newPinCodeToSave);
     return true;
   }
 
@@ -386,7 +393,7 @@ export class AppStorageService {
   }
 
   get pinNumber(): string {
-    let result = this.store.get('pin-code');
+    let result = this.store.get(StoreKeys.pinCode);
     if (result === null || result === undefined) {
       const val = '';
       const newSalt = this.randSalt();
@@ -411,7 +418,7 @@ export class AppStorageService {
   }
 
   set internalPinNumber(val: string) {
-    this.store.set('pin-code', val);
+    this.store.set(StoreKeys.pinCode, val);
   }
 
   randSalt(): string {
@@ -419,11 +426,11 @@ export class AppStorageService {
   }
 
   get salt(): string {
-    return this.store.get('salt');
+    return this.store.get(StoreKeys.salt);
   }
 
   set salt(val: string) {
-    this.store.set('salt', val);
+    this.store.set(StoreKeys.salt, val);
   }
 
   get isUserInfoValidated(): boolean {

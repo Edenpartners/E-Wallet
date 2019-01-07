@@ -11,16 +11,17 @@
       </div>
     </div>
     <div class="content flex-ch-h-centered">
-      <div class="flex-ch-centered form-area">
+      <div class="flex-ch-centered form-area page-width-normal">
         <div class="text-center text-light-1">
-          <ion-label>{{ 'SignupComment' | translate }}</ion-label>
+          <ion-label class="font-size-10">{{ 'SignupComment' | translate }}</ion-label>
         </div>
 
         <form novalidate [formGroup]="signupForm" class="fill-width">
           <ion-item class="input-field" lines="none">
             <span class="input-field-icon email"></span>
-            <ion-input #userEmail [placeholder]="'InputEmail' | translate" type="email"
-              formControlName="email" (keyup.enter)="userPasswd.setFocus()" color="text-light-1"></ion-input>
+            <ion-input #userEmail [placeholder]="'InputUserEmail' | translate" type="email"
+              formControlName="email" (keyup.enter)="userPasswd.setFocus()" class="font-size-09"
+              color="text-light-1"></ion-input>
             <span class="input-field-icon email invisible"></span>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('email').touched && signupForm.get('email').invalid">
@@ -34,8 +35,8 @@
 
           <ion-item class="input-field field-space" lines="none">
             <span class="input-field-icon lock"></span>
-            <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
-              [placeholder]="'InputPassword' | translate" (keyup.enter)="userPasswdConfirm.setFocus()"
+            <ion-input #userPasswd clearOnEdit="true" type="password" class="font-size-09"
+              formControlName="password" [placeholder]="'EnterPassword' | translate" (keyup.enter)="userPasswdConfirm.setFocus()"
               color="text-light-1"></ion-input>
             <span class="input-field-icon lock invisible"></span>
           </ion-item>
@@ -53,7 +54,8 @@
 
           <ion-item class="input-field field-space" lines="none">
             <ion-input #userPasswdConfirm clearOnEdit="true" type="password" formControlName="passwordConfirm"
-              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1" (keyup.enter)="signup()"></ion-input>
+              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1" class="font-size-09"
+              (keyup.enter)="signup()"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('passwordConfirm').touched && ( signupForm.get('passwordConfirm').invalid  || signupForm.hasError('areEqual') )">
             <div *ngIf="signupForm.get('passwordConfirm').hasError('required')">
@@ -64,14 +66,15 @@
             </div>
           </div>
 
-          <div class="margin-top">
-            <ion-button expand="block" color="theme-2" class="fw-bold" (click)="signup()">{{
+          <div class="margin-top-30">
+            <ion-button expand="block" color="theme-2" class="fw-bold no-uppercase radius-10 font-size-12"
+              (click)="signup()">{{
                   'Continue' | translate
                 }}</ion-button>
           </div>
         </form>
 
-        <div class="flex-h-dir-centered margin-top social-wrapper" margin-bottom>
+        <div class="flex-h-dir-centered margin-top-49 social-wrapper" margin-bottom>
           <ion-button appBtnStyle (click)="signinWithFacebook()" *ngIf="false">
             <ion-icon src="/assets/img/facebook.svg" class="social-icon"></ion-icon>
           </ion-button>

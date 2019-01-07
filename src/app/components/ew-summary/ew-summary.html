@@ -1,12 +1,12 @@
 <ion-list>
   <ion-item lines="none" [hidden]="aliasEditing">
-    <ion-label text-center color="theme-1" class="wallet-name fw-bold" (click)="onWalletAliasClick()">
+    <ion-label text-center color="theme-1" class="wallet-name fw-bold margin-top-12" (click)="onWalletAliasClick()">
       {{ wallet ? wallet.profile.alias : '' }}
     </ion-label>
   </ion-item>
   <ion-item lines="none" [hidden]="!aliasEditing">
-    <ion-input text-center color="theme-1" class="wallet-name fw-bold" #aliasInput [(ngModel)]="editingAlias"
-      (keyup.enter)="handleAliasEditing()">
+    <ion-input text-center color="theme-1" class="wallet-name fw-bold margin-top-12" #aliasInput
+      [(ngModel)]="editingAlias" (keyup.enter)="handleAliasEditing()">
     </ion-input>
   </ion-item>
   <ion-item class="sub-item" lines="none">

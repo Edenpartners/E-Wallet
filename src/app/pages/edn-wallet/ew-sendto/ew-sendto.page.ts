@@ -52,6 +52,8 @@ import { Events } from '@ionic/angular';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
+import { IonComponentUtils } from '../../../utils/ion-component-utils';
+
 @Component({
   selector: 'app-ew-sendto',
   templateUrl: './ew-sendto.page.html',
@@ -128,10 +130,20 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   transferERC20Token(walletPw?: string) {
     if (!this.toAddress.trim()) {
       this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.address.required')
+        this.translate.instant('valid.wallet-address.required')
       );
       return;
     }
+
+    if (
+      this.toAddress.trim().toLowerCase() === this.wallet.address.toLowerCase()
+    ) {
+      this.feedbackUI.showErrorDialog(
+        this.translate.instant('valid.wallet-address.nonEqual')
+      );
+      return;
+    }
+
     if (!this.amount) {
       this.feedbackUI.showErrorDialog(
         this.translate.instant('valid.amount.required')
@@ -216,5 +228,13 @@ export class EwSendtoPage implements OnInit, OnDestroy {
         onTransactionReceipt
       )
       .then(onSuccess, onError);
+  }
+
+  isInputHasValue(input: IonInput): boolean {
+    return IonComponentUtils.isInputHasValue(input);
+  }
+
+  isInputHasNonZero(input: IonInput): boolean {
+    return IonComponentUtils.isInputHasNonZero(input);
   }
 }

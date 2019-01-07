@@ -1,5 +1,14 @@
 @import '../../../theme/common.scss';
 
+.menu-icon {
+  width: 22px;
+  height: 14px;
+
+  path {
+    stroke-width: 0;
+  }
+}
+
 .hcf-layout {
   width: 100%;
 }
@@ -38,8 +47,8 @@
     }
 
     .inner-content {
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding-top: var(--space-12);
+      padding-bottom: var(--space-12);
 
       .title {
         margin-top: 0px;
@@ -50,7 +59,7 @@
         color: var(--color-text-dark-3);
         margin-top: 4px;
         margin-bottom: 0px;
-        font-size: .85em;
+        font-size: var(--font-size-14);
       }
     }
   }
@@ -102,7 +111,6 @@
       height: auto;
       --padding-top: 4px;
       --padding-bottom: 4px;
-      font-size: .85em;
     }
   }
 

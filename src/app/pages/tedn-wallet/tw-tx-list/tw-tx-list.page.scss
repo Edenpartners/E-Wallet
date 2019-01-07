@@ -13,8 +13,6 @@
 
   .header {
     .title {
-      font-size: 1.5em;
-
       background: linear-gradient(to right, #7ddb43, #614da0);
       background-clip: text;
       -webkit-background-clip: text;
@@ -25,15 +23,8 @@
     }
 
     .tedn {
-      margin-top: var(--space-2x);
-
-      .field-label {
-        font-size: .95em;
-      }
-
-      .field-value {
-        font-size: 1.2em;
-      }
+      margin-top: var(--space-36);
+      margin-bottom: var(--space-24);
     }
 
     ion-label {
@@ -97,14 +88,6 @@
 
   .label {
     margin-right: 13px;
-  }
-
-  .address {
-    font-size: .9em;
-  }
-
-  .date {
-    font-size: .9em;
   }
 }
 

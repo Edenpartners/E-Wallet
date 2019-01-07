@@ -4,19 +4,19 @@
 
 <ion-content class="page-wrapper" no-padding>
   <div class="page-content" padding>
-    <ion-button expand="block" fill="clear" (click)="onCreateBtnClick()">
+    <ion-button expand="block" fill="clear" (click)="onCreateBtnClick()" class="margin-top-40">
       <div class="flex-h-dir-v-centered">
         <ion-icon class="icon" name="add-circle" color="text-light-1"></ion-icon>
-        <ion-label color="text-light-1" class="row-hor-item-fill">{{
+        <ion-label color="text-light-1" class="row-hor-item-fill fw-500 font-size-14">{{
               'CreateNewWallet' | translate
           }}</ion-label>
       </div>
     </ion-button>
 
-    <ion-button expand="block" fill="clear" class="margin-top" (click)="onImportBtnClick()">
+    <ion-button expand="block" fill="clear" (click)="onImportBtnClick()" class="margin-top-40">
       <div class="flex-h-dir-v-centered">
         <ion-icon class="icon" name="add-circle" color="text-light-1"></ion-icon>
-        <ion-label color="text-light-1" class="row-hor-item-fill">{{
+        <ion-label color="text-light-1" class="row-hor-item-fill fw-500 font-size-14">{{
                 'ImportWallet' | translate
             }}</ion-label>
       </div>

@@ -4,10 +4,6 @@
   padding-bottom: 18%;
 
   .content {
-    width: 80%;
-  }
-
-  .content {
     .sub-header {
       font-size: 1.2em;
     }
@@ -17,7 +13,6 @@
     display: block;
     width: 100%;
     text-align: center;
-    font-size: .95em;
   }
 
   ion-select {
@@ -37,7 +32,6 @@
     --background-color: rgba(0, 0, 0, 0);
 
     ion-input {
-      font-size: 1.5em;
       --padding-bottom: 0px;
       --margin-left: 0px;
       --padding-left: 0px;
@@ -48,7 +42,6 @@
     }
 
     ion-label {
-      font-size: .93em;
       margin-bottom: 0px;
     }
   }

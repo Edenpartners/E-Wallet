@@ -3,11 +3,11 @@
 </ion-header>
 
 <ion-content class="page-wrapper" no-padding>
-  <div class="page-content free-form-area fill flex-ch-h-centered" padding>
-    <div>
+  <div class="page-content fill flex-ch-h-centered" padding>
+    <div class="page-width-wide">
       <div class="header">
         <div class="flex-h-dir-v-centered margin-top-2x">
-          <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
+          <ion-label class="field-label font-size-13"> {{ 'CurrentBalance' | translate }}
           </ion-label>
           <ion-label text-right class="tedn flex-item-fill"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
             {{ 'TEDN' | translate }}
@@ -17,33 +17,33 @@
 
       <div class="content fill-width">
         <div *ngIf="mode === 'deposit'" class="margin-top-3x">
-          <ion-label>{{ 'WithdrawEDNFrom' | translate }}</ion-label>
-          <ion-select class="input-field margin-top-half" [(ngModel)]="selectedEthWalletId">
+          <ion-label class="font-size-15">{{ 'WithdrawEDNFrom' | translate }}</ion-label>
+          <ion-select class="input-field margin-top-half font-size-15" [(ngModel)]="selectedEthWalletId">
             <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
           </ion-select>
 
-          <ion-label class="margin-top-2x">{{ 'DepositAsTEDNInto' | translate }}</ion-label>
-          <ion-select class="input-field margin-top-half" [(ngModel)]="selectedTednWalletId">
+          <ion-label class="margin-top-2x font-size-15">{{ 'DepositAsTEDNInto' | translate }}</ion-label>
+          <ion-select class="input-field margin-top-half font-size-15" [(ngModel)]="selectedTednWalletId">
             <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">{{ item.name }}</ion-select-option>
           </ion-select>
         </div>
 
         <div *ngIf="mode === 'withdraw'" class="margin-top-3x">
-          <ion-label>{{ 'WithdrawTEDNFrom' | translate }}</ion-label>
-          <ion-select class="input-field margin-top-half" [(ngModel)]="selectedTednWalletId">
+          <ion-label class="font-size-15">{{ 'WithdrawTEDNFrom' | translate }}</ion-label>
+          <ion-select class="input-field font-size-15 margin-top-half" [(ngModel)]="selectedTednWalletId">
             <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">{{ item.name }}</ion-select-option>
           </ion-select>
 
-          <ion-label class="margin-top-2x">{{ 'DepositAsEDNInto' | translate }}</ion-label>
-          <ion-select class="input-field margin-top-half" [(ngModel)]="selectedEthWalletId">
+          <ion-label class="font-size-15 margin-top-2x">{{ 'DepositAsEDNInto' | translate }}</ion-label>
+          <ion-select class="input-field font-size-15 margin-top-half" [(ngModel)]="selectedEthWalletId">
             <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
           </ion-select>
         </div>
 
 
-        <ion-label class="margin-top-3x sub-header">{{ 'Amount' | translate }}</ion-label>
+        <ion-label class="margin-top-3x sub-header font-size-18">{{ 'Amount' | translate }}</ion-label>
 
-        <ion-item lines="full" class="full-text-input margin-top-2x">
+        <ion-item lines="full" class="full-text-input margin-top-2x" [ngClass]="{'selected':isInputHasNonZero(tradeAmountInput)}">
           <ion-label class="invisible" *ngIf="mode === 'deposit'">{{ 'EDN' | translate }}</ion-label>
           <ion-label class="invisible" *ngIf="mode === 'withdraw'">{{ 'TEDN' | translate }}</ion-label>
 
@@ -55,10 +55,10 @@
       </div>
 
       <div class="footer fill-width margin-top-2x">
-        <ion-button expand="block" class="fw-bold margin-bottom" color="theme-1" (click)="tradeEdnToTedn()"
-          *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
-        <ion-button expand="block" class="fw-bold margin-bottom" color="theme-1" (click)="tradeTednToEdn()"
-          *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
+        <ion-button expand="block" class="fw-bold margin-bottom radius-10 height-41 font-size-12"
+          color="theme-1" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
+        <ion-button expand="block" class="fw-bold margin-bottom radius-10 height-41 font-size-12"
+          color="theme-1" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
       </div>
     </div>
 

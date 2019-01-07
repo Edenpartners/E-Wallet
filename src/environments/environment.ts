@@ -17,7 +17,7 @@ export const environment = {
     logBlockchain: false,
     logEdnApi: false,
     compareUserIDTokenOnDeeplinkHandling: false,
-    emailVerificationRequired: true,
+    emailVerificationRequired: false,
 
     /** this is the ethereum network information which edn server running. */
     ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
@@ -32,7 +32,8 @@ export const environment = {
     useDecryptPinCodeByPinCode: false,
     simulateHardwareBackButton: false,
     clearWalletsOnWipeStorage: false,
-    clearPincodeOnWipeStorage: false
+    clearPincodeOnWipeStorage: false,
+    clearTxHistoryOnWipeStorage: false
   }
 };
 

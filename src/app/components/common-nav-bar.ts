@@ -13,15 +13,17 @@ import { RouterService } from '../providers/router.service';
   template: `
     <ion-toolbar mode="md">
       <ion-buttons slot="start">
-        <ion-button (click)="onBackBtnClick()">
+        <ion-button (click)="onBackBtnClick()" style="margin-left:8px;">
           <ion-icon
             src="/assets/img/back.svg"
             color="text-light-1"
-            style="width:.8em; height:.8em;"
+            style="width:13px; height:22px;"
           ></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title class="fw-bold">{{ title }}</ion-title>
+      <ion-title class="fw-bold font-size-18 margin-left-30">{{
+        title
+      }}</ion-title>
     </ion-toolbar>
   `,
   styles: [

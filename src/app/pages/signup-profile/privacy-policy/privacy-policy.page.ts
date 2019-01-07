@@ -22,6 +22,8 @@ import { Events } from '@ionic/angular';
 import { SubscriptionPack } from '../../../utils/listutil';
 import { Consts } from '../../../../environments/constants';
 
+import { HttpClient } from '@angular/common/http';
+
 export const EVENT_PRIVACY_POLICY_RESULT = 'privacy-policy-result';
 
 @Component({
@@ -32,6 +34,8 @@ export const EVENT_PRIVACY_POLICY_RESULT = 'privacy-policy-result';
 export class PrivacyPolicyPage implements OnInit {
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
+  contentHtml = '';
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -40,10 +44,26 @@ export class PrivacyPolicyPage implements OnInit {
     private ednApi: EdnRemoteApiService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private angularHttp: HttpClient
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.angularHttp
+      .get('/assets/docs/privacy-policy.html', {
+        responseType: 'text'
+      })
+      .toPromise()
+      .then(
+        res => {
+          this.logger.debug('loaded', res);
+          this.contentHtml = res;
+        },
+        err => {
+          this.logger.debug(err);
+        }
+      );
+  }
 
   ionViewWillEnter() {}
 

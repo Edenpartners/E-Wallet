@@ -22,12 +22,7 @@ import { Events } from '@ionic/angular';
 import { SubscriptionPack } from '../../../utils/listutil';
 import { Consts } from '../../../../environments/constants';
 
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpResponse,
-  HttpRequest
-} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 export const EVENT_TERMS_AND_CONDITION_RESULT = 'terms-and-condition-result';
 
@@ -55,7 +50,7 @@ export class TermsAndConditionPage implements OnInit {
 
   ngOnInit() {
     this.angularHttp
-      .get('/assets/docs/terms-and-condition.txt', {
+      .get('/assets/docs/terms-and-condition.html', {
         responseType: 'text'
       })
       .toPromise()

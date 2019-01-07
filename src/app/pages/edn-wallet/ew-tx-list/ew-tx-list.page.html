@@ -18,15 +18,15 @@
               </div>
               <div class="inner-content">
                 <div class="flex-h-dir">
-                  <ion-label class="label flex-item-auto" color="text-dark-1-1">
+                  <ion-label class="label flex-item-auto font-size-16 fw-bold" color="text-dark-1-1">
                     {{ item.info.amount.display | number: '.0-5' }} {{ 'EDN' | translate }}
                   </ion-label>
                 </div>
                 <div class="flex-h-dir">
-                  <ion-label class="flex-item-fill address" color="text-dark-2">
+                  <ion-label class="flex-item-fill address font-size-14" color="text-dark-2">
                     {{ isSendTx(item) ? ('To' | translate) : ('From' | translate ) }} {{ item.info.to }}
                   </ion-label>
-                  <ion-label class="flex-item-auto date" color="text-dark-2">
+                  <ion-label class="flex-item-auto date font-size-14" color="text-dark-2">
                     {{ getDateString(item.cDate) }}
                   </ion-label>
                 </div>

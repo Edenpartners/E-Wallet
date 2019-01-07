@@ -48,7 +48,9 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Consts } from '../../../../environments/constants';
 
-import { Events } from '@ionic/angular';
+import { Events, IonInput } from '@ionic/angular';
+
+import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
 enum Mode {
   deposit = 'deposit',
@@ -361,5 +363,9 @@ export class TwTradePage implements OnInit, OnDestroy {
       .finally(() => {
         loadingHandler.hide();
       });
+  }
+
+  isInputHasNonZero(input: IonInput): boolean {
+    return IonComponentUtils.isInputHasNonZero(input);
   }
 }
