@@ -77,7 +77,11 @@ export class RestoreWalletPage implements OnInit {
             this.rs.navigateByUrl('/home');
           },
           err => {
-            this.feedbackUI.showErrorDialog(err);
+            if (!err) {
+              this.feedbackUI.showErrorDialog('Please try again');
+            } else {
+              this.feedbackUI.showErrorDialog(err);
+            }
           }
         )
         .finally(() => {
