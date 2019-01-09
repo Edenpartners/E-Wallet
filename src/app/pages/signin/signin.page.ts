@@ -1,3 +1,5 @@
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
 import { IonHeader, Platform, IonInput } from '@ionic/angular';
@@ -41,7 +43,8 @@ export class SigninPage implements OnInit {
     private appVersion: AppVersion,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private keyboard: Keyboard
+    private keyboard: Keyboard,
+    private iab: InAppBrowser
   ) {}
 
   ngOnInit() {
@@ -91,7 +94,15 @@ export class SigninPage implements OnInit {
     });
   }
 
-  onForgotPasswdClick() {}
+  onForgotPasswdClick() {
+    const browser = this.iab.create(
+      'http://egn-test.edenchain.io:8000/en/account/password/reset/',
+      '_system'
+    );
+    //_blank option ( open as popup )
+    //'hidenavigationbuttons=yes, location=no'
+    //browser.close();
+  }
 
   async signin() {
     Object.keys(this.signinForm.controls).forEach(field => {

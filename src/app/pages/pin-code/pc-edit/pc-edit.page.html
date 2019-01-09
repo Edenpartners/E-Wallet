@@ -25,12 +25,12 @@
         </div>
 
         <div class="pin-code flex-h-dir">
-          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 0 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 1 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 2 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 3 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 4 ? 'theme-1' : 'medium'"></ion-button>
-          <ion-button class="code-box" [color]="numPad.getUserInputCount() > 5 ? 'theme-1' : 'medium'"></ion-button>
+          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 0)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 1)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 2)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 3)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 4)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 5)}"></span>
         </div>
       </div>
 
