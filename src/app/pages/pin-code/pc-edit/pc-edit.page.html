@@ -35,7 +35,7 @@
       </div>
 
       <div class="footer" [hidden]="isConfirmStep">
-        <ion-button expand="block" color="theme-1" [disabled]="numPad.getUserInputCount() !== 6"
+        <ion-button expand="block" color="theme-1" class="radius-10" [disabled]="numPad.getUserInputCount() !== 6"
           (click)="onCreatePinBtnClick()">
           {{ 'CreatePin' | translate }}
         </ion-button>

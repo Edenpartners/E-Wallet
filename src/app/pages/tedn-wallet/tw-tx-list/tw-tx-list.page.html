@@ -2,7 +2,7 @@
   <common-nav-bar title="{{ 'TednWalletMain' | translate }}"></common-nav-bar>
 </ion-header>
 
-<ion-content class="page-wrapper" no-padding>
+<ion-content class="page-wrapper" scroll-y="false">
   <div class="page-content fill">
     <div class="hcf-layout fill">
       <div class="header flex-ch-centered">
@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <ion-content class="content" [hidden]="txList.length < 1">
+      <ion-content class="content" scroll-y="true" appScrollbarStyle [hidden]="txList.length < 1">
         <ion-list lines="none" *ngIf="txList.length > 0">
           <ion-item lines="none" *ngFor="let item of txList">
             <div class="row-icon-content">

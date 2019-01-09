@@ -1,5 +1,10 @@
 :root {
-  --ion-font-family: Lato, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Roboto", sans-serif;
+  --ion-font-family: Lato,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    "Roboto",
+    sans-serif;
 
   --tcol-mainback: #efefef;
   --tcol-lightest: #ffffff;
@@ -45,12 +50,13 @@
   --color-item-underline: #585858;
   --color-item-underline-focused: #D57C48;
 
-  --radius : 10px;
-  --radius-05 : 5px;
-  --radius-10 : 10px;
+  --radius: 10px;
+  --radius-05: 5px;
+  --radius-10: 10px;
 
   --height-22: 22px;
   --height-23: 23px;
+  --height-28: 28px;
   --height-31: 31px;
   --height-37: 37px;
   --height-41: 41px;
@@ -58,6 +64,7 @@
   --font-size-07: 7px;
   --font-size-09: 9px;
   --font-size-10: 10px;
+  --font-size-11: 11px;
   --font-size-12: 12px;
   --font-size-13: 13px;
   --font-size-14: 14px;
@@ -68,8 +75,8 @@
 
   --ion-placeholder-color: #000000;
 
-  --page-width-normal:70%; 
-  --page-width-wide:80%;
+  --page-width-normal: 70%;
+  --page-width-wide: 80%;
 }
 
 .height-22 {
@@ -82,30 +89,69 @@
   --height: var(--height-23);
 }
 
+.height-28 {
+  height: var(--height-28);
+  --height: var(--height-28);
+}
+
 .height-41 {
   height: var(--height-41);
   --height: var(--height-41);
 }
 
-.font-size-07 { font-size: var(--font-size-07); }
-.font-size-09 { font-size: var(--font-size-09); }
-.font-size-10 { font-size: var(--font-size-10); }
-.font-size-12 { font-size: var(--font-size-12); }
-.font-size-13 { font-size: var(--font-size-13); }
-.font-size-14 { font-size: var(--font-size-14); }
-.font-size-15 { font-size: var(--font-size-15); }
-.font-size-16 { font-size: var(--font-size-16); }
-.font-size-18 { font-size: var(--font-size-18); }
-.font-size-24 { font-size: var(--font-size-24); }
+.font-size-07 {
+  font-size: var(--font-size-07);
+}
 
-.fw-bold{
+.font-size-09 {
+  font-size: var(--font-size-09);
+}
+
+.font-size-10 {
+  font-size: var(--font-size-10);
+}
+
+.font-size-11 {
+  font-size: var(--font-size-11);
+}
+
+.font-size-12 {
+  font-size: var(--font-size-12);
+}
+
+.font-size-13 {
+  font-size: var(--font-size-13);
+}
+
+.font-size-14 {
+  font-size: var(--font-size-14);
+}
+
+.font-size-15 {
+  font-size: var(--font-size-15);
+}
+
+.font-size-16 {
+  font-size: var(--font-size-16);
+}
+
+.font-size-18 {
+  font-size: var(--font-size-18);
+}
+
+.font-size-24 {
+  font-size: var(--font-size-24);
+}
+
+.fw-bold {
   font-weight: bold;
 }
-.fw-500{
+
+.fw-500 {
   font-weight: 500;
 }
 
-.fw-900{
+.fw-900 {
   font-weight: 900;
 }
 
@@ -113,7 +159,7 @@
   font-weight: 400;
 }
 
-.fw-medium{
+.fw-medium {
   font-weight: 500;
 }
 
@@ -217,7 +263,7 @@ ion-header {
   align-items: center; //vertical center
 }
 
-.flex-h-dir-h-centered{
+.flex-h-dir-h-centered {
   display: flex;
   flex-direction: row;
   justify-content: center; //horizontal center
@@ -357,8 +403,8 @@ ion-checkbox {
   --border-color: var(--color-theme-1);
   --border-color-checked: var(--color-theme-1);
   --checkmark-color: var(--color-theme-1);
-  width:12px;
-  height:12px;
+  width: 12px;
+  height: 12px;
 }
 
 /**
@@ -397,7 +443,7 @@ ion-checkbox {
 }
 
 .no-uppercase {
- text-transform: none;
+  text-transform: none;
 }
 
 /** Row Item */
@@ -452,10 +498,10 @@ ion-checkbox {
 
     --height: var(--height-31);
     height: var(--height-31);
-    --padding-start:0px;
-    --padding-end:0px;
-    --padding-bottom:12px;
-    --padding-top:10px;
+    --padding-start: 0px;
+    --padding-end: 0px;
+    --padding-bottom: 12px;
+    --padding-top: 10px;
   }
 
   ion-button {
@@ -519,10 +565,10 @@ ion-select.input-field {
 }
 
 ion-select {
-  padding-left:39px;
-  padding-right:20px;
-  padding-top:14px;
-  padding-bottom:14px;
+  padding-left: 39px;
+  padding-right: 20px;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .input-field-icon {
@@ -578,11 +624,11 @@ ion-select {
 }
 
 .page-width-normal {
-  width:var(--page-width-normal);
+  width: var(--page-width-normal);
 }
 
 .page-width-wide {
-  width:var(--page-width-wide);
+  width: var(--page-width-wide);
 }
 
 .radius-05 {
@@ -745,12 +791,13 @@ ion-item.full-text-input.selected {
 
 .custom-loading {
   --spinner-color: #ffffff;
+
   .loading-wrapper {
     border-radius: 0px;
     -webkit-box-shadow: none;
     box-shadow: none;
-    --background:transparent;
-    background:transparent;
+    --background: transparent;
+    background: transparent;
   }
 }
 
@@ -773,7 +820,7 @@ ion-item.full-text-input.selected {
   }
 
   .alert-button {
-    margin:0px;
+    margin: 0px;
   }
 
   .alert-button-inner {

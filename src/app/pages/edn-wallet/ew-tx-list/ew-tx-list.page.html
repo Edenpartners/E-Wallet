@@ -8,7 +8,7 @@
       <div class="header">
         <ew-summary #summary></ew-summary>
       </div>
-      <ion-content class="content" class="content" [hidden]="txList.length < 1">
+      <ion-content class="content" class="content" appScrollbarStyle [hidden]="txList.length < 1">
         <ion-list *ngIf="txList.length > 0">
           <ion-item lines="none" *ngFor="let item of txList">
             <div class="row-icon-content">

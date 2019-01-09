@@ -46,7 +46,7 @@ import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
 
 const countPerPage = 30;
-const useDummyData = false;
+const useDummyData = true;
 
 interface TednTransaction {
   isSend: boolean;
