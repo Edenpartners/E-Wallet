@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://edencore-end-point-dot-manifest-ivy-213501.appspot.com",
+    "target": "https://api-ep.edenchain.io",
     "changeOrigin": true,
     "secure": false,
     "logLevel": "debug"

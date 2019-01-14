@@ -22,6 +22,9 @@ import { Facebook } from '@ionic-native/facebook/ngx';
 
 import { AppStorageService, AppStorageTypes } from './appStorage.service';
 
+const API_BASE_ADDRESS = 'https://api-ep.edenchain.io/api';
+//const API_BASE_ADDRESS = 'https://edencore-end-point-dot-manifest-ivy-213501.appspot.com/api';
+
 // {
 //   "id": "a6d52821-734d-443f-11b8-b41c7f258c04",
 //   "jsonrpc": "2.0",
@@ -63,7 +66,7 @@ export class EdnRemoteApiService {
 
   get baseUrl() {
     if (this.platform.is('cordova')) {
-      return 'https://edencore-end-point-dot-manifest-ivy-213501.appspot.com/api';
+      return API_BASE_ADDRESS;
     } else if (this.platform.is('desktop')) {
       const location = window.location;
       if (
@@ -73,10 +76,10 @@ export class EdnRemoteApiService {
         const result = location.protocol + '//' + location.host + '/api';
         return result;
       } else {
-        return 'https://edencore-end-point-dot-manifest-ivy-213501.appspot.com/api';
+        return API_BASE_ADDRESS;
       }
     } else {
-      return 'https://edencore-end-point-dot-manifest-ivy-213501.appspot.com/api';
+      return API_BASE_ADDRESS;
     }
   }
 
