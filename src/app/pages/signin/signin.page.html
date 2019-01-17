@@ -71,8 +71,8 @@
           </ion-button>
         </div>
         <div>
-          <ion-button appBtnStyle color="text-dark-2" expand="block" fill="clear" class="text-button no-uppercase font-size-14"
-            (click)="rs.navigateByUrl('/signup')">
+          <ion-button appBtnStyle [hidden]="env.config.blockSignup" color="text-dark-2" expand="block"
+            fill="clear" class="text-button no-uppercase font-size-14" (click)="rs.navigateByUrl('/signup')">
             <div>{{ 'DontHaveAccount' | translate }}</div>
           </ion-button>
         </div>

@@ -30,6 +30,7 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
   styleUrls: ['./signin.page.scss']
 })
 export class SigninPage implements OnInit {
+  env: any;
   keyboardVisible = false;
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
@@ -45,7 +46,9 @@ export class SigninPage implements OnInit {
     private translate: TranslateService,
     private keyboard: Keyboard,
     private iab: InAppBrowser
-  ) {}
+  ) {
+    this.env = env;
+  }
 
   ngOnInit() {
     this.signinForm = new FormGroup({

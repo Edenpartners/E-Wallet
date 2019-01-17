@@ -33,7 +33,8 @@ export const environment = {
     simulateHardwareBackButton: false,
     clearWalletsOnWipeStorage: false,
     clearPincodeOnWipeStorage: false,
-    clearTxHistoryOnWipeStorage: false
+    clearTxHistoryOnWipeStorage: false,
+    blockSignup: true
   }
 };
 
