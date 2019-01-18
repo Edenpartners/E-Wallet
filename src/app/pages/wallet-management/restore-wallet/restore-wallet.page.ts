@@ -2,30 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
-import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
-import { LocalStorage, LocalStorageService } from 'ngx-store';
-import { UUID } from 'angular2-uuid';
-import { Observable, interval } from 'rxjs';
+import { ClipboardService } from 'ngx-clipboard';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { IonInput } from '@ionic/angular';
-import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { env } from '../../../../environments/environment';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageService } from '../../../providers/appStorage.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -36,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class RestoreWalletPage implements OnInit {
   userInputMnemonic = '';
+  showTextArea = false;
 
   constructor(
     private rs: RouterService,
@@ -52,6 +37,13 @@ export class RestoreWalletPage implements OnInit {
   ) {}
 
   ngOnInit() {}
+
+  ionViewWillEnter() {
+    this.showTextArea = true;
+  }
+  ionViewWillLeave() {
+    this.showTextArea = false;
+  }
 
   restoreWallet() {
     if (this.userInputMnemonic.length < 1) {
