@@ -105,11 +105,6 @@ export class RouterService {
       this.logger.info('goback to : ' + gotoHistory.commands);
       this.navCtl.navigateBack(gotoHistory.commands, naviOptions);
     }
-
-    // this.navCtl.goBack({
-    //   animated: true,
-    //   animationDirection: 'back'
-    // });
   }
 
   clearHistory() {

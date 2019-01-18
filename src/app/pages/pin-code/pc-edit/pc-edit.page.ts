@@ -41,7 +41,6 @@ export class PcEditPage implements OnInit, OnDestroy {
     private rs: RouterService,
     private storage: AppStorageService,
     private logger: NGXLogger,
-    private ednApi: EdnRemoteApiService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events
@@ -90,7 +89,7 @@ export class PcEditPage implements OnInit, OnDestroy {
   }
 
   onCreatePinBtnClick() {
-    if (this.numPad.getUserInputCount() !== 6) {
+    if (this.numPad.getUserInputCount() !== Consts.PIN_CODE_LENGTH) {
       return;
     }
 
@@ -101,7 +100,7 @@ export class PcEditPage implements OnInit, OnDestroy {
   onNumChange() {
     //save to localStorage if creation mode
     if (this.isCreation && this.isConfirmStep) {
-      if (this.numPad.getUserInputCount() === 6) {
+      if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
         if (this.numPad.compareWithSavedInput()) {
           this.storage.setPinNumber(this.numPad.getDecryptedUserInput(), '');
           this.numPad.clear();
@@ -114,7 +113,7 @@ export class PcEditPage implements OnInit, OnDestroy {
         }
       }
     } else if (this.isConfirmStep) {
-      if (this.numPad.getUserInputCount() === 6) {
+      if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
         const code = this.numPad.getDecryptedUserInput();
         if (this.storage.isValidPinNumber(code)) {
           this.events.publish(

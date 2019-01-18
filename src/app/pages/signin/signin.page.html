@@ -59,13 +59,13 @@
         </div>
 
         <div class="flex-h-dir-centered margin-top social-wrapper" margin-bottom>
-          <ion-button appBtnStyle (click)="signinWithFacebook()" *ngIf="false">
+          <ion-button appBtnStyle (click)="signinWithFacebook()" *ngIf="env.config.firebaseFeatures.facebook">
             <ion-icon src="/assets/img/facebook.svg" class="social-icon"></ion-icon>
           </ion-button>
-          <ion-button appBtnStyle (click)="signinWithTwitter()" *ngIf="false">
+          <ion-button appBtnStyle (click)="signinWithTwitter()" *ngIf="env.config.firebaseFeatures.twitter">
             <ion-icon src="/assets/img/twitter.svg" class="social-icon"></ion-icon>
           </ion-button>
-          <ion-button appBtnStyle (click)="signinWithGoogle()">
+          <ion-button appBtnStyle (click)="signinWithGoogle()" *ngIf="env.config.firebaseFeatures.google">
             <ion-icon src="/assets/img/google.svg" class="social-icon"></ion-icon>
             <ion-icon src="/assets/img/g-plus.svg" class="social-icon g-plus"></ion-icon>
           </ion-button>

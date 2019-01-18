@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { emailPattern } from '../../utils/regex-validations';
+import { env } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-signup',
@@ -26,6 +27,7 @@ import { emailPattern } from '../../utils/regex-validations';
 })
 export class SignupPage implements OnInit {
   signupForm: FormGroup;
+  env: any;
 
   constructor(
     private rs: RouterService,
@@ -34,7 +36,9 @@ export class SignupPage implements OnInit {
     private ednApi: EdnRemoteApiService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService
-  ) {}
+  ) {
+    this.env = env;
+  }
 
   ngOnInit() {
     this.signupForm = new FormGroup(

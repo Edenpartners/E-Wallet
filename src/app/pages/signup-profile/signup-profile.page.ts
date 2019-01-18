@@ -169,9 +169,11 @@ export class SignupProfilePage implements OnInit, OnDestroy {
   }
 
   openTermsAndConditions() {
+    this.logger.debug('openTermsAndConditions');
     this.events.publish(Consts.EVENT_SHOW_MODAL, TermsAndConditionPage);
   }
   openPrivacyPolicy() {
+    this.logger.debug('openPrivacyPolicy');
     this.events.publish(Consts.EVENT_SHOW_MODAL, PrivacyPolicyPage);
   }
 }

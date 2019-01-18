@@ -4,7 +4,6 @@ import { Directive, ElementRef, Input, OnChanges, OnInit } from '@angular/core';
 })
 export class ScrollbarStyleDirective implements OnInit {
   ngOnInit() {
-    console.log('init style');
     const shadow =
       this.el.nativeElement.shadowRoot ||
       this.el.nativeElement.attachShadow({ mode: 'open' });

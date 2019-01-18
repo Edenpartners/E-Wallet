@@ -30,7 +30,12 @@ export const environment = {
     clearWalletsOnWipeStorage: false,
     clearPincodeOnWipeStorage: false,
     clearTxHistoryOnWipeStorage: false,
-    blockSignup: true
+    blockSignup: true,
+    firebaseFeatures: {
+      google: true,
+      facebook: false,
+      twitter: false
+    }
   }
 };
 

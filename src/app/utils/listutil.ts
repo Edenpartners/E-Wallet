@@ -111,8 +111,6 @@ export class SubscriptionPack {
         item.subscription.unsubscribe();
         this.list.splice(i, 1);
         i -= 1;
-        console.log('remove subscription by key');
-        console.log(key);
       }
     }
   }
