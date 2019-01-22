@@ -238,6 +238,15 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     let runExitProcess = false;
+    if (this.rs.isCurrentUrlHasCustomHandler()) {
+      const currentHistoryData = this.rs.getCurrentHistoryData();
+      if (currentHistoryData.customBackButtonHandler()) {
+        this.logger.debug('handled custom back');
+        return;
+      }
+
+      this.logger.debug('has custom back but not handled');
+    }
 
     if (this.rs.isCurrentUrlStartsWith('/home')) {
       this.logger.info('current url is home. don\'t back');

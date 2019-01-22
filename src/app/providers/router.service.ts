@@ -24,6 +24,8 @@ class HistoryData {
   commands: Array<string>;
   extras: NavigationExtras;
 
+  customBackButtonHandler: () => boolean = null;
+
   constructor(
     data: string | Array<string>,
     extras?: NavigationExtras,
@@ -44,6 +46,23 @@ class HistoryData {
     if (this.url) {
       return true;
     }
+    return false;
+  }
+
+  isContainsUrl(val: string): boolean {
+    if (this.hasUrl) {
+      if (this.url.indexOf(val) >= 0) {
+        return true;
+      }
+    } else if (this.commands) {
+      for (let i = this.commands.length - 1; i >= 0; i--) {
+        const command = this.commands[i];
+        if (command.indexOf(val) >= 0) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 }
@@ -75,6 +94,52 @@ export class RouterService {
 
     this.logger.info('can go back : ' + this.histories.length);
     return true;
+  }
+
+  getCurrentHistoryData(): HistoryData {
+    if (this.histories.length < 1) {
+      return null;
+    }
+
+    const lastIndex = this.histories.length - 1;
+    return this.histories[lastIndex];
+  }
+
+  searchHistoryData(urlToSearch: string, searchFromBack: Boolean): HistoryData {
+    this.logger.debug(
+      'search history data for : ' +
+        urlToSearch +
+        ', history count : ' +
+        this.histories.length
+    );
+    if (searchFromBack) {
+      this.logger.debug('search from back');
+      for (let i = this.histories.length - 1; i >= 0; i--) {
+        const data = this.histories[i];
+        this.logger.debug('checking : ' + data.url);
+        if (data.isContainsUrl(urlToSearch)) {
+          this.logger.debug('found');
+          return data;
+        }
+      }
+    } else {
+      for (let i = 0; i < this.histories.length; i++) {
+        const data = this.histories[i];
+        if (data.isContainsUrl(urlToSearch)) {
+          return data;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  addCustomBackHandler(urlToSearch: string, customHandler: () => boolean) {
+    const data: HistoryData = this.searchHistoryData(urlToSearch, true);
+    if (data) {
+      this.logger.debug('add custom back handler for : ' + data.url);
+      data.customBackButtonHandler = customHandler;
+    }
   }
 
   goBack() {
@@ -134,29 +199,34 @@ export class RouterService {
     this.navCtl.navigateRoot(url, extras);
   }
 
+  isCurrentUrlHasCustomHandler(): boolean {
+    const currentHistory = this.getCurrentHistoryData();
+    if (currentHistory && currentHistory.customBackButtonHandler) {
+      this.logger.debug('current url has custom handler');
+      return true;
+    }
+    this.logger.debug('current url has no custom handler');
+    return false;
+  }
+
   isCurrentUrlIsRoot(): boolean {
-    if (this.histories.length < 1) {
-      return false;
+    const currentHistory = this.getCurrentHistoryData();
+    if (currentHistory && currentHistory.isRoot) {
+      return true;
     }
 
-    const lastIndex = this.histories.length - 1;
-    const lastHistory = this.histories[lastIndex];
-    return lastHistory.isRoot;
+    return false;
   }
 
   isCurrentUrlStartsWith(url: string): boolean {
-    if (this.histories.length < 1) {
-      return false;
-    }
-
-    const lastIndex = this.histories.length - 1;
-    const lastHistory = this.histories[lastIndex];
-
-    if (lastHistory.hasUrl) {
-      return lastHistory.url.startsWith(url);
-    } else {
-      if (lastHistory.commands.length > 0) {
-        return lastHistory.commands[0].startsWith(url);
+    const currentHistory = this.getCurrentHistoryData();
+    if (currentHistory) {
+      if (currentHistory.hasUrl) {
+        return currentHistory.url.startsWith(url);
+      } else {
+        if (currentHistory.commands.length > 0) {
+          return currentHistory.commands[0].startsWith(url);
+        }
       }
     }
 

@@ -30,7 +30,7 @@ export const environment = {
     ednCoinKey: 'EDN',
     showDebugToast: false,
     useDecryptPinCodeByPinCode: false,
-    simulateHardwareBackButton: false,
+    simulateHardwareBackButton: true,
     clearWalletsOnWipeStorage: false,
     clearPincodeOnWipeStorage: false,
     clearTxHistoryOnWipeStorage: false,

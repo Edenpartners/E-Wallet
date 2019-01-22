@@ -71,6 +71,11 @@ export class PcEditPage implements OnInit, OnDestroy {
             this.logger.debug('isCreation : ', this.isCreation);
             if (this.isCreation) {
               this.isConfirmStep = false;
+
+              this.logger.debug('add custom back handler');
+              this.rs.addCustomBackHandler('pc-edit', () => {
+                return this.handleBack();
+              });
             }
           } else {
             this.isModal = true;
@@ -87,17 +92,21 @@ export class PcEditPage implements OnInit, OnDestroy {
     this.numPad.clear();
   }
 
-  handleBack() {
+  handleBack(): boolean {
     if (this.isModal) {
       this.events.publish(Consts.EVENT_PIN_CODE_RESULT, null);
       this.events.publish(Consts.EVENT_CLOSE_MODAL);
+      return true;
     } else {
       //restart creation
       if (this.isCreation && this.isConfirmStep) {
         this.isConfirmStep = false;
         this.numPad.clear();
+        return true;
       }
     }
+
+    return false;
   }
 
   onCreatePinBtnClick() {
