@@ -12,6 +12,7 @@ import { AppStorageService } from '../../../providers/appStorage.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
 @Component({
   selector: 'app-restore-wallet',
@@ -20,7 +21,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class RestoreWalletPage implements OnInit {
   userInputMnemonic = '';
-  showTextArea = false;
+  viewActivated = false;
+  env: any;
 
   constructor(
     private rs: RouterService,
@@ -34,16 +36,21 @@ export class RestoreWalletPage implements OnInit {
     private ednApi: EdnRemoteApiService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService
-  ) {}
+  ) {
+    this.env = env;
+  }
 
   ngOnInit() {}
 
   ionViewWillEnter() {
-    this.showTextArea = true;
+    this.viewActivated = true;
   }
+
   ionViewWillLeave() {
-    this.showTextArea = false;
+    this.viewActivated = false;
   }
+
+  ionViewDidLeave() {}
 
   restoreWallet() {
     if (this.userInputMnemonic.length < 1) {

@@ -36,6 +36,8 @@ export class SigninPage implements OnInit {
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
   signinForm: FormGroup;
 
+  viewActivated = false;
+
   constructor(
     public rs: RouterService,
     private storage: AppStorageService,
@@ -66,6 +68,7 @@ export class SigninPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.viewActivated = true;
     this.resetFormData();
 
     this.subscriptionPack.addSubscription(() => {
@@ -81,6 +84,9 @@ export class SigninPage implements OnInit {
     });
   }
 
+  ionViewWillLeave() {
+    this.viewActivated = false;
+  }
   ionViewDidLeave() {
     this.resetFormData();
     this.subscriptionPack.clear();

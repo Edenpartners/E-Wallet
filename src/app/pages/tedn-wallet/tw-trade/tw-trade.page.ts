@@ -78,6 +78,8 @@ export class TwTradePage implements OnInit, OnDestroy {
   tradeAmount = 0;
   pinCodeConfirmCallback = null;
 
+  viewActivated = false;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -146,6 +148,7 @@ export class TwTradePage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
+    this.viewActivated = true;
     this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
       if (this.pinCodeConfirmCallback && walletPw) {
         this.pinCodeConfirmCallback(walletPw);
@@ -158,6 +161,10 @@ export class TwTradePage implements OnInit, OnDestroy {
 
   ionViewDidEnter() {
     //this.refreshList();
+  }
+
+  ionViewWillLeave() {
+    this.viewActivated = false;
   }
 
   ionViewDidLeave() {

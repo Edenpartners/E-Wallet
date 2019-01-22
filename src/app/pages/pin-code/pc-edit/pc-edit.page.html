@@ -1,6 +1,6 @@
 <ion-header>
   <common-nav-bar title="{{ isCreation ? ('CreatePinTitle' | translate) : ('ConfirmPinTitle' | translate) }}"
-    (handleBack)="handleBack()" [hideBackButton]="(this.isCreation && this.isConfirmStep)"></common-nav-bar>
+    (handleBack)="handleBack()" [hideBackButton]="(this.isCreation && !this.isConfirmStep)"></common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper" scrollY="false">
@@ -25,12 +25,12 @@
         </div>
 
         <div class="pin-code flex-h-dir">
-          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 0)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 1)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 2)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 3)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 4)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:(numPad.getUserInputCount() > 5)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 0) || isComplete)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 1) || isComplete)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 2) || isComplete)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 3) || isComplete)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 4) || isComplete)}"></span>
+          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 5) || isComplete)}"></span>
         </div>
       </div>
 

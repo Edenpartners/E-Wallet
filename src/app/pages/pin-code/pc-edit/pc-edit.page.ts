@@ -33,6 +33,7 @@ export class PcEditPage implements OnInit, OnDestroy {
   isModal = false;
   isCreation = false;
   isConfirmStep = true;
+  isComplete = false;
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
@@ -52,6 +53,12 @@ export class PcEditPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
+    this.isModal = false;
+    this.isCreation = false;
+    this.isConfirmStep = true;
+    this.isComplete = false;
+    this.numPad.clear();
+
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.queryParamMap.subscribe(query => {
         try {
@@ -77,6 +84,7 @@ export class PcEditPage implements OnInit, OnDestroy {
 
   ionViewDidLeave() {
     this.subscriptionPack.clear();
+    this.numPad.clear();
   }
 
   handleBack() {
@@ -84,9 +92,10 @@ export class PcEditPage implements OnInit, OnDestroy {
       this.events.publish(Consts.EVENT_PIN_CODE_RESULT, null);
       this.events.publish(Consts.EVENT_CLOSE_MODAL);
     } else {
+      //restart creation
       if (this.isCreation && this.isConfirmStep) {
-        this.rs.goBack();
-      } else {
+        this.isConfirmStep = false;
+        this.numPad.clear();
       }
     }
   }
@@ -107,6 +116,7 @@ export class PcEditPage implements OnInit, OnDestroy {
         if (this.numPad.compareWithSavedInput()) {
           this.storage.setPinNumber(this.numPad.getDecryptedUserInput(), '');
           this.numPad.clear();
+          this.isComplete = true;
           this.storage.notifyToUserStateObservers();
         } else {
           this.numPad.clearPinCode();
@@ -118,11 +128,13 @@ export class PcEditPage implements OnInit, OnDestroy {
     } else if (this.isConfirmStep) {
       if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
         const code = this.numPad.getDecryptedUserInput();
+        this.numPad.clearPinCode();
         if (this.storage.isValidPinNumber(code)) {
           this.events.publish(
             Consts.EVENT_PIN_CODE_RESULT,
             this.storage.getWalletPassword(code)
           );
+          this.isComplete = true;
           this.events.publish(Consts.EVENT_CLOSE_MODAL);
         } else {
           this.numPad.clearPinCode();

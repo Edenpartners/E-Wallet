@@ -59,6 +59,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
+  viewActivated = false;
+
   constructor(
     private rs: RouterService,
     public eths: EthService,
@@ -83,6 +85,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
+    this.viewActivated = true;
     this.refreshWalletList();
     this.restartRateTracker();
 
@@ -96,6 +99,10 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       }
       this.pinCodeConfirmCallback = null;
     });
+  }
+
+  ionViewWillLeave() {
+    this.viewActivated = false;
   }
 
   ionViewDidLeave() {

@@ -31,13 +31,9 @@ import {
   AppStorageService
 } from '../../../providers/appStorage.service';
 
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../../providers/dataTracker.service';
+import { DataTrackerService } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
-import { DecimalPipe } from '@angular/common';
 import { env } from '../../../../environments/environment';
 
 import {
@@ -69,6 +65,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   pinCodeConfirmCallback = null;
 
+  viewActivated = false;
+
   @ViewChild('summary') summary: EwSummary;
 
   constructor(
@@ -94,6 +92,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
+    this.viewActivated = true;
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
@@ -115,6 +114,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   }
 
   ionViewWillLeave() {
+    this.viewActivated = false;
     this.summary.stopGetInfo();
   }
 

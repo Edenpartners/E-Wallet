@@ -23,9 +23,10 @@ ion-item {
   --background: transparent;
 }
 
-ion-textarea {
+.text-box-field {
   border: 1px #dddddd solid;
   --height: 200px;
+  height: 200px;
 }
 
 .footer {

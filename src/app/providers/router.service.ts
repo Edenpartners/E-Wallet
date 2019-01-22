@@ -10,6 +10,8 @@ import {
 import { Location } from '@angular/common';
 import { NGXLogger } from 'ngx-logger';
 import { NavigationOptions } from '@ionic/angular/dist/providers/nav-controller';
+import { IonComponentUtils } from '../utils/ion-component-utils';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 // https://beta.ionicframework.com/docs/api/nav-pop/
 // https://beta.ionicframework.com/docs/api/nav-push/
@@ -57,7 +59,8 @@ export class RouterService {
     private loc: Location,
     private router: Router,
     private actRoute: ActivatedRoute,
-    private logger: NGXLogger
+    private logger: NGXLogger,
+    private keyboard: Keyboard
   ) {}
 
   getRouter(): Router {
@@ -78,6 +81,9 @@ export class RouterService {
     if (!this.canGoBack()) {
       return;
     }
+
+    this.keyboard.hide();
+    IonComponentUtils.blurActiveElement();
 
     const lastIndex = this.histories.length - 1;
     const lastHistory = this.histories[lastIndex];

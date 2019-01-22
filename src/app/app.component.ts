@@ -47,6 +47,8 @@ import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 import { FeedbackUIService } from './providers/feedbackUI.service';
 import { CssSelector } from '@angular/compiler';
 
+import { IonComponentUtils } from './utils/ion-component-utils';
+
 const TRACKER_KEY_COINHD = 'coinHDAddress';
 const TRACKER_KEY_USERINFO = 'userInfo';
 
@@ -185,6 +187,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   initializeApp() {
+    IonComponentUtils.startWindowSizeChecker();
     this.transactionLogger.initEvents();
 
     this.platform.ready().then(() => {
