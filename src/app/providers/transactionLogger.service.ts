@@ -5,7 +5,6 @@ import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { EtherDataService } from './etherData.service';
 import { WalletService, WalletTypes } from './wallet.service';
-import { KyberNetworkService } from './kybernetwork.service';
 import { Provider } from 'ethers/providers';
 import { BigNumber, BigNumberish } from 'ethers/utils';
 import {
@@ -33,7 +32,6 @@ export class TransactionLoggerService {
     public eths: EthService,
     private logger: NGXLogger,
     private walletService: WalletService,
-    private kyberNetworkService: KyberNetworkService,
     private etherData: EtherDataService,
     private etherApi: EtherApiService,
     private ednApi: EdnRemoteApiService

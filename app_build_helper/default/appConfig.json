@@ -2,11 +2,77 @@
   "deletes": [],
 
   "regexes": [{
-    "_COMMENT": "Apply comment for ignoring build error",
-    "dest": "../platforms/android/cordova-support-google-services/ewallet-build.gradle",
-    "source": "(apply plugin: com.google.gms.googleservices.GoogleServicesPlugin)",
-    "replace": "// $1"
-  }],
+      "_COMMENT": "Apply comment for ignoring build error",
+      "conditions": [{
+        "hasNot": "// google-services-plugin-patched"
+      }],
+      "dest": "../platforms/android/cordova-support-google-services/edenwallet-build.gradle",
+      "source": "(apply plugin: com.google.gms.googleservices.GoogleServicesPlugin)",
+      "replace": "// google-services-plugin-patched \n // $1"
+    },
+    {
+      "_COMMENT": "Patch AppDelegate",
+      "conditions": [{
+        "hasNot": "\\[FIRApp configure\\];"
+      }],
+      "dest": "../platforms/ios/E-Wallet/Classes/AppDelegate.m",
+      "source": "(.*application[\\s\\r\\n]*didFinishLaunchingWithOptions:.*[\\s\\r\\n]*{)",
+      "replace": "//AppDelegateFirebaseConfigurePatched \n$1\n\t[FIRApp configure];"
+    },
+    {
+      "_COMMENT": "Patch Firebase Import",
+      "conditions": [{
+        "hasNot": "@import Firebase;"
+      }],
+      "dest": "../platforms/ios/E-Wallet/Classes/AppDelegate.m",
+      "source": "(@implementation AppDelegate)",
+      "replace": "@import Firebase;\n$1"
+    },
+    {
+      "_COMMENT": "Patch Firebase Twice configure",
+      "conditions": [{
+        "hasNot": "//FirebaseTwiceConfigurePatched"
+      }],
+      "dest": "../platforms/ios/E-Wallet/Plugins/cordova-plugin-firebase/AppDelegate+FirebasePlugin.m",
+      "source": "(\\[FIRApp configureWithOptions:.*\\];)",
+      "replace": "//FirebaseTwiceConfigurePatched\nif(![FIRApp defaultApp]){ $1 }\n"
+    },
+    {
+      "_COMMENT": "Patch PodFile pod 'Firebase/Performance'",
+      "conditions": [{
+        "hasNot": "pod 'Firebase/Performance'"
+      }],
+      "dest": "../platforms/ios/Podfile",
+      "source": "(project 'E-Wallet\\.xcodeproj')",
+      "replace": "$1\n\tpod 'Firebase/Performance'\n"
+    },
+    {
+      "_COMMENT": "Patch PodFile pod 'Firebase/Messaging'",
+      "conditions": [{
+        "hasNot": "pod 'Firebase/Messaging'"
+      }],
+      "dest": "../platforms/ios/Podfile",
+      "source": "(project 'E-Wallet\\.xcodeproj')",
+      "replace": "$1\n\tpod 'Firebase/Messaging'\n"
+    },
+    {
+      "_COMMENT": "Patch PodFile pod 'GoogleToolboxForMac'",
+      "conditions": [{
+        "hasNot": "pod 'GoogleToolboxForMac'"
+      }],
+      "dest": "../platforms/ios/Podfile",
+      "source": "(project 'E-Wallet\\.xcodeproj')",
+      "replace": "$1\n\tpod 'GoogleToolboxForMac'\n"
+    }, {
+      "_COMMENT": "Patch PodFile pod 'GoogleToolboxForMac/NSString+URLArguments'",
+      "conditions": [{
+        "hasNot": "pod 'GoogleToolboxForMac/NSString\\+URLArguments'"
+      }],
+      "dest": "../platforms/ios/Podfile",
+      "source": "(project 'E-Wallet\\.xcodeproj')",
+      "replace": "$1\n\tpod 'GoogleToolboxForMac/NSString+URLArguments'\n"
+    }
+  ],
 
   "androidBuildGradleVersions": [{
       "_COMMENT": "set android library versions for void build error",
@@ -111,6 +177,9 @@
   "firebase": {
     "auth": {
       "FIREBASE_AUTH_VERSION": "16.0.+"
+    },
+    "core": {
+      "FIREBASE_CORE_VERSION": "16.0.+"
     },
 
     "twitter": {

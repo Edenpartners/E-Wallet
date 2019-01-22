@@ -6,6 +6,8 @@ const path = require('path');
 const fs = require('fs-extra');
 const shell = require('shelljs');
 
+const findInFiles = require('find-in-files');
+
 console.log(process.argv);
 const configDir = process.argv[2];
 
@@ -155,28 +157,89 @@ function resolvePath(pathItem) {
   return path.join(pathItem.value);
 }
 
-function runReplaceInFile(p, pathItem, source, replaceText) {
+function conditionsDeterminer(pathItem, conditions) {
+  var result = true;
+
+  if (conditions) {
+    for (var i = 0; i < conditions.length; i++) {
+      var cond = conditions[i];
+      if (cond.has) {
+        if (!conditionMatcher(pathItem, cond.has)) {
+          result = false;
+          break;
+        }
+      } else if (cond.hasNot) {
+        if (conditionMatcher(pathItem, cond.hasNot)) {
+          result = false;
+          break;
+        }
+      }
+    }
+  }
+
+  console.log(`[determine conditions result] '${result}'`);
+  return result;
+}
+
+//return true if file's content has pattern
+function conditionMatcher(pathItem, pattern) {
+  var targetPath = resolvePath(pathItem);
+  var targetFolder = path.dirname(targetPath);
+  var targetFileName = path.basename(targetPath);
+
+  console.log(`[find pattern] '${pattern}'`);
+
+  var found = false;
+  if (fs.existsSync(targetPath)) {
+    var fileContents = fs.readFileSync(targetPath, 'utf8');
+    if (fileContents) {
+      var fileContentsStr = fileContents.toString();
+      if (fileContentsStr) {
+        var searchResult = fileContentsStr.search(pattern);
+        if (searchResult >= 0) {
+          found = true;
+        }
+      }
+    }
+  }
+
+  return found;
+}
+
+function runReplaceInFile(p, pathItem, source, replaceText, conditions) {
   if (p < currentMinPriority) {
     return;
   }
 
-  try {
-    var path = resolvePath(pathItem);
+  function innerWorker(pathItem, source, replaceText) {
+    try {
+      var targetPath = resolvePath(pathItem);
 
-    console.log(`[replace] '${path}'... ${source}`);
-    console.log(replaceText);
+      console.log(`[replace] '${targetPath}'... ${source}`);
+      console.log(replaceText);
 
-    const options = {
-      files: [path],
-      from: new RegExp(source),
-      to: replaceText,
-      dry: dryRun
-    };
+      const options = {
+        files: [targetPath],
+        from: new RegExp(source),
+        to: replaceText,
+        dry: dryRun
+      };
 
-    const changes = replace.sync(options);
-    console.log('Modified files:', changes);
-  } catch (e) {
-    console.log(e);
+      const changes = replace.sync(options);
+      console.log('Modified files:', changes);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  if (conditions) {
+    var targetPath = resolvePath(pathItem);
+
+    if (conditionsDeterminer(pathItem, conditions)) {
+      innerWorker(pathItem, source, replaceText);
+    }
+  } else {
+    innerWorker(pathItem, source, replaceText);
   }
 }
 
@@ -258,7 +321,7 @@ function run() {
     config.regexes.forEach((item) => {
       printComment(item);
       if (item.dest && item.source && typeof item.replace === 'string') {
-        runReplaceInFile(getPriority(item), item.dest, item.source, item.replace);
+        runReplaceInFile(getPriority(item), item.dest, item.source, item.replace, item.conditions);
       }
     });
   }
@@ -285,6 +348,14 @@ function run() {
         runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
           authPluginId,
           'FIREBASE_AUTH_VERSION', config.firebase.auth.FIREBASE_AUTH_VERSION);
+      }
+
+      if (config.firebase.core && config.firebase.core.FIREBASE_CORE_VERSION) {
+        const analyticsPluginId = 'cordova-plugin-firebase-analytics';
+
+        runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
+          analyticsPluginId,
+          'FIREBASE_CORE_VERSION', config.firebase.core.FIREBASE_CORE_VERSION);
       }
 
       if (config.firebase.twitter) {

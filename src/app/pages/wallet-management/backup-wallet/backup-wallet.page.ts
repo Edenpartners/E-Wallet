@@ -5,19 +5,8 @@ import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
-import { LocalStorage, LocalStorageService } from 'ngx-store';
-import { UUID } from 'angular2-uuid';
-import { Observable, interval } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import { IonInput } from '@ionic/angular';
-import { KyberNetworkService } from '../../../providers/kybernetwork.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { env } from '../../../../environments/environment';
 import {

@@ -15,12 +15,8 @@ import {
   Transaction
 } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
-import { UUID } from 'angular2-uuid';
-import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
-import { IonInput } from '@ionic/angular';
-import { KyberNetworkService } from '../../providers/kybernetwork.service';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import {

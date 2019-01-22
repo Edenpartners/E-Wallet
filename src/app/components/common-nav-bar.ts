@@ -13,7 +13,11 @@ import { RouterService } from '../providers/router.service';
   template: `
     <ion-toolbar mode="md">
       <ion-buttons slot="start">
-        <ion-button (click)="onBackBtnClick()" style="margin-left:8px;">
+        <ion-button
+          [hidden]="hideBackButton"
+          (click)="onBackBtnClick()"
+          style="margin-left:8px;"
+        >
           <ion-icon
             src="/assets/img/back.svg"
             color="text-light-1"
@@ -36,6 +40,8 @@ import { RouterService } from '../providers/router.service';
 })
 export class CommonNavBar implements OnInit {
   @Input() title;
+  @Input() hideBackButton: Boolean = false;
+
   @Output() handleBack = new EventEmitter<any>();
 
   constructor(private rs: RouterService) {}

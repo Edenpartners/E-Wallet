@@ -84,7 +84,10 @@ export class PcEditPage implements OnInit, OnDestroy {
       this.events.publish(Consts.EVENT_PIN_CODE_RESULT, null);
       this.events.publish(Consts.EVENT_CLOSE_MODAL);
     } else {
-      this.rs.goBack();
+      if (this.isCreation && this.isConfirmStep) {
+        this.rs.goBack();
+      } else {
+      }
     }
   }
 

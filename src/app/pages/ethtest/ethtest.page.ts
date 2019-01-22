@@ -10,12 +10,9 @@ import {
   Transaction
 } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
-import { UUID } from 'angular2-uuid';
-import { Observable, interval } from 'rxjs';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { IonInput } from '@ionic/angular';
-import { KyberNetworkService } from '../../providers/kybernetwork.service';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { Bip39Handler } from '../../components/testers/bip39-handler';
 import { EthProviderMaker } from '../../components/testers/eth-provider-maker';
@@ -53,7 +50,6 @@ export class EthtestPage implements OnInit, OnDestroy {
     private logger: NGXLogger,
     private etherData: EtherDataService,
     private walletService: WalletService,
-    private kyberNetworkService: KyberNetworkService,
     private etherApi: EtherApiService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService

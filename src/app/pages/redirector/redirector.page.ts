@@ -1,39 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd } from '@angular/router';
-
 import { RouterService } from '../../providers/router.service';
-
-import { EthService, EthProviders } from '../../providers/ether.service';
-import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
-import { LocalStorage, LocalStorageService } from 'ngx-store';
-import { UUID } from 'angular2-uuid';
-import { Observable, interval, Subscription } from 'rxjs';
-import { EtherDataService } from '../../providers/etherData.service';
-import { WalletService, WalletTypes } from '../../providers/wallet.service';
-import { IonInput } from '@ionic/angular';
-import { KyberNetworkService } from '../../providers/kybernetwork.service';
-import { EtherApiService } from '../../providers/etherApi.service';
-import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../providers/appStorage.service';
-
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../providers/dataTracker.service';
-
 import { SubscriptionPack } from '../../utils/listutil';
-import { env } from '../../../environments/environment';
 
 @Component({
   selector: 'app-redirector',

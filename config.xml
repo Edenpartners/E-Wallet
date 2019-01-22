@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-packageName="io.edenchain.ewallet" id="io.edenchain.ewallet" ios-CFBundleIdentifier="io.edenchain.ewallet" version="0.9.99" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-packageName="io.edenchain.edenwallet" id="io.edenchain.edenwallet" ios-CFBundleIdentifier="io.edenchain.edenwallet" version="0.9.101" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>E-Wallet</name>
     <description>An awesome Ionic/Cordova app.</description>
     <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
@@ -96,10 +96,6 @@
     <plugin name="cordova-plugin-device" spec="2.0.2" />
     <plugin name="cordova-plugin-splashscreen" spec="5.0.2" />
     <plugin name="cordova-plugin-ionic-webview" spec="^2.0.0" />
-    <plugin name="cordova-plugin-firebase" spec="2.0.5" />
-    <plugin name="cordova-plugin-firebase-authentication" spec="1.0.1">
-        <variable name="FIREBASE_AUTH_VERSION" value="16.0.+" />
-    </plugin>
     <plugin name="cordova-plugin-advanced-http" spec="2.0.1" />
     <plugin name="cordova-plugin-app-version" spec="0.1.9" />
     <plugin name="cordova-plugin-facebook4" spec="3.2.0">
@@ -112,32 +108,39 @@
         <variable name="TWITTER_KEY" value="X" />
         <variable name="TWITTER_SECRET" value="X" />
     </plugin>
-    <plugin name="cordova-plugin-googleplus" spec="5.3.2">
+    <plugin name="cordova-plugin-ionic-keyboard" spec="^2.1.3" />
+    <plugin name="cordova-plugin-inappbrowser" spec="3.0.0" />
+    <plugin name="cordova-plugin-firebase-analytics" spec="1.0.1">
+        <variable name="FIREBASE_CORE_VERSION" value="16.0.+" />
+    </plugin>
+    <plugin name="cordova-plugin-firebase" spec="2.0.5" />
+    <plugin name="cordova-plugin-firebase-authentication" spec="1.0.1">
+        <variable name="FIREBASE_AUTH_VERSION" value="16.0.+" />
+    </plugin>
+    <plugin name="cordova-plugin-googleplus" spec="7.0.0">
         <variable name="PLAY_SERVICES_VERSION" value="16.0.+" />
         <variable name="REVERSED_CLIENT_ID" value="X" />
         <variable name="WEB_APPLICATION_CLIENT_ID" value="X" />
     </plugin>
-    <plugin name="ionic-plugin-deeplinks" spec="1.0.17">
+    <plugin name="ionic-plugin-deeplinks" spec="./local-packages/cordova-plugins/ionic-plugin-deeplinks">
         <variable name="URL_SCHEME" value="ewallet" />
         <variable name="DEEPLINK_SCHEME" value="https" />
-        <variable name="DEEPLINK_HOST" value="www.edenchain.io" />
+        <variable name="DEEPLINK_HOST" value="ewallet.edenchain.io" />
         <variable name="ANDROID_PATH_PREFIX" value="/withdraw" />
         <variable name="DEEPLINK_2_SCHEME" value="https" />
-        <variable name="DEEPLINK_2_HOST" value="www.edenchain.io" />
+        <variable name="DEEPLINK_2_HOST" value="ewallet.edenchain.io" />
         <variable name="ANDROID_2_PATH_PREFIX" value="/deposit" />
         <variable name="DEEPLINK_3_SCHEME" value="http" />
-        <variable name="DEEPLINK_3_HOST" value="www.edenchain.io" />
+        <variable name="DEEPLINK_3_HOST" value="ewallet.edenchain.io" />
         <variable name="ANDROID_3_PATH_PREFIX" value="/withdraw" />
         <variable name="DEEPLINK_4_SCHEME" value="http" />
-        <variable name="DEEPLINK_4_HOST" value="www.edenchain.io" />
+        <variable name="DEEPLINK_4_HOST" value="ewallet.edenchain.io" />
         <variable name="ANDROID_4_PATH_PREFIX" value="/deposit" />
         <variable name="ANDROID_5_PATH_PREFIX" value="/" />
         <variable name="DEEPLINK_5_SCHEME" value=" " />
         <variable name="DEEPLINK_5_HOST" value=" " />
     </plugin>
-    <plugin name="cordova-plugin-ionic-keyboard" spec="^2.1.3" />
-    <plugin name="cordova-plugin-inappbrowser" spec="3.0.0" />
-    <engine name="ios" spec="4.5.5" />
     <engine name="browser" spec="5.0.4" />
+    <engine name="ios" spec="4.5.5" />
     <engine name="android" spec="7.1.4" />
 </widget>

@@ -1,6 +1,6 @@
 <ion-header>
   <common-nav-bar title="{{ isCreation ? ('CreatePinTitle' | translate) : ('ConfirmPinTitle' | translate) }}"
-    (handleBack)="handleBack()"></common-nav-bar>
+    (handleBack)="handleBack()" [hideBackButton]="(this.isCreation && this.isConfirmStep)"></common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper" scrollY="false">

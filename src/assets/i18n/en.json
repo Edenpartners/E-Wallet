@@ -1,18 +1,18 @@
 {
-  "______________COMMON":"",
-  "ETH":"ETH",
-  "EDN":"EDN",
-  "TEDN":"TEDN",
-  "OK":"OK",
-  "Alert":"Alert",
-  "Warning":"Warning",
-  "EmailRequired":"Enter your email",
-  "PasswdRequired":"Enter your password",
+  "______________COMMON": "",
+  "ETH": "ETH",
+  "EDN": "EDN",
+  "TEDN": "TEDN",
+  "OK": "OK",
+  "Alert": "Alert",
+  "Warning": "Warning",
+  "EmailRequired": "Enter your email",
+  "PasswdRequired": "Enter your password",
 
-  "ID":"ID",
-  
-  "Retry":"Retry",
-  "Cancel":"Cancel",
+  "ID": "ID",
+
+  "Retry": "Retry",
+  "Cancel": "Cancel",
 
   "valid.username.required": "Username is required",
   "valid.username.minlength": "Username must be at least 5 characters long",
@@ -23,7 +23,7 @@
   "valid.email.required": "Email is required",
   "valid.email.pattern": "Enter a valid email",
   "valid.email.verification": "Email verification required",
-  
+
   "valid.password.required": "Password is required",
   "valid.password.minlength": "Password must be at least 8 characters long",
   "valid.password.maxlength": "Password cannot be more than 12 characters long",
@@ -38,7 +38,7 @@
   "valid.amount.required": "Amount is required",
   "valid.amount.pattern": "Invalid amount",
   "valid.amount.positive": "A negative amount is not allowed",
-  
+
   "valid.wallet.required": "Wallet is required",
   "valid.tednWallet.required": "TEDN Wallet is required",
 
@@ -57,29 +57,29 @@
 
   "valid.wallet-address.nonEqual": "Same wallet addresses are not allowed.",
   "valid.wallet-address.required": "Address is required",
-  
-  "wallet.address.copied":"The wallet address has been placed in the clipboard",
-  
-  "NoTransactions":"No transactions found",
 
-  "To":"to",
-  "From":"from",
-  
+  "wallet.address.copied": "The wallet address has been placed in the clipboard",
+
+  "NoTransactions": "No transactions found",
+
+  "To": "to",
+  "From": "from",
+
   "TEST": "Test {{value}}",
 
   "ExitGuide": "Press back button again to exit",
 
-  "CopyToClipboard":"Copy into clipboard",
-  "TextCopiedIntoClipboard":"Text has been placed in the clipboard",
+  "CopyToClipboard": "Copy into clipboard",
+  "TextCopiedIntoClipboard": "Text has been placed in the clipboard",
 
-  "Signout":"Sign out",
-  "Signin":"Sign in",
+  "Signout": "Sign out",
+  "Signin": "Sign in",
+  "Signup": "Sign up",
 
-  "SendEmailVerification":"Send email verification",
-  "EmailVerificationSent":"The verification email has been sent. Please verify your email and try sign-in again.",
-  "EmailVerificationSendingFailed":"Failed to send verification email",
+  "SendEmailVerification": "Send email verification",
+  "EmailVerificationSent": "The verification email has been sent. Please verify your email and try sign-in again.",
+  "EmailVerificationSendingFailed": "Failed to send verification email",
 
-  
   "______________SIGN_IN": "",
   "Copyright": "Copyright by Eden Partners, Inc. Company Confidential.",
   "AppName": "E-Wallets",
@@ -111,8 +111,8 @@
   "OrSignupWith": "or Sign-up with",
 
   "______________SIGN_IN_PROFILE": "",
-  "SignupProfileTitle":"Sign-up",
-  "ProfileComment":"Details about you",
+  "SignupProfileTitle": "Sign-up",
+  "ProfileComment": "Details about you",
   "UserName": "User name",
   "PhoneNumber": "Mobile Number",
 
@@ -120,86 +120,85 @@
   "Privacy": "Privacy",
 
   "______________HOME": "",
-  "MyEDNWalletsTitle":"My EDN Wallets",
-  "MyTEDNWalletsTitle":"My TEDN Wallets",
+  "MyEDNWalletsTitle": "My EDN Wallets",
+  "MyTEDNWalletsTitle": "My TEDN Wallets",
 
-  "AddEdn":"Add EDN",
-  "Deposit":"DEPOSIT",
-  "Withdraw":"WITHDRAW",
+  "AddEdn": "Add EDN",
+  "Deposit": "DEPOSIT",
+  "Withdraw": "WITHDRAW",
 
   "______________DP_EDN_LIST": "",
-  "DpEdnListTitle":"Add EDN",
-  "DpFromEth":"Add from ETH",
+  "DpEdnListTitle": "Add EDN",
+  "DpFromEth": "Add from ETH",
 
   "______________DP_EDN_MAIN": "",
-  "DpEdnMainTitle":"Add EDN from ETH",
-  "Exchange":"Exchange",
-  "KyberNetworks":"Kyber Networks",
-  "AddEdnTo":"Add EDN to",
+  "DpEdnMainTitle": "Add EDN from ETH",
+  "Exchange": "Exchange",
+  "KyberNetworks": "Kyber Networks",
+  "AddEdnTo": "Add EDN to",
 
-  "Amount":"Amount",
-    "Add":"ADD",
+  "Amount": "Amount",
+  "Add": "ADD",
 
   "______________CREATE_PIN_CODE": "",
-  "CreatePinTitle":"Create PIN",
-  "PinComment":"A 6-digit PIN code is needed when accessing confidential information of E-Wallet. You should keep this 6-digit PIN code secretly and provide whenever your approval is needed for transfer of fund or backup code.",
-  "CreatePinComment":"Create 6-digit PIN code",
-  "CreatePin":"CREATE PIN",
+  "CreatePinTitle": "Create PIN",
+  "PinComment": "A 6-digit PIN code is needed when accessing confidential information of E-Wallet. You should keep this 6-digit PIN code secretly and provide whenever your approval is needed for transfer of fund or backup code.",
+  "CreatePinComment": "Create 6-digit PIN code",
+  "CreatePin": "CREATE PIN",
 
   "______________CONFIRM_PIN_CODE": "",
-  "ConfirmPinTitle":"Confirm PIN",
-  "ConfirmPinComment":"Enter 6-digit PIN",
+  "ConfirmPinTitle": "Confirm PIN",
+  "ConfirmPinComment": "Enter 6-digit PIN",
 
   "______________BACKUP_WALLET_NOTICE": "",
-  "BackupWalletTitle":"Backup Wallet",
-  "BackupWarningTitle":"Important Notice",
-  "BackupWarningMessage1":"A recovery phrase is about to be shown. You must present this phrase correctly when this app is deleted or your device is replaced.",
-  "BackupWarningMessage2":"This is only way to recover your wallet and fund.",
-  "BackupWarningMessage3":"You should keep this information securely and out of reach of others.",
-  "ReadyBackup":"I AM READY TO WRITE IT DOWN!",
+  "BackupWalletTitle": "Backup Wallet",
+  "BackupWarningTitle": "Important Notice",
+  "BackupWarningMessage1": "A recovery phrase is about to be shown. You must present this phrase correctly when this app is deleted or your device is replaced.",
+  "BackupWarningMessage2": "This is only way to recover your wallet and fund.",
+  "BackupWarningMessage3": "You should keep this information securely and out of reach of others.",
+  "ReadyBackup": "I AM READY TO WRITE IT DOWN!",
 
   "______________BACKUP_WALLET": "",
-  "YourPhrase":"Your wallet recovery phrase is",
-  "VerifyPhraseComment":"Please verify recovery phrase",
-  "KeepPhrase":"Write down above phrase and keep it safely for future recovery.",
-  "GotIt":"GOT IT",
-  "Verify":"VERIFY",
+  "YourPhrase": "Your wallet recovery phrase is",
+  "VerifyPhraseComment": "Please verify recovery phrase",
+  "KeepPhrase": "Write down above phrase and keep it safely for future recovery.",
+  "GotIt": "GOT IT",
+  "Verify": "VERIFY",
 
   "______________IMPORT_WALLET": "",
-  "ImportWalletTitle":"Import Wallet",
-  "EnterPhraseComment":"Please enter the recovery phrase",
-  "Import":"Import",
+  "ImportWalletTitle": "Import Wallet",
+  "EnterPhraseComment": "Please enter the recovery phrase",
+  "Import": "Import",
 
   "______________ADD_WALLET": "",
-  "AddWalletTitle":"Add Wallet",
-  "CreateNewWallet":"Create New Wallet",
-  "ImportWallet":"Import Wallet",
+  "AddWalletTitle": "Add Wallet",
+  "CreateNewWallet": "Create New Wallet",
+  "ImportWallet": "Import Wallet",
 
   "______________EDN_WALLET_MAIN": "",
-  "EwMainTitle":"My EDN Wallet",
-  "Expenses":"Expenses",
-  "Address":"Address",
-  "CurrentBalance":"Current Balance",
+  "EwMainTitle": "My EDN Wallet",
+  "Expenses": "Expenses",
+  "Address": "Address",
+  "CurrentBalance": "Current Balance",
 
   "______________EDN_WALLET_LIST": "",
-  "Receive":"RECEIVE",
-  "Send":"SEND",
+  "Receive": "RECEIVE",
+  "Send": "SEND",
 
   "______________EDN_WALLET_QRCODE": "",
 
   "______________EDN_WALLET_SEND": "",
-  "SendTo":"Send To",
+  "SendTo": "Send To",
 
   "______________TEDN_WALLET_MAIN": "",
-  "TednWalletMain":"My TEDN Wallet",
+  "TednWalletMain": "My TEDN Wallet",
 
   "______________TEDN_WALLET_TX_LIST": "",
 
   "______________TEDN_WALLET_TRADES": "",
-  "WithdrawEDNFrom":"Withdraw EDN from",
-  "DepositAsTEDNInto":"Deposit as TEDN into",
-  "WithdrawTEDNFrom":"Withdraw TEDN from",
-  "DepositAsEDNInto":"Deposit as EDN into"
-
+  "WithdrawEDNFrom": "Withdraw EDN from",
+  "DepositAsTEDNInto": "Deposit as TEDN into",
+  "WithdrawTEDNFrom": "Withdraw TEDN from",
+  "DepositAsEDNInto": "Deposit as EDN into"
 
 }
