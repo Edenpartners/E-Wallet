@@ -71,6 +71,22 @@
       "dest": "../platforms/ios/Podfile",
       "source": "(project 'E-Wallet\\.xcodeproj')",
       "replace": "$1\n\tpod 'GoogleToolboxForMac/NSString+URLArguments'\n"
+    }, {
+      "_COMMENT": "Patch Associated-Domains",
+      "conditions": [{
+        "hasNot": "<key>com\\.apple\\.developer\\.associated-domains</key>"
+      }],
+      "dest": "../platforms/ios/E-Wallet/Entitlements-Release.plist",
+      "source": "(<plist version=\"1\\.0\">[\\s\\r\\n]*<dict>)",
+      "replace": "$1\n<key>com.apple.developer.associated-domains</key>\n<array>\n<string>applinks:ewallet.edenchain.io</string>\n<string>applinks:ssl.owlfamily.net</string>\n</array>"
+    }, {
+      "_COMMENT": "Patch Associated-Domains",
+      "conditions": [{
+        "hasNot": "<key>com\\.apple\\.developer\\.associated-domains</key>"
+      }],
+      "dest": "../platforms/ios/E-Wallet/Entitlements-Debug.plist",
+      "source": "(<plist version=\"1\\.0\">[\\s\\r\\n]*<dict>)",
+      "replace": "$1\n<key>com.apple.developer.associated-domains</key>\n<array>\n<string>applinks:ewallet.edenchain.io</string>\n<string>applinks:ssl.owlfamily.net</string>\n</array>"
     }
   ],
 
