@@ -169,13 +169,25 @@ export class RouterService {
       };
     }
 
+    this.dumpHistory('go back');
+
     if (gotoHistory.hasUrl) {
       this.logger.info('goback to : ' + gotoHistory.url);
       this.navCtl.navigateBack(gotoHistory.url, naviOptions);
+      //this.router.navigateByUrl(gotoHistory.url, naviOptions);
     } else {
       this.logger.info('goback to : ' + gotoHistory.commands);
       this.navCtl.navigateBack(gotoHistory.commands, naviOptions);
+      //this.router.navigate(gotoHistory.commands, naviOptions);
     }
+  }
+
+  dumpHistory(tag: string) {
+    this.histories.forEach((item, index) => {
+      this.logger.debug(
+        `[${tag}] dump history : ${item.url}, isRoot : ${item.isRoot}`
+      );
+    });
   }
 
   clearHistory() {
@@ -195,8 +207,9 @@ export class RouterService {
     };
 
     this.histories.push(new HistoryData(url, extras, true));
-
-    this.navCtl.navigateRoot(url, extras);
+    this.dumpHistory('navigate to root');
+    //this.navCtl.navigateRoot(url, extras);
+    this.router.navigateByUrl(url, extras);
   }
 
   isCurrentUrlHasCustomHandler(): boolean {
@@ -244,6 +257,7 @@ export class RouterService {
     if (addToHistory) {
       this.histories.push(new HistoryData(url, extras));
     }
+    this.dumpHistory('navigate by url');
     this.router.navigateByUrl(url, extras);
   }
 
@@ -263,6 +277,7 @@ export class RouterService {
       this.histories.push(new HistoryData(commands, extras));
     }
 
+    this.dumpHistory('navigate by commands');
     this.router.navigate(commands, extras);
   }
 }

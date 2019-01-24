@@ -709,11 +709,16 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   signout() {
+    this.feedbackUI.showLoading(null, 'signout');
     this.sideMenu.close();
     this.ednApi.signout().finally(() => {
-      this.ednApi.signoutFirebase().then(() => {
-        this.storage.wipeData();
-      });
+      this.ednApi
+        .signoutFirebase()
+        .then(() => {})
+        .finally(() => {
+          this.storage.wipeData();
+          this.feedbackUI.hideLoading('signout');
+        });
     });
   }
 
