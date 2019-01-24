@@ -104,13 +104,8 @@ export class SigninPage implements OnInit {
   }
 
   onForgotPasswdClick() {
-    const browser = this.iab.create(
-      'http://egn-test.edenchain.io:8000/en/account/password/reset/',
-      '_system'
-    );
-    //_blank option ( open as popup )
-    //'hidenavigationbuttons=yes, location=no'
-    //browser.close();
+    const link = 'https://e-garden.edenchain.io/en/account/password/reset/';
+    const browser = this.iab.create(link, '_system');
   }
 
   async signin() {
