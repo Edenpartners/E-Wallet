@@ -823,7 +823,7 @@ export class AppStorageService {
     for (let i = 0; i < 1; i++) {
       result.push({
         id: Consts.TEDN_DEFAULT,
-        name: 'Garden of Eden',
+        name: 'E-Garden',
         color: this.getTednWalletColor(i)
       });
     }
