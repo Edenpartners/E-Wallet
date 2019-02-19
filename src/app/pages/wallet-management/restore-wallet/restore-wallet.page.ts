@@ -14,6 +14,11 @@ import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+
+const AnalyticsCategory = 'import wallet';
+const AnalyticsCategory2 = 'import wallet2';
+
 @Component({
   selector: 'app-restore-wallet',
   templateUrl: './restore-wallet.page.html',
@@ -25,6 +30,7 @@ export class RestoreWalletPage implements OnInit {
   env: any;
 
   constructor(
+    private analytics: AnalyticsService,
     private rs: RouterService,
     public eths: EthService,
     private cbService: ClipboardService,
@@ -52,17 +58,33 @@ export class RestoreWalletPage implements OnInit {
 
   ionViewDidLeave() {}
 
+  getErrorAnalytics(): AnalyticsEvent {
+    return {
+      category: AnalyticsCategory2,
+      params: {
+        action: 'error confirm click',
+        event_label: 'error confirm_error confirm click'
+      }
+    };
+  }
+
   restoreWallet() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'import wallet click',
+        event_label: 'import wallet_import wallet click'
+      }
+    });
+
     if (this.userInputMnemonic.length < 1) {
-      this.feedbackUI.showErrorDialog('invalid value!');
+      this.feedbackUI.showErrorDialog('invalid value!', this.getErrorAnalytics());
       return;
     }
     this.logger.debug(this.userInputMnemonic);
 
     if (env.config.useDecryptPinCodeByPinCode) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'), this.getErrorAnalytics());
       return;
     }
 
@@ -72,14 +94,21 @@ export class RestoreWalletPage implements OnInit {
       this.addWallet()
         .then(
           () => {
-            this.feedbackUI.showAlertDialog('wallet restored');
+            this.feedbackUI.showAlertDialog('wallet restored', {
+              category: AnalyticsCategory2,
+              params: {
+                action: 'wallet restored confirm click',
+                event_label: 'wallet restored_wallet restored confirm click'
+              }
+            });
+
             this.rs.navigateByUrl('/home');
           },
           err => {
             if (!err) {
-              this.feedbackUI.showErrorDialog('Please try again');
+              this.feedbackUI.showErrorDialog(new Error(this.translate.instant('error.unknown')), this.getErrorAnalytics());
             } else {
-              this.feedbackUI.showErrorDialog(err);
+              this.feedbackUI.showErrorDialog(err, this.getErrorAnalytics());
             }
           }
         )
@@ -112,6 +141,11 @@ export class RestoreWalletPage implements OnInit {
 
       if (!walletInfo) {
         finalReject(new Error('Invalid wallet'));
+        return;
+      }
+
+      if (this.storage.findWalletByInfo(walletInfo)) {
+        finalReject(new Error(this.translate.instant('valid.wallet.unique')));
         return;
       }
 

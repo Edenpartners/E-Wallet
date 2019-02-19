@@ -24,19 +24,16 @@ const routes: Routes = [
   },
   {
     path: 'signup-profile',
-    loadChildren:
-      './pages/signup-profile/signup-profile.module#SignupProfilePageModule'
+    loadChildren: './pages/signup-profile/signup-profile.module#SignupProfilePageModule'
   },
   { path: 'home', loadChildren: './pages/home/home.module#HomePageModule' },
   {
     path: 'dp-edn-list',
-    loadChildren:
-      './pages/edn-deposit/dp-edn-list/dp-edn-list.module#DpEdnListPageModule'
+    loadChildren: './pages/edn-deposit/dp-edn-list/dp-edn-list.module#DpEdnListPageModule'
   },
   {
     path: 'dp-edn-main',
-    loadChildren:
-      './pages/edn-deposit/dp-edn-main/dp-edn-main.module#DpEdnMainPageModule'
+    loadChildren: './pages/edn-deposit/dp-edn-main/dp-edn-main.module#DpEdnMainPageModule'
   },
   {
     path: 'pc-edit',
@@ -44,48 +41,43 @@ const routes: Routes = [
   },
   {
     path: 'backup-wallet',
-    loadChildren:
-      './pages/wallet-management/backup-wallet/backup-wallet.module#BackupWalletPageModule'
+    loadChildren: './pages/wallet-management/backup-wallet/backup-wallet.module#BackupWalletPageModule'
   },
   {
-    path: 'restore-wallet',
-    loadChildren:
-      './pages/wallet-management/restore-wallet/restore-wallet.module#RestoreWalletPageModule'
+    path: 'import-wallet',
+    loadChildren: './pages/wallet-management/restore-wallet/restore-wallet.module#RestoreWalletPageModule'
   },
   {
     path: 'backup-notice',
-    loadChildren:
-      './pages/wallet-management/backup-notice/backup-notice.module#BackupNoticePageModule'
+    loadChildren: './pages/wallet-management/backup-notice/backup-notice.module#BackupNoticePageModule'
   },
   {
     path: 'add-wallet',
-    loadChildren:
-      './pages/wallet-management/add-wallet/add-wallet.module#AddWalletPageModule'
+    loadChildren: './pages/wallet-management/add-wallet/add-wallet.module#AddWalletPageModule'
   },
   {
     path: 'ew-qrcode',
-    loadChildren:
-      './pages/edn-wallet/ew-qrcode/ew-qrcode.module#EwQrcodePageModule'
+    loadChildren: './pages/edn-wallet/ew-qrcode/ew-qrcode.module#EwQrcodePageModule'
   },
   {
     path: 'ew-sendto',
-    loadChildren:
-      './pages/edn-wallet/ew-sendto/ew-sendto.module#EwSendtoPageModule'
+    loadChildren: './pages/edn-wallet/ew-sendto/ew-sendto.module#EwSendtoPageModule'
   },
   {
     path: 'ew-tx-list',
-    loadChildren:
-      './pages/edn-wallet/ew-tx-list/ew-tx-list.module#EwTxListPageModule'
+    loadChildren: './pages/edn-wallet/ew-tx-list/ew-tx-list.module#EwTxListPageModule'
   },
   {
-    path: 'tw-trade',
-    loadChildren:
-      './pages/tedn-wallet/tw-trade/tw-trade.module#TwTradePageModule'
+    path: 'tedn-deposit',
+    loadChildren: './pages/tedn-wallet/tw-trade/tw-trade.module#TwTradePageModule'
+  },
+  {
+    path: 'tedn-withdraw',
+    loadChildren: './pages/tedn-wallet/tw-trade/tw-trade.module#TwTradePageModule'
   },
   {
     path: 'tw-tx-list',
-    loadChildren:
-      './pages/tedn-wallet/tw-tx-list/tw-tx-list.module#TwTxListPageModule'
+    loadChildren: './pages/tedn-wallet/tw-tx-list/tw-tx-list.module#TwTxListPageModule'
   },
   {
     path: 'ednapitest',
@@ -101,13 +93,11 @@ const routes: Routes = [
   },
   {
     path: 'terms-and-condition',
-    loadChildren:
-      './pages/signup-profile/terms-and-condition/terms-and-condition.module#TermsAndConditionPageModule'
+    loadChildren: './pages/signup-profile/terms-and-condition/terms-and-condition.module#TermsAndConditionPageModule'
   },
   {
     path: 'privacy-policy',
-    loadChildren:
-      './pages/signup-profile/privacy-policy/privacy-policy.module#PrivacyPolicyPageModule'
+    loadChildren: './pages/signup-profile/privacy-policy/privacy-policy.module#PrivacyPolicyPageModule'
   }
 ];
 

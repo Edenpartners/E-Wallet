@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ElementRef,
-  ViewChild
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -18,15 +12,9 @@ import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../../providers/dataTracker.service';
+import { DataTrackerService, ValueTracker } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { DecimalPipe } from '@angular/common';
@@ -93,17 +81,12 @@ export class TwTxListPage implements OnInit, OnDestroy {
           this.wallet = this.storage.findTednWalletById(this.walletId);
 
           if (this.wallet) {
-            const tednTracker = this.dataTracker.startTEDNBalanceTracker(
-              this.walletId
-            );
+            const tednTracker = this.dataTracker.startTEDNBalanceTracker(this.walletId);
 
             this.subscriptionPack.addSubscription(() => {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
-                this.tednBalanceFormatted = ethers.utils.formatUnits(
-                  balance,
-                  Consts.TEDN_DECIMAL
-                );
+                this.tednBalanceFormatted = ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL);
               });
             });
 
@@ -151,10 +134,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
           from_addr: item.from_addr,
           to_addr: item.to_addr,
           amount: item.amount,
-          amountDisplay: ethers.utils.formatUnits(
-            String(item.amount),
-            Consts.TEDN_DECIMAL
-          ),
+          amountDisplay: ethers.utils.formatUnits(String(item.amount), Consts.TEDN_DECIMAL),
           regdate: item.regdate,
           regdateText: this.getDateString(item.regdate)
         });
@@ -234,10 +214,10 @@ export class TwTxListPage implements OnInit, OnDestroy {
   }
 
   onReceiveClick() {
-    this.rs.navigateByUrl(`/tw-trade/${this.walletId}?mode=deposit`);
+    this.rs.navigateByUrl(`/tedn-deposit/${this.walletId}`);
   }
 
   onSendClick() {
-    this.rs.navigateByUrl(`/tw-trade/${this.walletId}?mode=withdraw`);
+    this.rs.navigateByUrl(`/tedn-withdraw/${this.walletId}`);
   }
 }

@@ -27,7 +27,7 @@
         <ion-toolbar class="header" color="main2">
           <ion-label color="text-light-1" class="fw-bold">{{ 'MyEDNWalletsTitle' | translate }}</ion-label>
           <ion-buttons slot="end">
-            <ion-button (click)="rs.navigateByUrl('/add-wallet')">
+            <ion-button (click)="onAddWalletBtnClick()">
               <ion-icon name="add" color="text-light-1"></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -75,7 +75,7 @@
           <ion-toolbar style="border:none;" no-border-top no-border>
             <div class="flex-h-dir">
               <div class="flex-item-fill flex-ch-centered">
-                <ion-button appBtnStyle class="fw-bold font-size-13" (click)="rs.navigateByUrl('/dp-edn-list')"
+                <ion-button appBtnStyle class="fw-bold font-size-13" (click)="onAddEdnBtnClick()"
                   color="text-dark-1" style="text-transform:none;">{{
                         'AddEdn' | translate
                       }}</ion-button>

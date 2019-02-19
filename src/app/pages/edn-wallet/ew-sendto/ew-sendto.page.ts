@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -12,12 +6,7 @@ import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
@@ -26,20 +15,14 @@ import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { IonInput, Platform } from '@ionic/angular';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 
 import { DataTrackerService } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { env } from '../../../../environments/environment';
 
-import {
-  FeedbackUIService,
-  LoadingHandler
-} from '../../../providers/feedbackUI.service';
+import { FeedbackUIService, LoadingHandler } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
@@ -128,61 +111,39 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   transferERC20Token(walletPw?: string) {
     if (!this.toAddress.trim()) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.wallet-address.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet-address.required'));
+
       return;
     }
 
-    if (
-      this.toAddress.trim().toLowerCase() === this.wallet.address.toLowerCase()
-    ) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.wallet-address.nonEqual')
-      );
+    if (this.toAddress.trim().toLowerCase() === this.wallet.address.toLowerCase()) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet-address.nonEqual'));
       return;
     }
 
     if (!this.amount) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'));
       return;
     }
 
-    const p: EthProviders.Base = this.eths.getProvider(
-      this.wallet.info.provider
-    );
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
+    const p: EthProviders.Base = this.eths.getProvider(this.wallet.info.provider);
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = ethers.utils.parseUnits(
-        String(this.amount),
-        ednContractInfo.contractInfo.decimal
-      );
+      adjustedAmount = ethers.utils.parseUnits(String(this.amount), ednContractInfo.contractInfo.decimal);
     } catch (e) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.pattern')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
       return;
     }
 
     if (adjustedAmount.lte(0)) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.positive')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'));
       return;
     }
 
-    const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(
-      this.wallet,
-      ednContractInfo
-    );
+    const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(this.wallet, ednContractInfo);
 
     if (ednTracker.value) {
       const ednBalance = ednTracker.value.balance;
@@ -199,9 +160,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     const onTransactionCreate = tx => {
       /** transaction info */
       loadingHandler.hide();
-      this.feedbackUI.showToast(
-        this.translate.instant('transaction.requested')
-      );
+      this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
       this.amount = 0;
     };
 

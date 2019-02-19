@@ -8,32 +8,22 @@ import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../providers/appStorage.service';
 
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../providers/dataTracker.service';
+import { DataTrackerService, ValueTracker } from '../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../utils/listutil';
 import { DecimalPipe } from '@angular/common';
 import { env } from '../../../environments/environment';
 import { Consts } from '../../../environments/constants';
 import { Events } from '@ionic/angular';
+import { AnalyticsService, AnalyticsEvent } from '../../providers/analytics.service';
 
 interface WalletRow {
   /** just index */
@@ -55,6 +45,8 @@ interface TEDNWalletRow {
   tednBalanceFormatted: string;
 }
 
+const AnalyticsCategory = 'main';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -75,7 +67,8 @@ export class HomePage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private dataTracker: DataTrackerService,
     private events: Events,
-    private keyboard: Keyboard
+    private keyboard: Keyboard,
+    private analytics: AnalyticsService
   ) {}
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
@@ -102,14 +95,62 @@ export class HomePage implements OnInit, OnDestroy {
   onEdnWalletClick() {}
 
   toggleSideMenu() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'menu click',
+        event_label: 'menu_menu click'
+      }
+    });
+
     this.events.publish(Consts.EVENT_OPEN_SIDE_MENU);
   }
 
+  onAddWalletBtnClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'add wallet click',
+        event_label: 'add wallet_add wallet click'
+      }
+    });
+
+    this.rs.navigateByUrl('/add-wallet');
+  }
+
+  onAddEdnBtnClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'add edn click',
+        event_label: 'add edn_add edn click'
+      }
+    });
+
+    this.rs.navigateByUrl('/dp-edn-list');
+  }
+
   onWalletItemClick(walletRow: WalletRow) {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'edn transaction click',
+        event_label: 'edn transaction_edn transaction click'
+      }
+    });
+
     this.rs.navigateByUrl(`/ew-tx-list/${walletRow.data.id}`);
   }
 
   onTednWalletItemClick(tednWalletRow: TEDNWalletRow) {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'tedn transaction click',
+        event_label: 'tedn transaction_tedn transaction click'
+      }
+    });
+
     this.rs.navigateByUrl(`/tw-tx-list/${tednWalletRow.data.id}`);
   }
 
@@ -138,17 +179,12 @@ export class HomePage implements OnInit, OnDestroy {
 
       this.tednWallets.push(walletRow);
 
-      const tednTracker = this.dataTracker.startTEDNBalanceTracker(
-        walletRow.data.id
-      );
+      const tednTracker = this.dataTracker.startTEDNBalanceTracker(walletRow.data.id);
       //subscribe tedn tracking
       this.subscriptionPack.addSubscription(() => {
         return tednTracker.trackObserver.subscribe(balance => {
           walletRow.tednBalance = balance;
-          walletRow.tednBalanceFormatted = ethers.utils.formatUnits(
-            balance,
-            Consts.TEDN_DECIMAL
-          );
+          walletRow.tednBalanceFormatted = ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL);
         });
       });
     });
@@ -184,9 +220,7 @@ export class HomePage implements OnInit, OnDestroy {
       };
 
       // add eth tracker
-      const ethTracker = this.dataTracker.startEtherBalanceTracking(
-        walletRow.data
-      );
+      const ethTracker = this.dataTracker.startEtherBalanceTracking(walletRow.data);
 
       this.subscriptionPack.addSubscription(() => {
         return ethTracker.trackObserver.subscribe(value => {
@@ -201,27 +235,17 @@ export class HomePage implements OnInit, OnDestroy {
       }
 
       // add edn tracker
-      const p: EthProviders.Base = this.eths.getProvider(
-        walletRow.data.info.provider
-      );
-      const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-        env.config.ednCoinKey,
-        p
-      );
+      const p: EthProviders.Base = this.eths.getProvider(walletRow.data.info.provider);
+      const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
-      const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(
-        walletRow.data,
-        ednContractInfo
-      );
+      const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(walletRow.data, ednContractInfo);
 
       this.subscriptionPack.addSubscription(() => {
-        return ednTracker.trackObserver.subscribe(
-          (value: { balance: BigNumber; adjustedBalance: BigNumber }) => {
-            walletRow.ednBalance = value.balance;
-            walletRow.ednBalanceAdjusted = value.adjustedBalance;
-            walletRow.ednBalanceDisplay = value.adjustedBalance.toString();
-          }
-        );
+        return ednTracker.trackObserver.subscribe((value: { balance: BigNumber; adjustedBalance: BigNumber }) => {
+          walletRow.ednBalance = value.balance;
+          walletRow.ednBalanceAdjusted = value.adjustedBalance;
+          walletRow.ednBalanceDisplay = value.adjustedBalance.toString();
+        });
       }, walletRow);
 
       if (ednTracker.value) {
@@ -237,17 +261,32 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onTEDNDepositClick() {
-    this.rs.navigateByUrl('tw-trade/_default_?mode=deposit');
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'deposit click',
+        event_label: 'deposit_deposit click'
+      }
+    });
+
+    this.rs.navigateByUrl('tedn-deposit/_default_');
   }
+
   onTEDNWithdrawClick() {
-    this.rs.navigateByUrl('tw-trade/_default_?mode=withdraw');
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'withraw click',
+        event_label: 'withraw_withraw click'
+      }
+    });
+
+    this.rs.navigateByUrl('tedn-withdraw/_default_');
   }
 
   isSameLine(info1: Element, info2: Element): boolean {
     //this.logger.debug(edn, eth);
-    if (
-      info1.getBoundingClientRect().top !== info2.getBoundingClientRect().top
-    ) {
+    if (info1.getBoundingClientRect().top !== info2.getBoundingClientRect().top) {
       return false;
     }
 

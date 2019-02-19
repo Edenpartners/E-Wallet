@@ -23,14 +23,14 @@ import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
 //===== firebase
 import { AngularFireModule } from '@angular/fire';
-import {
-  AngularFireDatabaseModule,
-  AngularFireDatabase
-} from '@angular/fire/database';
+import { AngularFireDatabaseModule, AngularFireDatabase } from '@angular/fire/database';
 import { AngularFireAuthModule, AngularFireAuth } from '@angular/fire/auth';
 import { TwitterConnect } from '@ionic-native/twitter-connect/ngx';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { Facebook } from '@ionic-native/facebook/ngx';
+
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics/ngx';
+
 //=====
 
 import { environment } from '../environments/environment';
@@ -98,7 +98,8 @@ export function createTranslateLoader(http: HttpClient) {
     AngularFireAuth,
     Facebook,
     TwitterConnect,
-    GooglePlus
+    GooglePlus,
+    FirebaseAnalytics
   ],
   bootstrap: [AppComponent]
 })

@@ -1,10 +1,4 @@
-import {
-  InjectionToken,
-  Injectable,
-  Inject,
-  OnInit,
-  OnDestroy
-} from '@angular/core';
+import { InjectionToken, Injectable, Inject, OnInit, OnDestroy } from '@angular/core';
 
 import { Component } from '@angular/core';
 import { LoadingController, Events } from '@ionic/angular';
@@ -15,6 +9,7 @@ import { ToastController } from '@ionic/angular';
 import { Map } from '../utils/listutil';
 import { UUID } from 'angular2-uuid';
 import { LoadingOptions, SpinnerTypes, AlertButton } from '@ionic/core';
+import { AnalyticsService, AnalyticsEvent } from './analytics.service';
 
 export interface AlertOptions {
   title?: string | undefined;
@@ -30,10 +25,7 @@ class InnerLoadingHandler {
   private dismissLoading = false;
   private creatingLoading = false;
 
-  constructor(
-    private loadingController: LoadingController,
-    private logger: NGXLogger
-  ) {}
+  constructor(private loadingController: LoadingController, private logger: NGXLogger) {}
 
   show(msg?: string): Promise<any> {
     const thisRef = this;
@@ -87,12 +79,7 @@ export class LoadingHandler {
   private innerHandler: InnerLoadingHandler = null;
   private canBlockBackButton = true;
 
-  constructor(
-    private loadingController: LoadingController,
-    private events: Events,
-    private logger: NGXLogger,
-    private _key?: string
-  ) {}
+  constructor(private loadingController: LoadingController, private events: Events, private logger: NGXLogger, private _key?: string) {}
 
   get key(): string {
     return this._key;
@@ -101,10 +88,7 @@ export class LoadingHandler {
   show(msg?: string): Promise<any> {
     this.hide(false);
 
-    this.innerHandler = new InnerLoadingHandler(
-      this.loadingController,
-      this.logger
-    );
+    this.innerHandler = new InnerLoadingHandler(this.loadingController, this.logger);
     return this.innerHandler.show(msg);
   }
 
@@ -122,10 +106,7 @@ export class LoadingHandler {
 }
 
 class AlertHandler {
-  constructor(
-    public alertElement: HTMLIonAlertElement,
-    public opt: AlertOptions
-  ) {}
+  constructor(public alertElement: HTMLIonAlertElement, public opt: AlertOptions) {}
 }
 
 @Injectable({
@@ -138,7 +119,8 @@ export class FeedbackUIService {
     private alertController: AlertController,
     private translate: TranslateService,
     private toastController: ToastController,
-    private events: Events
+    private events: Events,
+    private analytics: AnalyticsService
   ) {
     this.events.subscribe('ui.loading.hide', key => {
       this.hideLoading(key);
@@ -177,12 +159,7 @@ export class FeedbackUIService {
       key = UUID.UUID();
     }
 
-    const handler = new LoadingHandler(
-      this.loadingController,
-      this.events,
-      this.logger,
-      key
-    );
+    const handler = new LoadingHandler(this.loadingController, this.events, this.logger, key);
     this.loadingMap.push(handler);
 
     this.logger.info('show loading : ' + key + ', ' + this.loadingMap.length);
@@ -197,9 +174,7 @@ export class FeedbackUIService {
       if (key === loadingItem.key) {
         this.logger.info('found loading : ' + key + ', ' + i);
         this.loadingMap.splice(i, 1);
-        this.logger.info(
-          'remove loading : ' + loadingItem.key + ', ' + this.loadingMap.length
-        );
+        this.logger.info('remove loading : ' + loadingItem.key + ', ' + this.loadingMap.length);
 
         loadingItem.hide();
         break;
@@ -267,7 +242,7 @@ export class FeedbackUIService {
     }
   }
 
-  async showAlertDialog(opt: AlertOptions | string | Error) {
+  async showAlertDialog(opt: AlertOptions | string | Error, analyticsEvent?: AnalyticsEvent) {
     opt = this.generateDialogOpt(opt);
 
     if (opt.title === undefined) {
@@ -277,6 +252,33 @@ export class FeedbackUIService {
     if (opt.buttons === undefined) {
       const okTitle: string = await this.translate.instant('OK');
       opt.buttons = [okTitle];
+    }
+
+    if (analyticsEvent && opt.buttons) {
+      for (let i = 0; i < opt.buttons.length; i++) {
+        const alertBtnAny: AlertButton | string = opt.buttons[i];
+        let alertBtn: AlertButton = null;
+        if (typeof alertBtnAny === 'string') {
+          alertBtn = { text: alertBtnAny as string };
+          opt.buttons[i] = alertBtn;
+        } else {
+          alertBtn = alertBtnAny as AlertButton;
+        }
+
+        let oldHandler = alertBtn.handler;
+        if (!oldHandler) {
+          oldHandler = (value: any) => {
+            return true;
+          };
+        }
+
+        const analyticsHandler = (value: any) => {
+          this.analytics.logEvent(analyticsEvent);
+          return oldHandler(value);
+        };
+
+        alertBtn.handler = analyticsHandler;
+      }
     }
 
     const alert: HTMLIonAlertElement = await this.alertController.create({
@@ -303,30 +305,31 @@ export class FeedbackUIService {
     return await alert.present();
   }
 
-  async showWarningDialog(opt: AlertOptions | string | Error) {
+  async showWarningDialog(opt: AlertOptions | string | Error, analyticsEvent?: AnalyticsEvent) {
     opt = this.generateDialogOpt(opt);
 
     if (opt.title === undefined) {
       opt.title = await this.translate.instant('Warning');
     }
 
-    return this.showAlertDialog(opt);
+    return this.showAlertDialog(opt, analyticsEvent);
   }
 
-  async showErrorDialog(opt: AlertOptions | string | Error) {
+  async showErrorDialog(opt: AlertOptions | string | Error, analyticsEvent?: AnalyticsEvent) {
     opt = this.generateDialogOpt(opt);
 
     if (opt.title === undefined) {
       opt.title = await this.translate.instant('Error');
     }
 
-    return this.showAlertDialog(opt);
+    return this.showAlertDialog(opt, analyticsEvent);
   }
 
   async showErrorAndRetryDialog(
     opt: AlertOptions | string | Error,
     onRetry: () => void = () => {},
-    onCancel: () => void = () => {}
+    onCancel: () => void = () => {},
+    analyticsEvent?: AnalyticsEvent
   ) {
     opt = this.generateDialogOpt(opt);
 
@@ -348,14 +351,10 @@ export class FeedbackUIService {
       ];
     }
 
-    return this.showAlertDialog(opt);
+    return this.showAlertDialog(opt, analyticsEvent);
   }
 
-  async showToast(
-    message: string | Error,
-    duration = 3500,
-    cssClass = 'toast-text-center'
-  ) {
+  async showToast(message: string | Error, duration = 3500, cssClass = 'toast-text-center') {
     let toastMessage: string = null;
     if (typeof message === 'string') {
       toastMessage = message;

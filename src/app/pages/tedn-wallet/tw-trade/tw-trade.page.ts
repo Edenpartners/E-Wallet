@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { RouterService } from '../../../providers/router.service';
@@ -12,35 +6,21 @@ import { RouterService } from '../../../providers/router.service';
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorageService } from 'ngx-store';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../../providers/dataTracker.service';
+import { DataTrackerService, ValueTracker } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { NGXLogger } from 'ngx-logger';
 
 import { env } from '../../../../environments/environment';
-import {
-  FeedbackUIService,
-  LoadingHandler
-} from '../../../providers/feedbackUI.service';
+import { FeedbackUIService, LoadingHandler } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Consts } from '../../../../environments/constants';
@@ -106,17 +86,12 @@ export class TwTradePage implements OnInit, OnDestroy {
           this.wallet = this.storage.findTednWalletById(this.walletId);
 
           if (this.wallet) {
-            const tednTracker = this.dataTracker.startTEDNBalanceTracker(
-              this.walletId
-            );
+            const tednTracker = this.dataTracker.startTEDNBalanceTracker(this.walletId);
 
             this.subscriptionPack.addSubscription(() => {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
-                this.tednBalanceFormatted = ethers.utils.formatUnits(
-                  balance,
-                  Consts.TEDN_DECIMAL
-                );
+                this.tednBalanceFormatted = ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL);
               });
             });
           }
@@ -129,10 +104,14 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.queryParamMap.subscribe(query => {
         try {
-          if (query.get('mode')) {
-            this.mode = query.get('mode');
-            this.logger.debug('mode : ', this.mode);
+          this.logger.debug('query : ', query);
+          this.logger.debug(this.rs.getRouter().url);
+          if (this.rs.getRouter().url.indexOf('tedn-deposit') >= 0) {
+            this.mode = Mode.deposit;
+          } else if (this.rs.getRouter().url.indexOf('tedn-withdraw') >= 0) {
+            this.mode = Mode.withdraw;
           }
+          this.logger.debug('mode : ' + this.mode);
         } catch (e) {
           this.logger.debug(e);
         }
@@ -186,63 +165,41 @@ export class TwTradePage implements OnInit, OnDestroy {
 
   depositTEDN(walletPw?: string) {
     if (!this.selectedEthWalletId) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.wallet.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet.required'));
       return;
     }
 
     if (!this.selectedTednWalletId) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.tednWallet.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.tednWallet.required'));
       return;
     }
 
     if (!this.storage.coinHDAddress) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('error.network.connection')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('error.network.connection'));
       return;
     }
 
     if (!this.tradeAmount) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'));
       return;
     }
 
-    const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(
-      this.selectedEthWalletId
-    );
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
+    const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(this.selectedEthWalletId);
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = ethers.utils.parseUnits(
-        String(this.tradeAmount),
-        ednContractInfo.contractInfo.decimal
-      );
+      adjustedAmount = ethers.utils.parseUnits(String(this.tradeAmount), ednContractInfo.contractInfo.decimal);
     } catch (e) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.pattern')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
       return;
     }
 
     if (adjustedAmount.lte(0)) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.positive')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'));
       return;
     }
 
@@ -259,9 +216,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.logger.debug(this.tradeAmount);
     const onTransactionCreate = tx => {
       loadingHandler.hide();
-      this.feedbackUI.showToast(
-        this.translate.instant('transaction.requested')
-      );
+      this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
       this.tradeAmount = 0;
     };
     const onTransactionReceipt = txReceipt => {};
@@ -298,44 +253,29 @@ export class TwTradePage implements OnInit, OnDestroy {
 
   withdrawTEDN(walletPw?: string) {
     if (!this.selectedEthWalletId) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.wallet.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet.required'));
       return;
     }
 
     if (!this.selectedTednWalletId) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.tednWallet.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.tednWallet.required'));
       return;
     }
 
     if (!this.tradeAmount) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'));
       return;
     }
 
-    const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(
-      this.selectedEthWalletId
-    );
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
+    const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(this.selectedEthWalletId);
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = ethers.utils.parseUnits(
-        String(this.tradeAmount),
-        Consts.TEDN_DECIMAL
-      );
+      adjustedAmount = ethers.utils.parseUnits(String(this.tradeAmount), Consts.TEDN_DECIMAL);
     } catch (e) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.pattern')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
       return;
     }
 
@@ -347,17 +287,13 @@ export class TwTradePage implements OnInit, OnDestroy {
 
     const loadingHandler: LoadingHandler = this.feedbackUI.showRandomKeyLoading();
 
-    this.logger.debug(
-      adjustedAmount.toString() + '/' + adjustedAmount.toHexString()
-    );
+    this.logger.debug(adjustedAmount.toString() + '/' + adjustedAmount.toHexString());
 
     this.ednApi
       .withdrawFromTEDN(walletInfo.address, adjustedAmount.toString())
       .then(
         result => {
-          this.feedbackUI.showToast(
-            this.translate.instant('transaction.requested')
-          );
+          this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
           this.tradeAmount = 0;
         },
         error => {

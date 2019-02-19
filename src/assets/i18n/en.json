@@ -41,8 +41,7 @@
 
   "valid.wallet.required": "Wallet is required",
   "valid.tednWallet.required": "TEDN Wallet is required",
-
-  "error.network.connection": "A network error occured. Please check your internet connection.",
+  "valid.wallet.unique": "Wallet already exists",
 
   "transaction.requested": "Tracsaction requested",
   "transaction.receipted": "Tracsaction receipted",
@@ -59,6 +58,10 @@
   "valid.wallet-address.required": "Address is required",
 
   "wallet.address.copied": "The wallet address has been placed in the clipboard",
+  "wallet.added": "Wallet added!",
+
+  "error.unknown": "Unknown error occurred",
+  "error.network.connection": "A network error occured. Please check your internet connection",
 
   "NoTransactions": "No transactions found",
 

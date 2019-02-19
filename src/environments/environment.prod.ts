@@ -1,7 +1,8 @@
+import { Environment } from './environment.interface';
 import { EthProviders } from '../app/providers/ether.service';
 import { firebaseConfig } from './firebase.config';
 
-export const environment = {
+export const environment: Environment = {
   production: true,
   firebase: firebaseConfig,
 
@@ -32,6 +33,7 @@ export const environment = {
     clearTxHistoryOnWipeStorage: false,
     blockSignup: true,
     firebaseFeatures: {
+      analytics: false,
       google: true,
       facebook: false,
       twitter: false

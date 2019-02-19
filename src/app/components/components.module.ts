@@ -14,24 +14,8 @@ import { EwSummary } from './ew-summary/ew-summary';
 
 @NgModule({
   imports: [IonicModule, TranslateModule, FormsModule, CommonModule],
-  declarations: [
-    CommonNavBar,
-    UserStateChecker,
-    Bip39Handler,
-    EthProviderMaker,
-    EthWalletManager,
-    NumPad,
-    EwSummary
-  ],
-  exports: [
-    CommonNavBar,
-    UserStateChecker,
-    Bip39Handler,
-    EthProviderMaker,
-    EthWalletManager,
-    NumPad,
-    EwSummary
-  ],
+  declarations: [CommonNavBar, UserStateChecker, Bip39Handler, EthProviderMaker, EthWalletManager, NumPad, EwSummary],
+  exports: [CommonNavBar, UserStateChecker, Bip39Handler, EthProviderMaker, EthWalletManager, NumPad, EwSummary],
   providers: []
 })
 export class ComponentsModule {}

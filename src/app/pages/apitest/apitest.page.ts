@@ -1,34 +1,19 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import * as firebase from 'firebase';
 import { NGXLogger } from 'ngx-logger';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { IonHeader, Platform } from '@ionic/angular';
-import { UUID } from 'angular2-uuid';
-import { HTTP } from '@ionic-native/http/ngx';
+import { Platform } from '@ionic/angular';
 
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
-import { TwitterConnect } from '@ionic-native/twitter-connect/ngx';
-import { GooglePlus } from '@ionic-native/google-plus/ngx';
-import { Facebook } from '@ionic-native/facebook/ngx';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../providers/appStorage.service';
+import { AppStorageService } from '../../providers/appStorage.service';
 import { Subscription } from 'rxjs';
 
-import { ethers, Wallet, Contract } from 'ethers';
-import { Provider } from 'ethers/providers';
+import { ethers } from 'ethers';
 
-import { WalletService, WalletTypes } from '../../providers/wallet.service';
+import { WalletService } from '../../providers/wallet.service';
 
 import { Bip39Handler } from '../../components/testers/bip39-handler';
 import { EthProviderMaker } from '../../components/testers/eth-provider-maker';
-import {
-  EthWalletManager,
-  WalletRow
-} from '../../components/testers/eth-wallet-manager';
+import { EthWalletManager } from '../../components/testers/eth-wallet-manager';
 import { BigNumber } from 'ethers/utils';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { EtherDataService } from '../../providers/etherData.service';
@@ -120,10 +105,7 @@ export class ApitestPage implements OnInit, OnDestroy {
 
   ionViewDidLeave() {
     this.logger.debug('ethtest component destroyed');
-    if (
-      this.userStateSubscription &&
-      this.userStateSubscription.closed === false
-    ) {
+    if (this.userStateSubscription && this.userStateSubscription.closed === false) {
       this.userStateSubscription.unsubscribe();
       this.userStateSubscription = null;
     }
@@ -335,10 +317,7 @@ export class ApitestPage implements OnInit, OnDestroy {
     this.ednApi.getTEDNBalance().then(
       resultData => {
         this.logger.debug(resultData);
-        this.tednBalance = ethers.utils.formatUnits(
-          resultData.data.amount,
-          Consts.TEDN_DECIMAL
-        );
+        this.tednBalance = ethers.utils.formatUnits(resultData.data.amount, Consts.TEDN_DECIMAL);
       },
       resultErr => {
         this.logger.debug(resultErr);
@@ -382,34 +361,22 @@ export class ApitestPage implements OnInit, OnDestroy {
     }
 
     const walletInfo = walletRow.data;
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = ethers.utils.parseUnits(
-        amount,
-        ednContractInfo.contractInfo.decimal
-      );
+      adjustedAmount = ethers.utils.parseUnits(amount, ednContractInfo.contractInfo.decimal);
     } catch (e) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.pattern')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
       return;
     }
 
     const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
     if (walletPw === null) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.areEqual')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
 
@@ -475,14 +442,9 @@ export class ApitestPage implements OnInit, OnDestroy {
     }
 
     const walletInfo = walletRow.data;
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     // convert to
     let adjustedAmount: BigNumber = null;
@@ -493,42 +455,38 @@ export class ApitestPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.logger.debug(
-      adjustedAmount.toString() + '/' + adjustedAmount.toHexString()
+    this.logger.debug(adjustedAmount.toString() + '/' + adjustedAmount.toHexString());
+
+    this.ednApi.withdrawFromTEDN(walletInfo.address, adjustedAmount.toString()).then(
+      result => {
+        this.logger.debug(result);
+
+        const txhash = result.data.txhash;
+
+        this.logger.debug(txhash);
+
+        const ethP = p.getEthersJSProvider();
+        ethP.getTransaction(txhash).then(
+          tx => {
+            this.logger.debug(tx);
+          },
+          err => {
+            this.logger.debug(err);
+          }
+        );
+
+        this.etherApi.trackTransactionReceipt(p, txhash.trim()).then(
+          (txReceipt: ethers.providers.TransactionReceipt) => {},
+          err => {
+            this.logger.debug(err);
+            this.feedbackUI.showErrorDialog(err);
+          }
+        );
+      },
+      error => {
+        this.feedbackUI.showErrorDialog(error);
+      }
     );
-
-    this.ednApi
-      .withdrawFromTEDN(walletInfo.address, adjustedAmount.toString())
-      .then(
-        result => {
-          this.logger.debug(result);
-
-          const txhash = result.data.txhash;
-
-          this.logger.debug(txhash);
-
-          const ethP = p.getEthersJSProvider();
-          ethP.getTransaction(txhash).then(
-            tx => {
-              this.logger.debug(tx);
-            },
-            err => {
-              this.logger.debug(err);
-            }
-          );
-
-          this.etherApi.trackTransactionReceipt(p, txhash.trim()).then(
-            (txReceipt: ethers.providers.TransactionReceipt) => {},
-            err => {
-              this.logger.debug(err);
-              this.feedbackUI.showErrorDialog(err);
-            }
-          );
-        },
-        error => {
-          this.feedbackUI.showErrorDialog(error);
-        }
-      );
   }
 
   getTEDNTransaction(pageNum, countPerPage) {
@@ -614,9 +572,7 @@ export class ApitestPage implements OnInit, OnDestroy {
 
     const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
     if (!walletPw) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.areEqual')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
 

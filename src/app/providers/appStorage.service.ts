@@ -120,11 +120,6 @@ export class AppStorageService {
   @LocalStorage() private _userInfo: AppStorageTypes.UserInfo = null;
   @LocalStorage() private _wallets = [];
   @LocalStorage() private _coinHDAddr = '';
-  @LocalStorage()
-  private _additionalInfo: AppStorageTypes.UserAdditionalInfo = {
-    termsAndConditionsAllowed: false,
-    privacyAllowed: false
-  };
 
   private userStateSubscribers: Array<Subscriber<AppStorageTypes.User>> = [];
   private walletsSubscribers: Array<Subscriber<void>> = [];
@@ -177,7 +172,7 @@ export class AppStorageService {
 
   wipeData() {
     this._userInfo = null;
-    this._additionalInfo = null;
+    this.store.remove(StoreKeys._additionalInfo);
 
     if (env.config.clearPincodeOnWipeStorage) {
       this.store.remove(StoreKeys.pinCode);
@@ -205,17 +200,19 @@ export class AppStorageService {
   }
 
   get additionalInfo(): AppStorageTypes.UserAdditionalInfo {
-    if (!this._additionalInfo) {
+    const storedVal = this.store.get(StoreKeys._additionalInfo);
+
+    if (!storedVal) {
       return {
         termsAndConditionsAllowed: false,
         privacyAllowed: false
       };
     }
-    return this._additionalInfo;
+    return storedVal;
   }
 
   set additionalInfo(val: AppStorageTypes.UserAdditionalInfo) {
-    this._additionalInfo = val;
+    this.store.set(StoreKeys._additionalInfo, val);
   }
 
   setPinNumber(val: string, oldPincode: string): boolean {
@@ -254,27 +251,15 @@ export class AppStorageService {
 
             const walletSalt = ethItem.info.data.salt;
             const decKi = CryptoHelper.getKeyAndIV(walletPw, walletSalt);
-            const decMWords = CryptoJS.AES.decrypt(
-              ethItem.info.data.mnemonic,
-              decKi.key,
-              {
-                iv: decKi.iv
-              }
-            ).toString(CryptoJS.enc.Utf8);
-            const decPath = CryptoJS.AES.decrypt(
-              ethItem.info.data.path,
-              decKi.key,
-              {
-                iv: decKi.iv
-              }
-            ).toString(CryptoJS.enc.Utf8);
-            const decPrivateKey = CryptoJS.AES.decrypt(
-              ethItem.info.data.privateKey,
-              decKi.key,
-              {
-                iv: decKi.iv
-              }
-            ).toString(CryptoJS.enc.Utf8);
+            const decMWords = CryptoJS.AES.decrypt(ethItem.info.data.mnemonic, decKi.key, {
+              iv: decKi.iv
+            }).toString(CryptoJS.enc.Utf8);
+            const decPath = CryptoJS.AES.decrypt(ethItem.info.data.path, decKi.key, {
+              iv: decKi.iv
+            }).toString(CryptoJS.enc.Utf8);
+            const decPrivateKey = CryptoJS.AES.decrypt(ethItem.info.data.privateKey, decKi.key, {
+              iv: decKi.iv
+            }).toString(CryptoJS.enc.Utf8);
 
             const newEthWalletSalt = CryptoHelper.createRandSalt();
             const newKi = CryptoHelper.getKeyAndIV(hashedVal, newEthWalletSalt);
@@ -284,13 +269,9 @@ export class AppStorageService {
             const encryptedPath = CryptoJS.AES.encrypt(decPath, newKi.key, {
               iv: newKi.iv
             }).toString();
-            const encryptedPrivateKey = CryptoJS.AES.encrypt(
-              decPrivateKey,
-              newKi.key,
-              {
-                iv: newKi.iv
-              }
-            ).toString();
+            const encryptedPrivateKey = CryptoJS.AES.encrypt(decPrivateKey, newKi.key, {
+              iv: newKi.iv
+            }).toString();
 
             this.logger.debug('ENC');
             this.logger.debug(encryptedMWords);
@@ -326,9 +307,7 @@ export class AppStorageService {
 
     let pinNumberToCompere = null;
     if (env.config.useDecryptPinCodeByPinCode) {
-      const savingDecryptedHashedVal = this.getDecryptedPinNumber(
-        guessingPinCode
-      );
+      const savingDecryptedHashedVal = this.getDecryptedPinNumber(guessingPinCode);
       pinNumberToCompere = savingDecryptedHashedVal;
     } else {
       const savedVal = this.pinNumber;
@@ -351,10 +330,7 @@ export class AppStorageService {
     return false;
   }
 
-  getWalletPassword(
-    guessingPinCode?: string,
-    validate: boolean = false
-  ): string | null {
+  getWalletPassword(guessingPinCode?: string, validate: boolean = false): string | null {
     let result = null;
     if (env.config.useDecryptPinCodeByPinCode) {
       if (guessingPinCode !== undefined && guessingPinCode !== null) {
@@ -364,11 +340,7 @@ export class AppStorageService {
       }
     } else {
       if (validate) {
-        if (
-          guessingPinCode !== undefined &&
-          guessingPinCode !== null &&
-          this.isValidPinNumber(guessingPinCode)
-        ) {
+        if (guessingPinCode !== undefined && guessingPinCode !== null && this.isValidPinNumber(guessingPinCode)) {
           result = this.pinNumber;
         }
       } else {
@@ -384,10 +356,7 @@ export class AppStorageService {
 
   getDecryptedPinNumber(guessingPinCode: string) {
     const savingEnctyptedVal = this.pinNumber;
-    const savingDecryptedHashedVal = CryptoJS.AES.decrypt(
-      savingEnctyptedVal,
-      guessingPinCode
-    ).toString(CryptoJS.enc.Utf8);
+    const savingDecryptedHashedVal = CryptoJS.AES.decrypt(savingEnctyptedVal, guessingPinCode).toString(CryptoJS.enc.Utf8);
 
     return savingDecryptedHashedVal;
   }
@@ -398,9 +367,7 @@ export class AppStorageService {
       const val = '';
       const newSalt = this.randSalt();
       const mergedVal = newSalt + val;
-      const hashedVal = CryptoJS.SHA256(mergedVal).toString(
-        CryptoJS.enc.Base64
-      );
+      const hashedVal = CryptoJS.SHA256(mergedVal).toString(CryptoJS.enc.Base64);
 
       let newPinCodeToSave = null;
       if (env.config.useDecryptPinCodeByPinCode) {
@@ -479,6 +446,10 @@ export class AppStorageService {
     return result;
   }
 
+  /**
+   * an eth address will stay into userinfo until synchronize with server
+   * @param address
+   */
   addEthAddressToUserInfoTemporary(address: string) {
     const userInfo = this.userInfo;
     if (!userInfo) {
@@ -616,10 +587,7 @@ export class AppStorageService {
    * @param checkSignedIn return empty array with not signed in user
    * @param filteredWalletsByUserInfo filter by ethaddress in userInfo from edn server
    */
-  getWallets(
-    checkSignedIn = true,
-    filteredWalletsByUserInfo = false
-  ): Array<WalletTypes.WalletInfo> {
+  getWallets(checkSignedIn = true, filteredWalletsByUserInfo = false): Array<WalletTypes.WalletInfo> {
     if (checkSignedIn === true && !this.isSignedIn) {
       return [];
     }
@@ -651,16 +619,9 @@ export class AppStorageService {
     return result;
   }
 
-  findWalletByInfo(
-    walletInfo: WalletTypes.EthWalletInfo
-  ): WalletTypes.WalletInfo | null {
+  findWalletByInfo(walletInfo: WalletTypes.EthWalletInfo): WalletTypes.WalletInfo | null {
     const provider = walletInfo.info.provider;
-    return this.findWallet(
-      walletInfo.type,
-      walletInfo.address,
-      provider.type,
-      provider.connectionInfo
-    );
+    return this.findWallet(walletInfo.type, walletInfo.address, provider.type, provider.connectionInfo);
   }
 
   syncDataToLocalStorage(wallet: WalletTypes.WalletInfo, notifyChange = false) {
@@ -682,14 +643,12 @@ export class AppStorageService {
     if (!this._wallets) {
       return null;
     }
-    const foundStoredWallet = this._wallets.find(
-      (item: WalletTypes.WalletInfo) => {
-        if (walletId === item.id) {
-          return true;
-        }
-        return false;
+    const foundStoredWallet = this._wallets.find((item: WalletTypes.WalletInfo) => {
+      if (walletId === item.id) {
+        return true;
       }
-    );
+      return false;
+    });
 
     return foundStoredWallet;
   }
@@ -703,19 +662,17 @@ export class AppStorageService {
     if (!this._wallets) {
       return null;
     }
-    const foundStoredWallet = this._wallets.find(
-      (item: WalletTypes.WalletInfo) => {
-        if (
-          type === item.type &&
-          walletAddress.toLowerCase() === item.address.toLowerCase() &&
-          providerType === item.info.provider.type &&
-          providerConnectionInfo === item.info.provider.connectionInfo
-        ) {
-          return true;
-        }
-        return false;
+    const foundStoredWallet = this._wallets.find((item: WalletTypes.WalletInfo) => {
+      if (
+        type === item.type &&
+        walletAddress.toLowerCase() === item.address.toLowerCase() &&
+        providerType === item.info.provider.type &&
+        providerConnectionInfo === item.info.provider.connectionInfo
+      ) {
+        return true;
       }
-    );
+      return false;
+    });
 
     return foundStoredWallet;
   }
@@ -801,10 +758,7 @@ export class AppStorageService {
     if (this.findWalletByInfo(walletInfo)) {
       for (let i = 0; i < this._wallets.length; i++) {
         const item: WalletTypes.WalletInfo = this._wallets[i];
-        if (
-          walletInfo.type === item.type &&
-          item.address === walletInfo.address
-        ) {
+        if (walletInfo.type === item.type && item.address === walletInfo.address) {
           this._wallets.splice(i, 1);
           listutil.notifyToObservers(this.walletsSubscribers);
           break;
@@ -964,11 +918,7 @@ export class AppStorageService {
     return updatedRowData;
   }
 
-  updateTxCustomData(
-    walletInfo: WalletTypes.WalletInfo,
-    hash: string,
-    customData?: any
-  ) {
+  updateTxCustomData(walletInfo: WalletTypes.WalletInfo, hash: string, customData?: any) {
     const foundResult: {
       txRowData: AppStorageTypes.TxRowData;
       groupIndex: number;
@@ -1048,20 +998,13 @@ export class AppStorageService {
     return null;
   }
 
-  findTxInList(
-    txList: Array<AppStorageTypes.TxRowData>,
-    txHash: string
-  ): AppStorageTypes.TxRowData {
+  findTxInList(txList: Array<AppStorageTypes.TxRowData>, txHash: string): AppStorageTypes.TxRowData {
     return txList.find(item => {
       return item.hash === txHash;
     });
   }
 
-  setTxList(
-    walletInfo: WalletTypes.WalletInfo,
-    groupIndex: number,
-    list: Array<AppStorageTypes.TxRowData>
-  ) {
+  setTxList(walletInfo: WalletTypes.WalletInfo, groupIndex: number, list: Array<AppStorageTypes.TxRowData>) {
     const txKey = this.getTxKey(walletInfo, groupIndex);
     this.logger.debug('save tx list at ' + groupIndex);
     this.logger.debug(list);
@@ -1106,10 +1049,7 @@ export class AppStorageService {
 
       for (let j = txGroup.length - 1; j >= 0; j--) {
         const item: AppStorageTypes.TxRowData = txGroup[j];
-        if (
-          item.state === AppStorageTypes.TxRowState.Opened ||
-          (listFilter && listFilter(item) === true)
-        ) {
+        if (item.state === AppStorageTypes.TxRowState.Opened || (listFilter && listFilter(item) === true)) {
           txList.push(item);
         }
       }

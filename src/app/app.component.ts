@@ -1,25 +1,12 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 
-import {
-  Platform,
-  NavController,
-  IonMenu,
-  ModalController,
-  IonicModule,
-  IonRouterOutlet
-} from '@ionic/angular';
+import { Platform, NavController, IonMenu, ModalController, IonicModule, IonRouterOutlet } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import {
-  Router,
-  Route,
-  UrlSegment,
-  RouterEvent,
-  NavigationEnd
-} from '@angular/router';
+import { Router, Route, UrlSegment, RouterEvent, NavigationEnd } from '@angular/router';
 
 import { NGXLogger } from 'ngx-logger';
 
@@ -27,10 +14,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { RouterService } from './providers/router.service';
 import { env } from '../environments/environment';
 import { Consts } from '../environments/constants';
-import {
-  AppStorageService,
-  AppStorageTypes
-} from './providers/appStorage.service';
+import { AppStorageService, AppStorageTypes } from './providers/appStorage.service';
 
 import { Subscription } from 'rxjs';
 
@@ -45,9 +29,9 @@ import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
 import { FeedbackUIService } from './providers/feedbackUI.service';
-import { CssSelector } from '@angular/compiler';
 
 import { IonComponentUtils } from './utils/ion-component-utils';
+import { AnalyticsService } from './providers/analytics.service';
 
 const TRACKER_KEY_COINHD = 'coinHDAddress';
 const TRACKER_KEY_USERINFO = 'userInfo';
@@ -72,8 +56,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private latestDeeplink: any = null;
 
   private userProfileInfo: AppStorageTypes.User = null;
-  private defaultUserProfileImage =
-    'url(\'/assets/img/default-profile-image.jpg\')';
+  private defaultUserProfileImage = 'url(\'/assets/img/default-profile-image.jpg\')';
   private lastBackButtonPressedTime = null;
 
   @ViewChild('sideMenu') private sideMenu: IonMenu;
@@ -96,7 +79,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private transactionLogger: TransactionLoggerService,
     private modalController: ModalController,
     private deeplinks: Deeplinks,
-    private feedbackUI: FeedbackUIService
+    private feedbackUI: FeedbackUIService,
+    private analytics: AnalyticsService
   ) {
     this.env = env;
     this.resetEnvConfigText();
@@ -129,9 +113,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getUserProfileImage() {
-    return this.userProfileInfo
-      ? this.defaultUserProfileImage
-      : this.defaultUserProfileImage;
+    return this.userProfileInfo ? this.defaultUserProfileImage : this.defaultUserProfileImage;
   }
 
   getUserEmail() {
@@ -145,6 +127,45 @@ export class AppComponent implements OnInit, OnDestroy {
     this.userProfileInfo = this.storage.user;
   }
 
+  ngOnInit() {
+    if (!this.env.config.useSideMenuForDebug) {
+      this.sideMenu.swipeGesture = false;
+    } else {
+      this.rPaths.addConfig(this.router);
+      this.sideMenu.swipeGesture = true;
+    }
+  }
+
+  ngOnDestroy() {
+    this.subscriptionPack.clear();
+    this.analytics.stopScreenLogging();
+  }
+
+  initializeApp() {
+    IonComponentUtils.startWindowSizeChecker();
+    this.transactionLogger.initEvents();
+
+    this.platform.ready().then(() => {
+      this.setHardwareBackButtonHandler();
+      this.appVersion.getVersionCode().then(val => {
+        this.appVersionCode = val;
+      });
+
+      this.appVersion.getVersionNumber().then(val => {
+        this.appVersionNumber = val;
+      });
+
+      this.logger.info('platform is ready!');
+      this.statusBar.styleLightContent();
+
+      this.storage.startFirebaseSigninCheck();
+      this.handleDefaultRoute();
+      this.getBaseValues();
+      this.analytics.startScreenLogging();
+    });
+  }
+
+  //#region Modal
   async showPinCodeModal() {
     this.showModal(PcEditPage);
   }
@@ -170,44 +191,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.currentModal = null;
     this.hasModal = false;
   }
-
-  ngOnInit() {
-    if (!this.env.config.useSideMenuForDebug) {
-      this.sideMenu.swipeGesture = false;
-    } else {
-      this.rPaths.addConfig(this.router);
-      this.sideMenu.swipeGesture = true;
-    }
-
-    this.router.events.subscribe((e: RouterEvent) => {});
-  }
-
-  ngOnDestroy() {
-    this.subscriptionPack.clear();
-  }
-
-  initializeApp() {
-    IonComponentUtils.startWindowSizeChecker();
-    this.transactionLogger.initEvents();
-
-    this.platform.ready().then(() => {
-      this.setHardwareBackButtonHandler();
-      this.appVersion.getVersionCode().then(val => {
-        this.appVersionCode = val;
-      });
-
-      this.appVersion.getVersionNumber().then(val => {
-        this.appVersionNumber = val;
-      });
-
-      this.logger.info('platform is ready!');
-      this.statusBar.styleLightContent();
-
-      this.storage.startFirebaseSigninCheck();
-      this.handleDefaultRoute();
-      this.getBaseValues();
-    });
-  }
+  //#endregion
 
   setHardwareBackButtonHandler() {
     //https://github.com/ionic-team/ionic/issues/15820
@@ -284,9 +268,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (
         this.storage.isSignedIn &&
         this.storage.isUserInfoValidated &&
-        (!env.config.emailVerificationRequired ||
-          (env.config.emailVerificationRequired &&
-            this.storage.isUserEmailVerified))
+        (!env.config.emailVerificationRequired || (env.config.emailVerificationRequired && this.storage.isUserEmailVerified))
       ) {
         // {
         //   "$link": {
@@ -314,9 +296,9 @@ export class AppComponent implements OnInit, OnDestroy {
           let moveUrl = null;
           const linkPath = link.path;
           if (linkPath && linkPath.indexOf('/deposit') === 0) {
-            moveUrl = 'tw-trade/_default_?mode=deposit';
+            moveUrl = 'tedn-deposit/_default_';
           } else if (linkPath && linkPath.indexOf('/withdraw') === 0) {
-            moveUrl = 'tw-trade/_default_?mode=withdraw';
+            moveUrl = 'tedn-withdraw/_default_';
           }
 
           const currentUserAccessToken: string = await this.ednApi.getUserAccessToken();
@@ -326,8 +308,7 @@ export class AppComponent implements OnInit, OnDestroy {
             if (
               currentUserAccessToken &&
               userIdHash &&
-              currentUserAccessToken.toLowerCase().trim() ===
-                userIdHash.toLowerCase().trim() &&
+              currentUserAccessToken.toLowerCase().trim() === userIdHash.toLowerCase().trim() &&
               moveUrl
             ) {
               this.rs.navigateByUrl(moveUrl);
@@ -357,12 +338,7 @@ export class AppComponent implements OnInit, OnDestroy {
       return this.deeplinks.route([]).subscribe(
         deepLinkMatch => {
           //this will not happen
-          this.logger.info(
-            'deep link match',
-            deepLinkMatch.$args,
-            deepLinkMatch.$route,
-            deepLinkMatch.$link
-          );
+          this.logger.info('deep link match', deepLinkMatch.$args, deepLinkMatch.$route, deepLinkMatch.$link);
           this.resubscribeDeeplink();
         },
 
@@ -390,10 +366,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   handleDefaultRoute() {
     this.logger.debug('current url : ' + this.router.url);
-    if (
-      env.config.handleUserState === false &&
-      env.config.alterStartPath.length > 0
-    ) {
+    if (env.config.handleUserState === false && env.config.alterStartPath.length > 0) {
       this.rs.navigateByUrl(env.config.alterStartPath);
     }
 
@@ -409,8 +382,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.hideEmailVerificationPopupLoading();
           }
 
-          const isFirstUserStateEvent =
-            this.isUserStateEventFired === true ? false : true;
+          const isFirstUserStateEvent = this.isUserStateEventFired === true ? false : true;
 
           this.isUserStateEventFired = true;
           //start tracking incomplete tx logs
@@ -423,18 +395,16 @@ export class AppComponent implements OnInit, OnDestroy {
           this.logger.debug(userInfo);
           if (env.config.handleUserState) {
             if (isFirstUserStateEvent) {
-              const navSubscription = this.rs
-                .getRouter()
-                .events.subscribe(event => {
-                  if (event instanceof NavigationEnd) {
-                    this.logger.debug('on navigation end');
-                    setTimeout(() => {
-                      this.splashScreen.hide();
-                      this.handleDeepLink();
-                    }, 1000);
-                    navSubscription.unsubscribe();
-                  }
-                });
+              const navSubscription = this.rs.getRouter().events.subscribe(event => {
+                if (event instanceof NavigationEnd) {
+                  this.logger.debug('on navigation end');
+                  setTimeout(() => {
+                    this.splashScreen.hide();
+                    this.handleDeepLink();
+                  }, 1000);
+                  navSubscription.unsubscribe();
+                }
+              });
             }
 
             this.logger.debug(window.location);
@@ -444,34 +414,21 @@ export class AppComponent implements OnInit, OnDestroy {
               this.getBaseValues();
 
               if (this.storage.isUserInfoValidated) {
-                if (
-                  !env.config.emailVerificationRequired ||
-                  this.storage.isUserEmailVerified
-                ) {
+                if (!env.config.emailVerificationRequired || this.storage.isUserEmailVerified) {
                   if (!this.storage.hasPinNumber) {
-                    this.logger.info(
-                      'user signed in but no pincode, goto pincode'
-                    );
+                    this.logger.info('user signed in but no pincode, goto pincode');
                     this.rs.navigateToRoot('/pc-edit?isCreation=true');
                   } else {
                     this.logger.info('user signed in, goto home');
                     this.rs.navigateToRoot('/home');
                   }
                 } else {
-                  if (
-                    userInfo.fbUser.metadata.lastSignInTime ===
-                      userInfo.fbUser.metadata.creationTime &&
-                    !isFirstUserStateEvent
-                  ) {
+                  if (userInfo.fbUser.metadata.lastSignInTime === userInfo.fbUser.metadata.creationTime && !isFirstUserStateEvent) {
                     this.sendEmailVerification(userInfo, (error: any) => {
                       if (error) {
                         this.feedbackUI.showToast(error);
                       } else {
-                        this.feedbackUI.showToast(
-                          this.translate.instant(
-                            'EmailVerificationSendingFailed'
-                          )
-                        );
+                        this.feedbackUI.showToast(this.translate.instant('EmailVerificationSendingFailed'));
                       }
                       this.showEmailVerificationPopup(userInfo);
                     });
@@ -480,10 +437,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   }
                 }
               } else {
-                this.logger.info(
-                  'user signed in but no profile. isFirstUserStateEvent ? ' +
-                    isFirstUserStateEvent
-                );
+                this.logger.info('user signed in but no profile. isFirstUserStateEvent ? ' + isFirstUserStateEvent);
                 if (isFirstUserStateEvent) {
                   this.signout();
                 } else {
@@ -511,10 +465,7 @@ export class AppComponent implements OnInit, OnDestroy {
             if (env.config.useRedirectorOnDebugMode) {
               const currentUrl = this.rs.getRouter().url;
 
-              if (
-                currentUrl !== '/' &&
-                currentUrl.indexOf('/redirector') !== 0
-              ) {
+              if (currentUrl !== '/' && currentUrl.indexOf('/redirector') !== 0) {
                 this.logger.debug('reload current url : ' + currentUrl);
                 //this.rs.navigateByUrl(currentUrl);
                 this.rs.navigate(['redirector', currentUrl]);
@@ -569,9 +520,7 @@ export class AppComponent implements OnInit, OnDestroy {
       cssClass: 'dialog-button-text-align-center',
       cancelDisabled: true,
       backdropDismiss: false,
-      message: `${this.translate.instant('valid.email.verification')}<br><b>${
-        userInfo.fbUser.email
-      }</b>`,
+      message: `${this.translate.instant('valid.email.verification')}<br><b>${userInfo.fbUser.email}</b>`,
       buttons: [
         signoutAction,
         {
@@ -585,10 +534,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  sendEmailVerification(
-    userInfo: AppStorageTypes.User,
-    onError: (error: any) => void = null
-  ) {
+  sendEmailVerification(userInfo: AppStorageTypes.User, onError: (error: any) => void = null) {
     this.showEmailVerificationPopupLoading();
 
     userInfo.fbUser.sendEmailVerification().then(
@@ -609,9 +555,7 @@ export class AppComponent implements OnInit, OnDestroy {
           if (err) {
             this.feedbackUI.showToast(err);
           } else {
-            this.feedbackUI.showToast(
-              this.translate.instant('EmailVerificationSendingFailed')
-            );
+            this.feedbackUI.showToast(this.translate.instant('EmailVerificationSendingFailed'));
           }
 
           this.startSigninCheckAgain();
@@ -630,25 +574,22 @@ export class AppComponent implements OnInit, OnDestroy {
 
   getBaseValues() {
     this.stopBaseValuesTracking();
-    const coinHDAddressTracker = this.dataTracker.startTracker(
-      TRACKER_KEY_COINHD,
-      () => {
-        return new Promise<any>((finalResolve, finalReject) => {
-          this.ednApi.getCoinHDAddress().then(
-            result => {
-              if (result && result.data && result.data.hdaddress) {
-                finalResolve(result.data.hdaddress);
-              } else {
-                finalReject(new Error('unknown error'));
-              }
-            },
-            error => {
-              finalReject(error);
+    const coinHDAddressTracker = this.dataTracker.startTracker(TRACKER_KEY_COINHD, () => {
+      return new Promise<any>((finalResolve, finalReject) => {
+        this.ednApi.getCoinHDAddress().then(
+          result => {
+            if (result && result.data && result.data.hdaddress) {
+              finalResolve(result.data.hdaddress);
+            } else {
+              finalReject(new Error('unknown error'));
             }
-          );
-        });
-      }
-    );
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      });
+    });
 
     coinHDAddressTracker.interval = 1000;
 
@@ -663,25 +604,22 @@ export class AppComponent implements OnInit, OnDestroy {
 
     //refresh latest userInfo
     if (this.storage.isSignedIn) {
-      const userInfoTracker = this.dataTracker.startTracker(
-        TRACKER_KEY_USERINFO,
-        () => {
-          return new Promise<any>((finalResolve, finalReject) => {
-            this.ednApi.getUserInfo().then(
-              userInfoResult => {
-                if (userInfoResult.data) {
-                  finalResolve(userInfoResult.data);
-                } else {
-                  finalReject(new Error('unknown error'));
-                }
-              },
-              err => {
-                finalReject(err);
+      const userInfoTracker = this.dataTracker.startTracker(TRACKER_KEY_USERINFO, () => {
+        return new Promise<any>((finalResolve, finalReject) => {
+          this.ednApi.getUserInfo().then(
+            userInfoResult => {
+              if (userInfoResult.data) {
+                finalResolve(userInfoResult.data);
+              } else {
+                finalReject(new Error('unknown error'));
               }
-            );
-          });
-        }
-      );
+            },
+            err => {
+              finalReject(err);
+            }
+          );
+        });
+      });
 
       userInfoTracker.interval = 1000;
       this.subscriptionPack.addSubscription(() => {
@@ -709,6 +647,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   signout() {
+    this.analytics.logEvent({
+      category: 'main',
+      params: {
+        action: 'sign out click',
+        event_label: 'sign out_sign out click'
+      }
+    });
+
     this.feedbackUI.showLoading(null, 'signout');
     this.sideMenu.close();
     this.ednApi.signout().finally(() => {

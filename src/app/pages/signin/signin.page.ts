@@ -7,10 +7,7 @@ import { IonHeader, Platform, IonInput } from '@ionic/angular';
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../providers/appStorage.service';
 
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 
@@ -23,6 +20,9 @@ import { emailPattern } from '../../utils/regex-validations';
 
 import { SubscriptionPack } from '../../utils/listutil';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { AnalyticsService } from '../../providers/analytics.service';
+
+const AnalyticsCategory = 'Login';
 
 @Component({
   selector: 'app-signin',
@@ -47,21 +47,16 @@ export class SigninPage implements OnInit {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private keyboard: Keyboard,
-    private iab: InAppBrowser
+    private iab: InAppBrowser,
+    private analytics: AnalyticsService
   ) {
     this.env = env;
   }
 
   ngOnInit() {
     this.signinForm = new FormGroup({
-      email: new FormControl('', [
-        Validators.required,
-        Validators.pattern(emailPattern)
-      ]),
-      password: new FormControl('', [
-        Validators.required,
-        Validators.minLength(1)
-      ])
+      email: new FormControl('', [Validators.required, Validators.pattern(emailPattern)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(1)])
     });
 
     this.resetFormData();
@@ -106,9 +101,25 @@ export class SigninPage implements OnInit {
   onForgotPasswdClick() {
     const link = 'https://e-garden.edenchain.io/en/account/password/reset/';
     const browser = this.iab.create(link, '_system');
+
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'forgot pwd',
+        event_label: 'forgot pwd_forgot pwd click'
+      }
+    });
   }
 
   async signin() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'signin click',
+        event_label: 'signin_signin click'
+      }
+    });
+
     Object.keys(this.signinForm.controls).forEach(field => {
       // {1}
       const control = this.signinForm.get(field); // {2}
@@ -123,10 +134,7 @@ export class SigninPage implements OnInit {
     this.feedbackUI.showLoading();
 
     try {
-      const userResult = await this.ednApi.signinFirebaseUser(
-        this.signinForm.get('email').value,
-        this.signinForm.get('password').value
-      );
+      const userResult = await this.ednApi.signinFirebaseUser(this.signinForm.get('email').value, this.signinForm.get('password').value);
       await this.runEdnSignup();
     } catch (e) {
       this.feedbackUI.showErrorDialog(e);
@@ -136,6 +144,14 @@ export class SigninPage implements OnInit {
   }
 
   async signinWithFacebook() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'facebooklogin',
+        event_label: 'facebooklogin_facebooklogin click'
+      }
+    });
+
     this.feedbackUI.showLoading();
     try {
       const userResult = await this.ednApi.signinFirebaseUserWithFacebook();
@@ -148,6 +164,14 @@ export class SigninPage implements OnInit {
   }
 
   async signinWithTwitter() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'twitterlogin',
+        event_label: 'twitterlogin_twitterlogin click'
+      }
+    });
+
     this.feedbackUI.showLoading();
     try {
       const userResult = await this.ednApi.signinFirebaseUserWithTwitter();
@@ -160,6 +184,14 @@ export class SigninPage implements OnInit {
   }
 
   async signinWithGoogle() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'googlelogin',
+        event_label: 'googlelogin_googlelogin click'
+      }
+    });
+
     this.feedbackUI.showLoading();
 
     try {
@@ -170,6 +202,18 @@ export class SigninPage implements OnInit {
     } finally {
       this.feedbackUI.hideLoading();
     }
+  }
+
+  signup() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'signup',
+        event_label: 'signup_signup click'
+      }
+    });
+
+    this.rs.navigateByUrl('/signup');
   }
 
   runEdnSignup() {

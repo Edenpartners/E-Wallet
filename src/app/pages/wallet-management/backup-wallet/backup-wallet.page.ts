@@ -9,14 +9,16 @@ import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { env } from '../../../../environments/environment';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
 
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
+
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+
+const AnalyticsCategory2 = 'backup wallet2';
+const AnalyticsCategory3 = 'backup wallet3';
 
 @Component({
   selector: 'app-backup-wallet',
@@ -32,6 +34,7 @@ export class BackupWalletPage implements OnInit {
   userSelectedWords: Array<any> = [];
 
   constructor(
+    private analytics: AnalyticsService,
     private rs: RouterService,
     public eths: EthService,
     private cbService: ClipboardService,
@@ -79,6 +82,14 @@ export class BackupWalletPage implements OnInit {
   }
 
   onUserSelectWord(wordInfo) {
+    this.analytics.logEvent({
+      category: AnalyticsCategory3,
+      params: {
+        action: 'recovery phrase click',
+        event_label: 'recovery phrase_recovery phrase click'
+      }
+    });
+
     if (wordInfo.selected) {
       wordInfo.selected = false;
       for (let i = 0; i < this.userSelectedWords.length; i++) {
@@ -125,10 +136,26 @@ export class BackupWalletPage implements OnInit {
   }
 
   onGotItBtnClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory2,
+      params: {
+        action: 'got it click',
+        event_label: 'got it_got it click'
+      }
+    });
+
     this.step = 1;
   }
 
   onVerifyBtnClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory3,
+      params: {
+        action: 'verify click',
+        event_label: 'verify_verify click'
+      }
+    });
+
     if (this.userSelectedWords.length < 1) {
       return;
     }
@@ -150,9 +177,7 @@ export class BackupWalletPage implements OnInit {
     }
 
     if (env.config.useDecryptPinCodeByPinCode) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
       return;
     }
 
@@ -162,7 +187,14 @@ export class BackupWalletPage implements OnInit {
       this.addWallet()
         .then(
           () => {
-            this.feedbackUI.showAlertDialog('wallet added!');
+            this.feedbackUI.showAlertDialog(this.translate.instant('wallet.added'), {
+              category: AnalyticsCategory3,
+              params: {
+                action: 'wallet added click',
+                event_label: 'wallet added_wallet added click'
+              }
+            });
+
             this.rs.navigateByUrl('/home');
           },
           err => {
@@ -178,7 +210,7 @@ export class BackupWalletPage implements OnInit {
   addWallet() {
     return new Promise<any>((finalResolve, finalReject) => {
       const path = this.etherData.getBIP39DerivationPath(String(0));
-      const createdWalletInfo = this.walletService.createEthWalletInfoToStore(
+      const createdWalletInfo: WalletTypes.EthWalletInfo = this.walletService.createEthWalletInfoToStore(
         this.mnemonic,
         path,
         EthProviders.Type.KnownNetwork,
@@ -187,15 +219,18 @@ export class BackupWalletPage implements OnInit {
       );
 
       if (!createdWalletInfo) {
-        finalReject(new Error('unknown error!'));
+        finalReject(new Error(this.translate.instant('error.unknown')));
+        return;
+      }
+
+      if (this.storage.findWalletByInfo(createdWalletInfo)) {
+        finalReject(new Error(this.translate.instant('valid.wallet.unique')));
         return;
       }
 
       this.ednApi.addEthAddress(createdWalletInfo.address).then(
         result => {
-          this.storage.addEthAddressToUserInfoTemporary(
-            createdWalletInfo.address
-          );
+          this.storage.addEthAddressToUserInfoTemporary(createdWalletInfo.address);
           this.storage.addWallet(createdWalletInfo);
           finalResolve();
         },
@@ -207,9 +242,15 @@ export class BackupWalletPage implements OnInit {
   }
 
   onCopyToClipboardClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory2,
+      params: {
+        action: 'copy clipboard click',
+        event_label: 'copy clipboard_copy clipboard click'
+      }
+    });
+
     this.cbService.copyFromContent(this.mnemonic);
-    this.feedbackUI.showToast(
-      this.translate.instant('TextCopiedIntoClipboard')
-    );
+    this.feedbackUI.showToast(this.translate.instant('TextCopiedIntoClipboard'));
   }
 }
