@@ -127,7 +127,7 @@ export class HomePage implements OnInit, OnDestroy {
       }
     });
 
-    this.rs.navigateByUrl('/dp-edn-list');
+    this.rs.navigateByUrl('/add-edn-list');
   }
 
   onWalletItemClick(walletRow: WalletRow) {

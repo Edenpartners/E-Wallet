@@ -7,30 +7,17 @@ import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
-import { UUID } from 'angular2-uuid';
-import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 
 import { IonInput, Platform } from '@ionic/angular';
 
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../../providers/dataTracker.service';
+import { DataTrackerService, ValueTracker } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { env } from '../../../../environments/environment';
@@ -42,12 +29,16 @@ import { Events } from '@ionic/angular';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+
+const AnalyticsCategory = 'add edn from eth';
+
 @Component({
-  selector: 'app-dp-edn-main',
-  templateUrl: './dp-edn-main.page.html',
-  styleUrls: ['./dp-edn-main.page.scss']
+  selector: 'app-add-edn-eth',
+  templateUrl: './add-edn-eth.page.html',
+  styleUrls: ['./add-edn-eth.page.scss']
 })
-export class DpEdnMainPage implements OnInit, OnDestroy {
+export class AddEdnEthPage implements OnInit, OnDestroy {
   selectedTrader = 'Kyber Networks';
   selectedWalletId: string = null;
   wallets: Array<WalletTypes.EthWalletInfo> = [];
@@ -76,7 +67,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events,
-    private keyboard: Keyboard
+    private keyboard: Keyboard,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {
@@ -147,13 +139,8 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     }
 
     const walletInfo = this.storage.findWalletById(this.selectedWalletId);
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     const ethAmountBn = ethers.utils.parseEther('1');
     this.logger.debug('eth amount : ' + ethAmountBn.toString());
@@ -183,6 +170,16 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     }
   }
 
+  onAmountBlur() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'edn from eth click',
+        event_label: 'edn from eth_edn from eth click'
+      }
+    });
+  }
+
   displayRate(rate) {
     if (rate.expectedRate !== undefined) {
       const ethAmountBn = ethers.utils.parseEther(String(this.ethAmount));
@@ -193,9 +190,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
       const rateResult = ethAmountBn.mul(this.ednFromEthEstimated);
 
       //convert to text
-      const rateDivResult = rateResult.div(
-        ethers.utils.bigNumberify(10).pow(Consts.ETH_DECIMAL)
-      );
+      const rateDivResult = rateResult.div(ethers.utils.bigNumberify(10).pow(Consts.ETH_DECIMAL));
 
       this.logger.debug(rateResult.toString());
       this.ednFromEthEstimatedText = ethers.utils.formatEther(rateDivResult);
@@ -203,26 +198,31 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
   }
 
   tradeEthToEdn(walletPw?: string) {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'add click',
+        event_label: 'edd_add click'
+      }
+    });
+
     if (!this.selectedWalletId) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.wallet.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet.required'));
       return;
     }
 
     const walletInfo = this.storage.findWalletById(this.selectedWalletId);
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(
-      env.config.ednCoinKey,
-      p
-    );
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     if (!this.ethAmount) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.required')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'), {
+        category: AnalyticsCategory,
+        params: {
+          action: 'amount required confirm click',
+          event_label: 'amount required_amoun required click'
+        }
+      });
       return;
     }
 
@@ -235,16 +235,12 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
     }
 
     if (!ethAmountBn) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.pattern')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
       return;
     }
 
     if (ethAmountBn.lte(0)) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.positive')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'));
       return;
     }
 
@@ -258,9 +254,7 @@ export class DpEdnMainPage implements OnInit, OnDestroy {
 
     const onTxCreate = txData => {
       loading.hide();
-      this.feedbackUI.showToast(
-        this.translate.instant('transaction.requested')
-      );
+      this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
       this.ethAmount = 0;
     };
     const onTxReceipt = txReceiptData => {};

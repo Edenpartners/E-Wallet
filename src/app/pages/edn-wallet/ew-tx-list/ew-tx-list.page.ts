@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -16,15 +10,9 @@ import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
 import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 
-import {
-  DataTrackerService,
-  ValueTracker
-} from '../../../providers/dataTracker.service';
+import { DataTrackerService, ValueTracker } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
 import { DecimalPipe } from '@angular/common';
@@ -33,6 +21,8 @@ import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
 import { EwSummary } from '../../../components/ew-summary/ew-summary';
+
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 
 @Component({
   selector: 'app-ew-tx-list',
@@ -64,7 +54,8 @@ export class EwTxListPage implements OnInit, OnDestroy {
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {}
@@ -101,22 +92,16 @@ export class EwTxListPage implements OnInit, OnDestroy {
   loadList(pageIndex: number, onComplete) {
     this.feedbackUI.showLoading();
 
-    const list = this.storage.getTxListForPaging(
-      this.wallet,
-      this.currentPageIndex,
-      100,
-      true,
-      (item: AppStorageTypes.TxRowData) => {
-        for (let j = 0; j < item.logs.length; j++) {
-          const logItem = item.logs[j];
-          if (logItem.state === AppStorageTypes.TxState.Receipted) {
-            return true;
-          }
+    const list = this.storage.getTxListForPaging(this.wallet, this.currentPageIndex, 100, true, (item: AppStorageTypes.TxRowData) => {
+      for (let j = 0; j < item.logs.length; j++) {
+        const logItem = item.logs[j];
+        if (logItem.state === AppStorageTypes.TxState.Receipted) {
+          return true;
         }
-
-        return false;
       }
-    );
+
+      return false;
+    });
 
     list.forEach(item => {
       this.txList.push(item);
@@ -133,10 +118,26 @@ export class EwTxListPage implements OnInit, OnDestroy {
   }
 
   onSendClick() {
+    this.analytics.logEvent({
+      category: 'edn transaction1',
+      params: {
+        action: 'send one click',
+        event_label: 'send one_send one click'
+      }
+    });
+
     this.rs.navigateByUrl(`/ew-sendto/${this.wallet.id}`);
   }
 
   onReceiveClick() {
+    this.analytics.logEvent({
+      category: 'edn transaction2',
+      params: {
+        action: 'receive click',
+        event_label: 'receive_receive click'
+      }
+    });
+
     this.rs.navigateByUrl(`/ew-qrcode/${this.wallet.id}`);
   }
 

@@ -32,6 +32,9 @@ import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+const AnalyticsCategory = 'edn transaction1';
+
 @Component({
   selector: 'app-ew-sendto',
   templateUrl: './ew-sendto.page.html',
@@ -68,7 +71,8 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events,
-    private keyboard: Keyboard
+    private keyboard: Keyboard,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {}
@@ -108,6 +112,18 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   }
 
   setEvents() {}
+
+  onSendBtnClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'send two click',
+        event_label: 'send two_send two click'
+      }
+    });
+
+    this.transferERC20Token();
+  }
 
   transferERC20Token(walletPw?: string) {
     if (!this.toAddress.trim()) {

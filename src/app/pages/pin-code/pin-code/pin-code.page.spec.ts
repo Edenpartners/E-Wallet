@@ -1,22 +1,21 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DpEdnMainPage } from './dp-edn-main.page';
+import { PinCodePage } from './pin-code.page';
 
-describe('DpEdnMainPage', () => {
-  let component: DpEdnMainPage;
-  let fixture: ComponentFixture<DpEdnMainPage>;
+describe('PinCodePage', () => {
+  let component: PinCodePage;
+  let fixture: ComponentFixture<PinCodePage>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DpEdnMainPage ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-    .compileComponents();
+      declarations: [PinCodePage],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DpEdnMainPage);
+    fixture = TestBed.createComponent(PinCodePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

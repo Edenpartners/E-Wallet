@@ -131,11 +131,11 @@
   "Withdraw": "WITHDRAW",
 
   "______________DP_EDN_LIST": "",
-  "DpEdnListTitle": "Add EDN",
+  "AddEdnListTitle": "Add EDN",
   "DpFromEth": "Add from ETH",
 
   "______________DP_EDN_MAIN": "",
-  "DpEdnMainTitle": "Add EDN from ETH",
+  "AddEdnEthTitle": "Add EDN from ETH",
   "Exchange": "Exchange",
   "KyberNetworks": "Kyber Networks",
   "AddEdnTo": "Add EDN to",
@@ -203,5 +203,4 @@
   "DepositAsTEDNInto": "Deposit as TEDN into",
   "WithdrawTEDNFrom": "Withdraw TEDN from",
   "DepositAsEDNInto": "Deposit as EDN into"
-
 }

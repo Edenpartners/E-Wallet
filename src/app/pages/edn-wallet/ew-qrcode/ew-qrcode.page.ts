@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ClipboardService } from 'ngx-clipboard';
 import { ActivatedRoute } from '@angular/router';
@@ -12,14 +6,14 @@ import { Subscription } from 'rxjs';
 import { NGXLogger } from 'ngx-logger';
 import { SubscriptionPack } from '../../../utils/listutil';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
 import { EwSummary } from '../../../components/ew-summary/ew-summary';
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+
+const AnalyticsCategory = 'edn transaction2';
 
 @Component({
   selector: 'app-ew-qrcode',
@@ -43,7 +37,8 @@ export class EwQrcodePage implements OnInit, OnDestroy {
     private storage: AppStorageService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {}
@@ -82,6 +77,14 @@ export class EwQrcodePage implements OnInit, OnDestroy {
   }
 
   async onQrCodeClick() {
+    this.analytics.logEvent({
+      category: AnalyticsCategory,
+      params: {
+        action: 'qr code click',
+        event_label: 'qr code_qr code click'
+      }
+    });
+
     this.cbService.copyFromContent(this.qrCodeData);
     this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
   }

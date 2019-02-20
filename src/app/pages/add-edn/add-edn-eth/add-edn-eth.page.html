@@ -1,5 +1,5 @@
 <ion-header>
-  <common-nav-bar title="{{ 'DpEdnMainTitle' | translate }}"></common-nav-bar>
+  <common-nav-bar title="{{ 'AddEdnEthTitle' | translate }}"></common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper" no-padding scrollY="false">
@@ -22,7 +22,7 @@
         <ion-label class="invisible fw-500">{{ 'ETH' | translate }}</ion-label>
 
         <ion-input #ethAmountInput type="number" color="text-light-1" class="font-size-24 fw-500"
-          text-center [(ngModel)]="ethAmount" (ionChange)="getRateByLocally()"></ion-input>
+          text-center [(ngModel)]="ethAmount" (ionChange)="getRateByLocally()" (ionBlur)="onAmountBlur()"></ion-input>
         <ion-label class="fw-500">{{ 'ETH' | translate }}</ion-label>
       </ion-item>
 

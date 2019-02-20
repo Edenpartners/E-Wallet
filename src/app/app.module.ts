@@ -35,7 +35,7 @@ import { FirebaseAnalytics } from '@ionic-native/firebase-analytics/ngx';
 
 import { environment } from '../environments/environment';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { PcEditPageModule } from './pages/pin-code/pc-edit/pc-edit.module';
+import { PinCodePageModule } from './pages/pin-code/pin-code/pin-code.module';
 import { PrivacyPolicyPageModule } from './pages/signup-profile/privacy-policy/privacy-policy.module';
 import { TermsAndConditionPageModule } from './pages/signup-profile/terms-and-condition/terms-and-condition.module';
 
@@ -79,7 +79,7 @@ export function createTranslateLoader(http: HttpClient) {
       }
     }),
 
-    PcEditPageModule,
+    PinCodePageModule,
     PrivacyPolicyPageModule,
     TermsAndConditionPageModule
   ],

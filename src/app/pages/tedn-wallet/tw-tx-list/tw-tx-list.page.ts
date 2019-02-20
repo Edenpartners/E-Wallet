@@ -24,6 +24,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
 
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+
 const countPerPage = 30;
 const useDummyData = false;
 
@@ -70,7 +72,8 @@ export class TwTxListPage implements OnInit, OnDestroy {
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {
@@ -214,10 +217,26 @@ export class TwTxListPage implements OnInit, OnDestroy {
   }
 
   onReceiveClick() {
+    this.analytics.logEvent({
+      category: 'tedn transaction2',
+      params: {
+        action: 'deposit one click',
+        event_label: 'deposit one_deposit one click'
+      }
+    });
+
     this.rs.navigateByUrl(`/tedn-deposit/${this.walletId}`);
   }
 
   onSendClick() {
+    this.analytics.logEvent({
+      category: 'tedn transaction1',
+      params: {
+        action: 'withdraw one click',
+        event_label: 'withdraw one_withdraw one click'
+      }
+    });
+
     this.rs.navigateByUrl(`/tedn-withdraw/${this.walletId}`);
   }
 }

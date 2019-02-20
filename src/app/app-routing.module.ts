@@ -28,16 +28,16 @@ const routes: Routes = [
   },
   { path: 'home', loadChildren: './pages/home/home.module#HomePageModule' },
   {
-    path: 'dp-edn-list',
-    loadChildren: './pages/edn-deposit/dp-edn-list/dp-edn-list.module#DpEdnListPageModule'
+    path: 'add-edn-list',
+    loadChildren: './pages/add-edn/add-edn-list/add-edn-list.module#AddEdnListPageModule'
   },
   {
-    path: 'dp-edn-main',
-    loadChildren: './pages/edn-deposit/dp-edn-main/dp-edn-main.module#DpEdnMainPageModule'
+    path: 'add-edn-eth',
+    loadChildren: './pages/add-edn/add-edn-eth/add-edn-eth.module#AddEdnEthPageModule'
   },
   {
-    path: 'pc-edit',
-    loadChildren: './pages/pin-code/pc-edit/pc-edit.module#PcEditPageModule'
+    path: 'pin-code',
+    loadChildren: './pages/pin-code/pin-code/pin-code.module#PinCodePageModule'
   },
   {
     path: 'backup-wallet',

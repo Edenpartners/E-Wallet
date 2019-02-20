@@ -28,6 +28,7 @@ import { Consts } from '../../../../environments/constants';
 import { Events, IonInput } from '@ionic/angular';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 
 enum Mode {
   deposit = 'deposit',
@@ -75,7 +76,8 @@ export class TwTradePage implements OnInit, OnDestroy {
     private dataTracker: DataTrackerService,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {
@@ -163,43 +165,72 @@ export class TwTradePage implements OnInit, OnDestroy {
     }
   }
 
-  depositTEDN(walletPw?: string) {
+  getWalletRequiredEvent(): AnalyticsEvent {
+    return {
+      category: this.mode,
+      params: {
+        action: 'wallet required confirm click',
+        event_label: 'wallet required_wallet required click'
+      }
+    };
+  }
+
+  getAmountRequiredEvent(): AnalyticsEvent {
+    return {
+      category: this.mode,
+      params: {
+        action: 'amount required confirm click',
+        event_label: 'amount required_amount required click'
+      }
+    };
+  }
+
+  validateForTrade(amountDecimal: number): BigNumber {
     if (!this.selectedEthWalletId) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet.required'));
-      return;
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet.required'), this.getWalletRequiredEvent());
+      return null;
     }
 
     if (!this.selectedTednWalletId) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.tednWallet.required'));
-      return;
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.tednWallet.required'), this.getWalletRequiredEvent());
+      return null;
     }
 
     if (!this.storage.coinHDAddress) {
       this.feedbackUI.showErrorDialog(this.translate.instant('error.network.connection'));
-      return;
+      return null;
     }
 
     if (!this.tradeAmount) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'));
-      return;
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'), this.getAmountRequiredEvent());
+      return null;
+    }
+    // convert to
+    let adjustedAmount: BigNumber = null;
+    try {
+      adjustedAmount = ethers.utils.parseUnits(String(this.tradeAmount), amountDecimal);
+    } catch (e) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'), this.getAmountRequiredEvent());
+      return null;
     }
 
+    if (adjustedAmount.lte(0)) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'), this.getAmountRequiredEvent());
+      return null;
+    }
+
+    return adjustedAmount;
+  }
+
+  depositTEDN(walletPw?: string) {
     const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(this.selectedEthWalletId);
     const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
     const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
 
     // convert to
-    let adjustedAmount: BigNumber = null;
-    try {
-      adjustedAmount = ethers.utils.parseUnits(String(this.tradeAmount), ednContractInfo.contractInfo.decimal);
-    } catch (e) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
-      return;
-    }
-
-    if (adjustedAmount.lte(0)) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'));
+    const adjustedAmount: BigNumber = this.validateForTrade(ednContractInfo.contractInfo.decimal);
+    if (adjustedAmount === null) {
       return;
     }
 
@@ -225,7 +256,13 @@ export class TwTradePage implements OnInit, OnDestroy {
 
     const onError = error => {
       loadingHandler.hide();
-      this.feedbackUI.showErrorDialog(error);
+      this.feedbackUI.showErrorDialog(error, {
+        category: this.mode,
+        params: {
+          action: 'deposit error confirm click',
+          event_label: 'deposit error_deposit error click'
+        }
+      });
     };
 
     this.etherApi
@@ -245,37 +282,36 @@ export class TwTradePage implements OnInit, OnDestroy {
   }
 
   tradeEdnToTedn() {
+    this.analytics.logEvent({
+      category: this.mode,
+      params: {
+        action: 'deposit click',
+        event_label: 'deposit_deposit click'
+      }
+    });
+
     this.depositTEDN();
   }
+
   tradeTednToEdn() {
+    this.analytics.logEvent({
+      category: this.mode,
+      params: {
+        action: 'withdraw click',
+        event_label: 'withdraw_withdraw click'
+      }
+    });
+
     this.withdrawTEDN();
   }
 
   withdrawTEDN(walletPw?: string) {
-    if (!this.selectedEthWalletId) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet.required'));
-      return;
-    }
-
-    if (!this.selectedTednWalletId) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.tednWallet.required'));
-      return;
-    }
-
-    if (!this.tradeAmount) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.required'));
-      return;
-    }
-
     const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(this.selectedEthWalletId);
     const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
     // convert to
-    let adjustedAmount: BigNumber = null;
-    try {
-      adjustedAmount = ethers.utils.parseUnits(String(this.tradeAmount), Consts.TEDN_DECIMAL);
-    } catch (e) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
+    const adjustedAmount: BigNumber = this.validateForTrade(Consts.TEDN_DECIMAL);
+    if (adjustedAmount === null) {
       return;
     }
 
@@ -297,7 +333,13 @@ export class TwTradePage implements OnInit, OnDestroy {
           this.tradeAmount = 0;
         },
         error => {
-          this.feedbackUI.showErrorDialog(error);
+          this.feedbackUI.showErrorDialog(error, {
+            category: this.mode,
+            params: {
+              action: 'withdraw error confirm click',
+              event_label: 'withdraw error_withdraw error click'
+            }
+          });
         }
       )
       .finally(() => {

@@ -2,17 +2,17 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { SharedPageModule } from '../../../modules/shared.page.module';
 
-import { PcEditPage } from './pc-edit.page';
+import { AddEdnListPage } from './add-edn-list.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: PcEditPage
+    component: AddEdnListPage
   }
 ];
 
 @NgModule({
   imports: [SharedPageModule, RouterModule.forChild(routes)],
-  declarations: [PcEditPage]
+  declarations: [AddEdnListPage]
 })
-export class PcEditPageModule {}
+export class AddEdnListPageModule {}

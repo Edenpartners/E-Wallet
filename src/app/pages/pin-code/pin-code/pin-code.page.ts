@@ -3,17 +3,9 @@ import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
 import { NGXLogger } from 'ngx-logger';
-import { IonHeader, Platform } from '@ionic/angular';
 
-import { EdnRemoteApiService } from '../../../providers/ednRemoteApi.service';
-import { AppVersion } from '@ionic-native/app-version/ngx';
+import { AppStorageTypes, AppStorageService } from '../../../providers/appStorage.service';
 
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../../providers/appStorage.service';
-
-import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { NumPad } from '../../../components/numpad/num-pad';
 
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
@@ -22,12 +14,16 @@ import { Events } from '@ionic/angular';
 import { SubscriptionPack } from '../../../utils/listutil';
 import { Consts } from '../../../../environments/constants';
 
+import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+
+const AnalyticsCategory = 'confirm pin';
+
 @Component({
-  selector: 'app-pc-edit',
-  templateUrl: './pc-edit.page.html',
-  styleUrls: ['./pc-edit.page.scss']
+  selector: 'app-pin-code',
+  templateUrl: './pin-code.page.html',
+  styleUrls: ['./pin-code.page.scss']
 })
-export class PcEditPage implements OnInit, OnDestroy {
+export class PinCodePage implements OnInit, OnDestroy {
   @ViewChild(NumPad) numPad: NumPad;
 
   isModal = false;
@@ -44,9 +40,10 @@ export class PcEditPage implements OnInit, OnDestroy {
     private logger: NGXLogger,
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
-    private events: Events
+    private events: Events,
+    private analytics: AnalyticsService
   ) {
-    this.logger.trace('init pc-edit');
+    this.logger.trace('init pin-code');
   }
 
   ngOnInit() {}
@@ -62,10 +59,7 @@ export class PcEditPage implements OnInit, OnDestroy {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.queryParamMap.subscribe(query => {
         try {
-          if (
-            query.get('isCreation') !== undefined &&
-            query.get('isCreation') !== null
-          ) {
+          if (query.get('isCreation') !== undefined && query.get('isCreation') !== null) {
             const creationVal = query.get('isCreation');
             this.isCreation = creationVal === 'true' ? true : false;
             this.logger.debug('isCreation : ', this.isCreation);
@@ -73,7 +67,7 @@ export class PcEditPage implements OnInit, OnDestroy {
               this.isConfirmStep = false;
 
               this.logger.debug('add custom back handler');
-              this.rs.addCustomBackHandler('pc-edit', () => {
+              this.rs.addCustomBackHandler('pin-code', () => {
                 return this.handleBack();
               });
             }
@@ -120,36 +114,39 @@ export class PcEditPage implements OnInit, OnDestroy {
 
   onNumChange() {
     //save to localStorage if creation mode
-    if (this.isCreation && this.isConfirmStep) {
-      if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
-        if (this.numPad.compareWithSavedInput()) {
-          this.storage.setPinNumber(this.numPad.getDecryptedUserInput(), '');
-          this.numPad.clear();
-          this.isComplete = true;
-          this.storage.notifyToUserStateObservers();
-        } else {
-          this.numPad.clearPinCode();
-          this.feedbackUI.showErrorDialog(
-            this.translate.instant('valid.pincode.areEqual')
-          );
+    if (this.isCreation) {
+      if (this.isConfirmStep) {
+        if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
+          if (this.numPad.compareWithSavedInput()) {
+            this.storage.setPinNumber(this.numPad.getDecryptedUserInput(), '');
+            this.numPad.clear();
+            this.isComplete = true;
+            this.storage.notifyToUserStateObservers();
+          } else {
+            this.numPad.clearPinCode();
+            this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
+          }
         }
       }
     } else if (this.isConfirmStep) {
       if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
+        this.analytics.logEvent({
+          category: AnalyticsCategory,
+          params: {
+            action: 'pin no click',
+            event_label: 'pin no_pin no click'
+          }
+        });
+
         const code = this.numPad.getDecryptedUserInput();
         this.numPad.clearPinCode();
         if (this.storage.isValidPinNumber(code)) {
-          this.events.publish(
-            Consts.EVENT_PIN_CODE_RESULT,
-            this.storage.getWalletPassword(code)
-          );
+          this.events.publish(Consts.EVENT_PIN_CODE_RESULT, this.storage.getWalletPassword(code));
           this.isComplete = true;
           this.events.publish(Consts.EVENT_CLOSE_MODAL);
         } else {
           this.numPad.clearPinCode();
-          this.feedbackUI.showErrorDialog(
-            this.translate.instant('valid.pincode.areEqual')
-          );
+          this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
         }
       }
     }

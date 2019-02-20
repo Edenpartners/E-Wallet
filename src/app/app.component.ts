@@ -24,7 +24,7 @@ import { Events } from '@ionic/angular';
 import { DataTrackerService } from './providers/dataTracker.service';
 import { SubscriptionPack } from './utils/listutil';
 import { TransactionLoggerService } from './providers/transactionLogger.service';
-import { PcEditPage } from './pages/pin-code/pc-edit/pc-edit.page';
+import { PinCodePage } from './pages/pin-code/pin-code/pin-code.page';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
@@ -167,7 +167,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   //#region Modal
   async showPinCodeModal() {
-    this.showModal(PcEditPage);
+    this.showModal(PinCodePage);
   }
 
   async showModal(page: any) {
@@ -417,7 +417,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 if (!env.config.emailVerificationRequired || this.storage.isUserEmailVerified) {
                   if (!this.storage.hasPinNumber) {
                     this.logger.info('user signed in but no pincode, goto pincode');
-                    this.rs.navigateToRoot('/pc-edit?isCreation=true');
+                    this.rs.navigateToRoot('/pin-code?isCreation=true');
                   } else {
                     this.logger.info('user signed in, goto home');
                     this.rs.navigateToRoot('/home');

@@ -1,22 +1,21 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PcEditPage } from './pc-edit.page';
+import { AddEdnListPage } from './add-edn-list.page';
 
-describe('PcEditPage', () => {
-  let component: PcEditPage;
-  let fixture: ComponentFixture<PcEditPage>;
+describe('AddEdnListPage', () => {
+  let component: AddEdnListPage;
+  let fixture: ComponentFixture<AddEdnListPage>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PcEditPage ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-    .compileComponents();
+      declarations: [AddEdnListPage],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PcEditPage);
+    fixture = TestBed.createComponent(AddEdnListPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

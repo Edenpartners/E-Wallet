@@ -5,11 +5,11 @@ import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.s
 const AnalyticsCategory = 'add edn';
 
 @Component({
-  selector: 'app-dp-edn-list',
-  templateUrl: './dp-edn-list.page.html',
-  styleUrls: ['./dp-edn-list.page.scss']
+  selector: 'app-add-edn-list',
+  templateUrl: './add-edn-list.page.html',
+  styleUrls: ['./add-edn-list.page.scss']
 })
-export class DpEdnListPage implements OnInit {
+export class AddEdnListPage implements OnInit {
   constructor(private rs: RouterService, private analytics: AnalyticsService) {}
 
   ngOnInit() {}
@@ -22,6 +22,6 @@ export class DpEdnListPage implements OnInit {
       }
     });
 
-    this.rs.navigateByUrl('/dp-edn-main');
+    this.rs.navigateByUrl('/add-edn-eth');
   }
 }
