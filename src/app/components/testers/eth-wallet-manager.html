@@ -33,11 +33,11 @@
             : {{ item.data.address }}</ion-button>
         </ion-col>
         <ion-col size="auto">
-          <ion-button color="light" (click)="copyToClipboard(item.data.info.data.privateKey)">Private
+          <ion-button color="light" (click)="copyPrivateKeyToClipboard(item)">Private
             Key</ion-button>
         </ion-col>
         <ion-col size="auto">
-          <ion-button color="light" (click)="copyToClipboard(item.data.info.data.mnemonic)">Mnemonic</ion-button>
+          <ion-button color="light" (click)="copyMnemonicToClipboard(item)">Mnemonic</ion-button>
         </ion-col>
         <ion-col size="auto">
           <ion-button color="primary" (click)="selectWallet(item)">Select</ion-button>

@@ -5,12 +5,18 @@ export interface Environment {
   firebase: any;
 
   config: {
+    debugging: {
+      disableConsoleLogging: boolean;
+      logBlockchain: boolean;
+      logEdnApi: boolean;
+      showDebugToast: boolean;
+      logIdexAPI: boolean;
+    };
+
     useRedirectorOnDebugMode: boolean;
     handleUserState: boolean;
     alterStartPath: string;
-    disableConsoleLogging: boolean;
-    logBlockchain: boolean;
-    logEdnApi: boolean;
+
     compareUserIDTokenOnDeeplinkHandling: boolean;
     emailVerificationRequired: boolean;
 
@@ -23,7 +29,7 @@ export interface Environment {
       useSignupForSignin: boolean;
     };
     ednCoinKey: string;
-    showDebugToast: boolean;
+
     useDecryptPinCodeByPinCode: boolean;
     simulateHardwareBackButton: boolean;
     clearWalletsOnWipeStorage: boolean;

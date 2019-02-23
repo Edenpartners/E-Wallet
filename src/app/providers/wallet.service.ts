@@ -65,25 +65,16 @@ export namespace WalletTypes {
 export class WalletService {
   constructor(private logger: NGXLogger, private eths: EthService) {}
 
-  createEthWalletInstance(
-    walletInfo: WalletTypes.EthWalletInfo,
-    password: string
-  ) {
+  createEthWalletInstance(walletInfo: WalletTypes.EthWalletInfo, password: string): Wallet {
     if (!password) {
       return null;
     }
     const ki = CryptoHelper.getKeyAndIV(password, walletInfo.info.data.salt);
-    const decPrivateKey = CryptoJS.AES.decrypt(
-      walletInfo.info.data.privateKey,
-      ki.key,
-      {
-        iv: ki.iv
-      }
-    ).toString(CryptoJS.enc.Utf8);
+    const decPrivateKey = CryptoJS.AES.decrypt(walletInfo.info.data.privateKey, ki.key, {
+      iv: ki.iv
+    }).toString(CryptoJS.enc.Utf8);
 
-    const p: EthProviders.Base = this.eths.getProvider(
-      walletInfo.info.provider
-    );
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
     let result: Wallet = null;
     try {
@@ -93,6 +84,22 @@ export class WalletService {
     }
 
     return result;
+  }
+
+  getPrivateKeyFromWallet(walletInfo: WalletTypes.EthWalletInfo, password: string): string {
+    const wallet: Wallet = this.createEthWalletInstance(walletInfo, password);
+    if (wallet) {
+      return wallet.privateKey;
+    }
+    return null;
+  }
+
+  getMnemonicFromWallet(walletInfo: WalletTypes.EthWalletInfo, password: string): string {
+    const wallet: Wallet = this.createEthWalletInstance(walletInfo, password);
+    if (wallet) {
+      return wallet.mnemonic;
+    }
+    return null;
   }
 
   /**
@@ -133,13 +140,9 @@ export class WalletService {
     const encryptedPath = CryptoJS.AES.encrypt(path, ki.key, {
       iv: ki.iv
     }).toString();
-    const encryptedPrivateKey = CryptoJS.AES.encrypt(
-      wallet.privateKey,
-      ki.key,
-      {
-        iv: ki.iv
-      }
-    ).toString();
+    const encryptedPrivateKey = CryptoJS.AES.encrypt(wallet.privateKey, ki.key, {
+      iv: ki.iv
+    }).toString();
 
     const decKi = CryptoHelper.getKeyAndIV(password, salt);
     const decMWords = CryptoJS.AES.decrypt(encryptedMWords, decKi.key, {

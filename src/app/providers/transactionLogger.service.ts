@@ -7,10 +7,7 @@ import { EtherDataService } from './etherData.service';
 import { WalletService, WalletTypes } from './wallet.service';
 import { Provider } from 'ethers/providers';
 import { BigNumber, BigNumberish } from 'ethers/utils';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../providers/appStorage.service';
 
 import { env } from '../../environments/environment';
 import { FeedbackUIService } from './feedbackUI.service';
@@ -40,8 +37,8 @@ export class TransactionLoggerService {
   initEvents() {
     this.setETHEvents();
     this.setERC20Events();
-    this.setKyberNetworkEvents();
   }
+
   setETHEvents() {
     this.events.subscribe(
       'eth.send.tx.create',
@@ -54,25 +51,27 @@ export class TransactionLoggerService {
         },
         tx: any
       ) => {
+        const ethTxInfo: AppStorageTypes.Tx.EthTxRowInfo = {
+          from: params.walletInfo.address,
+          to: params.sendEthTo,
+          amount: {
+            value: params.sendWeiAmount.toHexString(),
+            decimal: Consts.ETH_DECIMAL,
+            display: ethers.utils.formatEther(params.sendWeiAmount)
+          }
+        };
+
         /** transaction info */
         this.storage.addTx(
-          AppStorageTypes.TxType.EthTransfer,
-          AppStorageTypes.TxSubType.Send,
-          {
-            from: params.walletInfo.address,
-            to: params.sendEthTo,
-            amount: {
-              value: params.sendWeiAmount.toHexString(),
-              decimal: Consts.ETH_DECIMAL,
-              display: ethers.utils.formatEther(params.sendWeiAmount)
-            }
-          },
+          AppStorageTypes.Tx.TxType.EthTransfer,
+          AppStorageTypes.Tx.TxSubType.Send,
+          ethTxInfo,
           params.customLogData,
           params.walletInfo,
           tx.hash,
-          AppStorageTypes.TxState.Created,
+          AppStorageTypes.Tx.TxState.Created,
           new Date(),
-          null
+          tx
         );
       }
     );
@@ -89,18 +88,19 @@ export class TransactionLoggerService {
         txReceipt: any
       ) => {
         this.storage.addTxLog(
-          AppStorageTypes.TxRowState.Closed,
+          AppStorageTypes.Tx.TxRowState.Closed,
           params.walletInfo,
           txReceipt.transactionHash,
-          AppStorageTypes.TxState.Receipted,
+          AppStorageTypes.Tx.TxState.Receipted,
           new Date(),
-          null
+          txReceipt
         );
       }
     );
 
     this.events.subscribe('eth.send.error', () => {});
   }
+
   setERC20Events() {
     this.events.subscribe(
       'eth.erc20.send.tx.create',
@@ -114,35 +114,34 @@ export class TransactionLoggerService {
         },
         tx: any
       ) => {
+        const ethTxInfo: AppStorageTypes.Tx.EthTxRowInfo = {
+          from: params.walletInfo.address,
+          to: params.toAddress,
+          amount: {
+            value: params.srcAmount.toHexString(),
+            decimal: params.ctInfo.contractInfo.decimal,
+            display: ethers.utils.formatUnits(params.srcAmount, params.ctInfo.contractInfo.decimal)
+          }
+        };
+
         /** transaction info */
         this.storage.addTx(
-          AppStorageTypes.TxType.EthERC20Transfer,
-          AppStorageTypes.TxSubType.Send,
-          {
-            from: params.walletInfo.address,
-            to: params.toAddress,
-            amount: {
-              value: params.srcAmount.toHexString(),
-              decimal: params.ctInfo.contractInfo.decimal,
-              display: ethers.utils.formatUnits(
-                params.srcAmount,
-                params.ctInfo.contractInfo.decimal
-              )
-            }
-          },
+          AppStorageTypes.Tx.TxType.EthERC20Transfer,
+          AppStorageTypes.Tx.TxSubType.Send,
+          ethTxInfo,
           params.customLogData,
           params.walletInfo,
           tx.hash,
-          AppStorageTypes.TxState.Created,
+          AppStorageTypes.Tx.TxState.Created,
           new Date(),
-          null
+          tx
         );
       }
     );
 
     this.events.subscribe(
       'eth.erc20.send.tx.receipt',
-      (
+      async (
         params: {
           walletInfo: WalletTypes.EthWalletInfo;
           ctInfo: WalletTypes.ContractInfo;
@@ -152,13 +151,13 @@ export class TransactionLoggerService {
         },
         txReceipt: any
       ) => {
-        const updatedTx: AppStorageTypes.TxRowData = this.storage.addTxLog(
-          AppStorageTypes.TxRowState.Closed,
+        const updatedTx: AppStorageTypes.Tx.TxRowData = await this.storage.addTxLog(
+          AppStorageTypes.Tx.TxRowState.Closed,
           params.walletInfo,
           txReceipt.transactionHash,
-          AppStorageTypes.TxState.Receipted,
+          AppStorageTypes.Tx.TxState.Receipted,
           new Date(),
-          null
+          txReceipt
         );
 
         this.checkAndRunDepositToTEDN(params.walletInfo, updatedTx);
@@ -166,128 +165,29 @@ export class TransactionLoggerService {
     );
   }
 
-  setKyberNetworkEvents() {
-    this.events.subscribe(
-      'exchange.kyber.tx.create',
-      (
-        params: {
-          walletInfo: WalletTypes.EthWalletInfo;
-          targetErc20ContractAddres: string;
-          srcEthAmount: BigNumber;
-          customLogData?: any;
-        },
-        tx: any
-      ) => {
-        const p: EthProviders.Base = this.eths.getProvider(
-          params.walletInfo.info.provider
-        );
-
-        /** transaction info */
-        this.storage.addTx(
-          AppStorageTypes.TxType.KyberNetworkTrade,
-          AppStorageTypes.TxSubType.Trade,
-          {
-            from: {
-              network: 'ETH',
-              type: 'ETH',
-              address: this.etherData.contractResolver.getETH(p)
-            },
-            to: {
-              network: 'ETH',
-              type: 'ERC20',
-              address: params.targetErc20ContractAddres
-            },
-            amount: {
-              value: params.srcEthAmount.toHexString(),
-              decimal: Consts.ETH_DECIMAL,
-              display: ethers.utils.formatEther(params.srcEthAmount)
-            }
-          },
-          params.customLogData,
-          params.walletInfo,
-          tx.hash,
-          AppStorageTypes.TxState.Created,
-          new Date(),
-          null
-        );
-      }
-    );
-
-    this.events.subscribe(
-      'exchange.kyber.tx.receipt',
-      (
-        params: {
-          walletInfo: WalletTypes.EthWalletInfo;
-          targetErc20ContractAddres: string;
-          srcEthAmount: BigNumber;
-          customLogData?: any;
-        },
-        txReceipt
-      ) => {
-        this.storage.addTxLog(
-          AppStorageTypes.TxRowState.Closed,
-          params.walletInfo,
-          txReceipt.transactionHash,
-          AppStorageTypes.TxState.Receipted,
-          new Date(),
-          null
-        );
-      }
-    );
-  } //end of kybernetwork events
-
   trackUnclosedTxLogs() {
     this.logger.debug('track trackUnclosedTxLogs');
 
-    const filter = (item: AppStorageTypes.TxRowData) => {
-      const customData = item.customData;
-      if (customData) {
-        if (
-          customData.filter === 'tedn.deposit' &&
-          customData.postedToEdnServer === false
-        ) {
-          return true;
-        }
-      }
-
-      return false;
-    };
-
     const wallets = this.storage.getWallets(false, false);
-    wallets.forEach(wallet => {
-      //{ filter: 'tedn.deposit', postedToEdnServer: false }
-
-      const incompleteTxList: Array<
-        AppStorageTypes.TxRowData
-      > = this.storage.getIncompleteTxList(wallet, filter);
-
-      //update search limit if empty array
-      if (incompleteTxList.length === 0) {
-        const txInfo = this.storage.getTxInfo(wallet);
-        if (txInfo.incompleteSearchIndex !== txInfo.endIndex) {
-          txInfo.incompleteSearchIndex = txInfo.endIndex;
-          this.storage.setTxInfo(wallet, txInfo);
-        }
-      }
+    wallets.forEach(async wallet => {
+      const incompleteTxList: Array<AppStorageTypes.Tx.TxRowData> = await this.storage.getIncompleteTxList(wallet, 'tedn.deposit.unposted');
 
       const p: EthProviders.Base = this.eths.getProvider(wallet.info.provider);
 
-      incompleteTxList.forEach((incompleteTx: AppStorageTypes.TxRowData) => {
-        if (incompleteTx.state === AppStorageTypes.TxRowState.Opened) {
-          this.etherApi
-            .trackTransactionReceipt(p, incompleteTx.hash)
-            .then((txReceipt: any) => {
-              this.storage.addTxLog(
-                AppStorageTypes.TxRowState.Closed,
-                wallet,
-                txReceipt.transactionHash,
-                AppStorageTypes.TxState.Receipted,
-                new Date(),
-                null
-              );
+      incompleteTxList.forEach((incompleteTx: AppStorageTypes.Tx.TxRowData) => {
+        if (incompleteTx.state === AppStorageTypes.Tx.TxRowState.Opened) {
+          this.etherApi.trackTransactionReceipt(p, incompleteTx.hash).then((txReceipt: any) => {
+            this.storage.addTxLog(
+              AppStorageTypes.Tx.TxRowState.Closed,
+              wallet,
+              txReceipt.transactionHash,
+              AppStorageTypes.Tx.TxState.Receipted,
+              new Date(),
+              null
+            );
 
-              this.checkAndRunDepositToTEDN(wallet, incompleteTx);
-            });
+            this.checkAndRunDepositToTEDN(wallet, incompleteTx);
+          });
         } else {
           this.checkAndRunDepositToTEDN(wallet, incompleteTx);
         }
@@ -295,10 +195,7 @@ export class TransactionLoggerService {
     });
   } //end of trackUnclosedLogs
 
-  checkAndRunDepositToTEDN(
-    wallet: WalletTypes.WalletInfo,
-    txRowData: AppStorageTypes.TxRowData
-  ) {
+  checkAndRunDepositToTEDN(wallet: WalletTypes.WalletInfo, txRowData: AppStorageTypes.Tx.TxRowData) {
     if (!txRowData) {
       return;
     }
@@ -307,10 +204,7 @@ export class TransactionLoggerService {
       return;
     }
 
-    if (
-      customData.filter === 'tedn.deposit' &&
-      customData.postedToEdnServer === false
-    ) {
+    if (customData === 'tedn.deposit.unposted') {
       this.runDepositToTEDN(wallet, txRowData.hash);
     }
   }
@@ -318,10 +212,7 @@ export class TransactionLoggerService {
   runDepositToTEDN(wallet: WalletTypes.WalletInfo, txHash: string) {
     this.ednApi.depositToTEDN(txHash).then(
       result => {
-        this.storage.updateTxCustomData(wallet, txHash, {
-          filter: 'tedn.deposit',
-          postedToEdnServer: true
-        });
+        this.storage.updateTxCustomData(wallet, txHash, 'tedn.deposit.posted');
       },
       error => {}
     );

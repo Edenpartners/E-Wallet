@@ -158,6 +158,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.logger.info('platform is ready!');
       this.statusBar.styleLightContent();
 
+      this.storage.initSqlite();
       this.storage.startFirebaseSigninCheck();
       this.handleDefaultRoute();
       this.getBaseValues();
@@ -170,15 +171,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showModal(PinCodePage);
   }
 
-  async showModal(page: any) {
+  async showModal(page: any, isFullScreen: boolean = true) {
     if (this.hasModal) {
       return;
     }
     this.hasModal = true;
 
-    this.currentModal = await this.modalController.create({
+    const options: any = {
       component: page
-    });
+    };
+    if (isFullScreen) {
+      options.cssClass = 'full-screen-modal';
+    }
+    this.currentModal = await this.modalController.create(options);
     return await this.currentModal.present();
   }
 

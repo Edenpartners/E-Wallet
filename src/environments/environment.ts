@@ -11,25 +11,31 @@ export const environment: Environment = {
   firebase: firebaseConfig,
 
   config: {
+    debugging: {
+      disableConsoleLogging: false,
+      logBlockchain: false,
+      logEdnApi: false,
+      showDebugToast: false,
+      logIdexAPI: true
+    },
     useRedirectorOnDebugMode: true,
-    handleUserState: true,
+    handleUserState: false,
     alterStartPath: '',
-    disableConsoleLogging: false,
-    logBlockchain: false,
-    logEdnApi: false,
     compareUserIDTokenOnDeeplinkHandling: false,
     emailVerificationRequired: false,
 
     /** this is the ethereum network information which edn server running. */
-    ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
+    ednEthNetwork: EthProviders.KnownNetworkType.homestead,
+
     signinWithEdnUserInfo: true,
     useSideMenu: true,
     useSideMenuForDebug: true,
     patches: {
       useSignupForSignin: true
     },
-    ednCoinKey: 'EDN',
-    showDebugToast: false,
+
+    /** Test another ERC20 coin with replacement */
+    ednCoinKey: 'AST',
     useDecryptPinCodeByPinCode: false,
     simulateHardwareBackButton: true,
     clearWalletsOnWipeStorage: false,

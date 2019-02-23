@@ -272,7 +272,7 @@ export class TwTradePage implements OnInit, OnDestroy {
           ctInfo: ednContractInfo,
           toAddress: this.storage.coinHDAddress,
           srcAmount: adjustedAmount,
-          customLogData: { filter: 'tedn.deposit', postedToEdnServer: false }
+          customLogData: 'tedn.deposit.unposted'
         },
         walletPw,
         onTransactionCreate,

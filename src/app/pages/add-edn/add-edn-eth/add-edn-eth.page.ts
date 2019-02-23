@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 
 import { Keyboard } from '@ionic-native/keyboard/ngx';
@@ -30,8 +30,19 @@ import { Events } from '@ionic/angular';
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+import { BigNumberHelper } from '../../../utils/bigNumberHelper';
 
 const AnalyticsCategory = 'add edn from eth';
+
+export enum EthExchangerId {
+  KyberNetwork = 'KyberNetwork',
+  IDEX = 'IDEX'
+}
+
+interface EthExchanger {
+  name: string;
+  id: EthExchangerId;
+}
 
 @Component({
   selector: 'app-add-edn-eth',
@@ -39,18 +50,27 @@ const AnalyticsCategory = 'add edn from eth';
   styleUrls: ['./add-edn-eth.page.scss']
 })
 export class AddEdnEthPage implements OnInit, OnDestroy {
-  selectedTrader = 'Kyber Networks';
+  selectedTrader: string = null;
+  exchangers: Array<EthExchanger> = [];
+
   selectedWalletId: string = null;
   wallets: Array<WalletTypes.EthWalletInfo> = [];
-  ednFromEthEstimatedText = '-';
-  ednFromEthEstimated: BigNumber;
-  ethAmount = 0;
+
+  @ViewChild('ethAmountInput') ethAmountInput: IonInput;
+  @ViewChild('ednAmountInput') ednAmountInput: IonInput;
+
+  lockEthAmountChangeEvent = false;
+  lockEdnAmountChangeEvent = false;
+
+  ednAmount = '0';
+  ethAmount = '0';
 
   pinCodeConfirmCallback = null;
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
   viewActivated = false;
+  lastFocusedInput = 'eth';
 
   constructor(
     private rs: RouterService,
@@ -73,7 +93,17 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.refreshWalletList();
+    this.exchangers = [];
+
+    ///IDEX only available with mainnet
+    if (env.config.ednEthNetwork === EthProviders.KnownNetworkType.homestead) {
+      this.exchangers.push({ name: 'IDEX', id: EthExchangerId.IDEX });
+    }
+
+    this.exchangers.push({ name: 'Kyber Network', id: EthExchangerId.KyberNetwork });
+    this.selectedTrader = this.exchangers[0].id;
   }
+
   ngOnDestroy() {}
 
   ionViewWillEnter() {
@@ -102,7 +132,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
     this.pinCodeConfirmCallback = null;
     this.events.unsubscribe(Consts.EVENT_PIN_CODE_RESULT);
 
-    this.dataTracker.stopTracker('ednRateTracker');
+    this.dataTracker.stopTracker('ednRateTrackerKyber');
   }
 
   refreshWalletList() {
@@ -113,64 +143,58 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
   }
 
   restartRateTracker() {
-    this.dataTracker.stopTracker('ednRateTracker');
-    this.dataTracker.startTracker('ednRateTracker', () => {
-      return new Promise<any>((finalResolve, finalReject) => {
-        this.getRate(
-          rate => {
-            finalResolve(rate);
-          },
-          error => {
-            finalReject(error);
-          }
-        );
+    if (this.selectedTrader === EthExchangerId.KyberNetwork) {
+      this.dataTracker.stopTracker('ednRateTrackerKyber');
+      this.dataTracker.startTracker('ednRateTrackerKyber', () => {
+        return new Promise<any>((finalResolve, finalReject) => {
+          this.getTradeRateByKyber(
+            rate => {
+              if (this.selectedTrader === EthExchangerId.KyberNetwork) {
+                this.applyKyberRate(rate);
+              }
+              finalResolve(rate);
+            },
+            error => {
+              finalReject(error);
+            }
+          );
+        });
       });
-    });
+    } else {
+      this.dataTracker.stopTracker('ednRateTrackerKyber');
+
+      this.dataTracker.stopTracker('ednRateTrackerIDEX');
+      this.dataTracker.startTracker('ednRateTrackerIDEX', () => {
+        return new Promise<any>((finalResolve, finalReject) => {
+          this.getTradeRateByIDEX(
+            rate => {
+              if (this.selectedTrader === EthExchangerId.IDEX) {
+                this.applyKyberRate(rate);
+              }
+              finalResolve(rate);
+            },
+            error => {
+              finalReject(error);
+            }
+          );
+        });
+      });
+    }
+  }
+
+  onExchangerChange(field) {
+    this.logger.debug('exchanger change : ', this.selectedTrader);
+    this.restartRateTracker();
+    this.applyKyberRateByLocally();
+    this.ednAmount = '0';
+    this.ethAmount = '0';
   }
 
   onWalletChange(field) {
-    this.logger.debug(field);
+    this.logger.debug('wallet change : ', this.selectedWalletId);
   }
 
-  getRate(onValueCatch = value => {}, onError = error => {}) {
-    if (!this.selectedWalletId) {
-      this.logger.debug('select an wallet first');
-      return;
-    }
-
-    const walletInfo = this.storage.findWalletById(this.selectedWalletId);
-    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
-    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
-
-    const ethAmountBn = ethers.utils.parseEther('1');
-    this.logger.debug('eth amount : ' + ethAmountBn.toString());
-
-    this.etherApi
-      .kyberNetworkGetExpectedTradeRateWithWallet(
-        walletInfo,
-        this.etherData.contractResolver.getETH(p),
-        ednContractInfo.address,
-        ethAmountBn
-      )
-      .then(
-        result => {
-          onValueCatch(result);
-          this.displayRate(result);
-        },
-        err => {
-          onError(err);
-          this.logger.debug(err);
-        }
-      );
-  }
-
-  getRateByLocally() {
-    if (this.dataTracker.getTracker('ednRateTracker').value) {
-      this.displayRate(this.dataTracker.getTracker('ednRateTracker').value);
-    }
-  }
-
-  onAmountBlur() {
+  sendAmountAnalytics() {
     this.analytics.logEvent({
       category: AnalyticsCategory,
       params: {
@@ -180,20 +204,131 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
     });
   }
 
-  displayRate(rate) {
+  onEthAmountChange() {
+    this.logger.debug('on eth amount change : ', this.ethAmount);
+
+    const safeText = BigNumberHelper.safeText(this.ethAmount, Consts.ETH_DECIMAL);
+    if (safeText !== this.ethAmount) {
+      this.ethAmount = safeText;
+      this.ethAmountInput.value = this.ethAmount;
+    }
+
+    this.logger.debug('after eth amount change : ', this.ethAmount);
+
+    this.applyKyberRateByLocally();
+  }
+
+  onEthAmountFocused() {
+    this.lastFocusedInput = 'eth';
+  }
+
+  onEthAmountBlur() {
+    this.sendAmountAnalytics();
+    if (this.ethAmount.length < 1) {
+      this.ethAmount = '0';
+      this.applyKyberRateByLocally();
+    }
+  }
+
+  onEdnAmountChange() {
+    this.logger.debug('on edn amount change : ', this.ednAmount);
+
+    const walletInfo = this.storage.findWalletById(this.selectedWalletId);
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+    const destContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
+
+    const safeText = BigNumberHelper.safeText(this.ednAmount, destContractInfo.contractInfo.decimal);
+    if (safeText !== this.ednAmount) {
+      this.ednAmount = safeText;
+      this.ednAmountInput.value = this.ednAmount;
+    }
+
+    this.logger.debug('after edn amount change : ', this.ednAmount);
+
+    this.applyKyberRateByLocally();
+  }
+
+  onEdnAmountFocused() {
+    this.lastFocusedInput = 'edn';
+  }
+
+  onEdnAmountBlur() {
+    this.sendAmountAnalytics();
+    if (this.ednAmount.length < 1) {
+      this.ednAmount = '0';
+      this.applyKyberRateByLocally();
+    }
+  }
+
+  applyKyberRateByLocally() {
+    if (this.selectedTrader === EthExchangerId.KyberNetwork) {
+      if (this.dataTracker.getTracker('ednRateTrackerKyber').value) {
+        this.applyKyberRate(this.dataTracker.getTracker('ednRateTrackerKyber').value);
+      }
+    } else if (this.selectedTrader === EthExchangerId.IDEX) {
+      if (this.dataTracker.getTracker('ednRateTrackerIDEX').value) {
+        this.applyKyberRate(this.dataTracker.getTracker('ednRateTrackerIDEX').value);
+      }
+    }
+  }
+
+  applyKyberRate(rate) {
     if (rate.expectedRate !== undefined) {
-      const ethAmountBn = ethers.utils.parseEther(String(this.ethAmount));
+      //const applyRateBn = ethers.utils.bigNumberify('4524104750000000000000');
 
-      // wei => rated wei ( calulcated by source value ( wei ))
-      this.ednFromEthEstimated = ethers.utils.bigNumberify(rate.expectedRate);
+      const applyRateBn = ethers.utils.bigNumberify(rate.expectedRate);
+      const srcDecimal = Consts.ETH_DECIMAL;
 
-      const rateResult = ethAmountBn.mul(this.ednFromEthEstimated);
+      const srcAmount = String(this.ethAmount);
+      let srcAmountBn = null;
+      try {
+        this.logger.debug('parse src amount ', srcAmount);
+        srcAmountBn = ethers.utils.parseUnits(srcAmount, srcDecimal);
+      } catch (e) {
+        this.logger.debug(e);
+      }
+      if (srcAmountBn === null) {
+        srcAmountBn = ethers.utils.bigNumberify('0');
+      }
 
-      //convert to text
-      const rateDivResult = rateResult.div(ethers.utils.bigNumberify(10).pow(Consts.ETH_DECIMAL));
+      const walletInfo = this.storage.findWalletById(this.selectedWalletId);
+      const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+      const destContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
+      const destAmount = String(this.ednAmount);
 
-      this.logger.debug(rateResult.toString());
-      this.ednFromEthEstimatedText = ethers.utils.formatEther(rateDivResult);
+      //const destDecimal = 20;
+      const destDecimal = destContractInfo.contractInfo.decimal;
+
+      let destAmountBn = null;
+      try {
+        this.logger.debug('parse destAmount : ', destAmount, destDecimal);
+        destAmountBn = ethers.utils.parseUnits(destAmount, destDecimal);
+      } catch (e) {
+        this.logger.debug(e);
+      }
+      if (destAmountBn === null) {
+        destAmountBn = ethers.utils.bigNumberify('0');
+      }
+
+      if (srcAmountBn === null || destAmountBn === null) {
+        return;
+      }
+
+      if (this.lastFocusedInput === 'eth') {
+        try {
+          const rateDivResult = this.etherApi.calculateTradeResult(srcAmountBn, srcDecimal, destDecimal, applyRateBn);
+          this.ednAmount = ethers.utils.formatUnits(rateDivResult, destDecimal);
+        } catch (error) {
+          this.logger.debug(error);
+        }
+      } else if (this.lastFocusedInput === 'edn') {
+        try {
+          const rateDivResult = this.etherApi.calculateTradeResultReversed(destAmountBn, srcDecimal, destDecimal, applyRateBn);
+          this.ethAmount = ethers.utils.formatUnits(rateDivResult, srcDecimal);
+        } catch (error) {
+          this.logger.debug(error);
+        }
+      }
     }
   }
 
@@ -244,6 +379,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
       return;
     }
 
+    //confirm password
     if (!walletPw) {
       this.pinCodeConfirmCallback = this.tradeEthToEdn;
       this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
@@ -252,37 +388,111 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
 
     const loading = this.feedbackUI.showRandomKeyLoading();
 
-    const onTxCreate = txData => {
-      loading.hide();
-      this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
-      this.ethAmount = 0;
-    };
-    const onTxReceipt = txReceiptData => {};
+    if (this.selectedTrader === EthExchangerId.KyberNetwork) {
+      const onTxCreate = txData => {
+        loading.hide();
+        this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
+        this.ethAmount = '0';
+      };
+      const onTxReceipt = txReceiptData => {};
 
-    const onSuccess = data => {
-      this.logger.debug(data);
-    };
+      const onSuccess = data => {
+        this.logger.debug(data);
+      };
 
-    const onError = error => {
-      loading.hide();
-      this.feedbackUI.showErrorDialog(error);
-    };
+      const onError = error => {
+        loading.hide();
+        this.feedbackUI.showErrorDialog(error);
+      };
 
-    this.etherApi
-      .kyberNetworkTradeEthToErc20Token(
-        {
-          walletInfo: walletInfo,
-          targetErc20ContractAddres: ednContractInfo.address,
-          srcEthAmount: ethAmountBn
-        },
-        walletPw,
-        onTxCreate,
-        onTxReceipt
-      )
-      .then(onSuccess, onError);
+      this.etherApi
+        .kyberNetworkTradeEthToErc20Token(
+          {
+            walletInfo: walletInfo,
+            targetErc20ContractAddres: ednContractInfo.address,
+            srcEthAmount: ethAmountBn
+          },
+          walletPw,
+          onTxCreate,
+          onTxReceipt
+        )
+        .then(onSuccess, onError);
+    } else if (this.selectedTrader === EthExchangerId.IDEX) {
+      this.etherApi
+        .idexTradeEthToErc20Token(
+          {
+            walletInfo: walletInfo,
+            targetErc20ContractCode: ednContractInfo.contractInfo.symbol,
+            srcEthAmount: ethAmountBn
+          },
+          walletPw
+        )
+        .then(
+          result => {
+            loading.hide();
+            this.feedbackUI.showToast(this.translate.instant('order.success'));
+            this.ethAmount = '0';
+          },
+          error => {
+            loading.hide();
+            this.feedbackUI.showErrorDialog(error);
+          }
+        );
+    }
   }
 
   isInputHasNonZero(input: IonInput): boolean {
     return IonComponentUtils.isInputHasNonZero(input);
+  }
+
+  getTradeRateByKyber(onValueCatch = value => {}, onError = error => {}) {
+    if (!this.selectedWalletId) {
+      onError(new Error('select an wallet first'));
+      return;
+    }
+
+    const walletInfo = this.storage.findWalletById(this.selectedWalletId);
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+    const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
+
+    const ethAmountBn = ethers.utils.parseEther('1');
+    this.logger.debug('eth amount : ' + ethAmountBn.toString());
+
+    this.etherApi
+      .kyberNetworkGetExpectedTradeRateWithWallet(
+        walletInfo,
+        this.etherData.contractResolver.getETH(p),
+        ednContractInfo.address,
+        ethAmountBn
+      )
+      .then(
+        result => {
+          onValueCatch(result);
+        },
+        err => {
+          onError(err);
+          this.logger.debug(err);
+        }
+      );
+  }
+
+  getTradeRateByIDEX(onValueCatch = value => {}, onError = error => {}) {
+    if (!this.selectedWalletId) {
+      onError(new Error('select an wallet first'));
+      return;
+    }
+
+    const walletInfo = this.storage.findWalletById(this.selectedWalletId);
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+
+    this.etherApi.idexGetExpectedTradeRateWithWallet(walletInfo, Consts.ETH_CODE, env.config.ednCoinKey).then(
+      result => {
+        onValueCatch(result);
+      },
+      err => {
+        onError(err);
+        this.logger.debug(err);
+      }
+    );
   }
 }

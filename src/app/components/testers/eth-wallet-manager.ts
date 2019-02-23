@@ -1,34 +1,16 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  EventEmitter,
-  Output,
-  Input,
-  SimpleChanges,
-  OnChanges,
-  ViewChild
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output, Input, SimpleChanges, OnChanges, ViewChild } from '@angular/core';
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService } from 'ngx-clipboard';
 import { EtherDataService } from '../../providers/etherData.service';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { EtherApiService } from '../../providers/etherApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from 'src/app/providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from 'src/app/providers/appStorage.service';
 import { Subscription, of, Observable } from 'rxjs';
 
 import { IonCheckbox } from '@ionic/angular';
@@ -77,15 +59,13 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
 
   @Input() defaultCheckSignedIn = false;
   @Input() defaultFilteredWalletsByUserInfo = false;
+  @Input() pinCode = '';
 
   @ViewChild('checkSignedInBox') checkSignedInBox: IonCheckbox;
   @ViewChild('filteredWalletsByUserInfoBox')
   filteredWalletsByUserInfoBox: IonCheckbox;
 
-  supportedContracts: Array<WalletTypes.ContractType> = [
-    WalletTypes.ContractType.UNKNOWN,
-    WalletTypes.ContractType.ERC20
-  ];
+  supportedContracts: Array<WalletTypes.ContractType> = [WalletTypes.ContractType.UNKNOWN, WalletTypes.ContractType.ERC20];
 
   constructor(
     public eths: EthService,
@@ -96,14 +76,13 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     private etherApi: EtherApiService,
     private storage: AppStorageService,
     private feedbackUI: FeedbackUIService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private walletService: WalletService
   ) {}
 
   ngOnInit() {
     this.checkSignedInBox.checked = Boolean(this.defaultCheckSignedIn);
-    this.filteredWalletsByUserInfoBox.checked = Boolean(
-      this.defaultFilteredWalletsByUserInfo
-    );
+    this.filteredWalletsByUserInfoBox.checked = Boolean(this.defaultFilteredWalletsByUserInfo);
 
     const thisRef = this;
     const logger = this.logger;
@@ -144,6 +123,31 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   getSelectedWallet(): WalletRow {
     return this.selectedWallet;
   }
+
+  copyPrivateKeyToClipboard(wallet: WalletRow) {
+    if (!this.pinCode || !this.storage.isValidPinNumber(this.pinCode)) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
+      return;
+    }
+
+    const privateKey = this.walletService.getPrivateKeyFromWallet(wallet.data, this.storage.getWalletPassword(this.pinCode));
+    if (privateKey) {
+      this.copyToClipboard(privateKey);
+    }
+  }
+
+  copyMnemonicToClipboard(wallet: WalletRow) {
+    if (!this.pinCode || !this.storage.isValidPinNumber(this.pinCode)) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
+      return;
+    }
+
+    const privateKey = this.walletService.getMnemonicFromWallet(wallet.data, this.storage.getWalletPassword(this.pinCode));
+    if (privateKey) {
+      this.copyToClipboard(privateKey);
+    }
+  }
+
   copyToClipboard(text: string) {
     this.cbService.copyFromContent(text);
   }
@@ -160,10 +164,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   }
 
   refreshList(forcedRefresh = false) {
-    const walletInfoList = this.storage.getWallets(
-      this.checkSignedInBox.checked,
-      this.filteredWalletsByUserInfoBox.checked
-    );
+    const walletInfoList = this.storage.getWallets(this.checkSignedInBox.checked, this.filteredWalletsByUserInfoBox.checked);
 
     for (let i = 0; i < this.wallets.length; i++) {
       const item = this.wallets[i];
@@ -214,15 +215,8 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  findContractWorker(
-    walletRow: WalletRow,
-    contractInfo: WalletTypes.ContractInfo
-  ): any {
-    for (
-      let workerIndex = 0;
-      workerIndex < walletRow.contractWorkers.length;
-      workerIndex++
-    ) {
+  findContractWorker(walletRow: WalletRow, contractInfo: WalletTypes.ContractInfo): any {
+    for (let workerIndex = 0; workerIndex < walletRow.contractWorkers.length; workerIndex++) {
       const worker = walletRow.contractWorkers[workerIndex];
 
       if (worker.id === contractInfo.address) {
@@ -258,16 +252,11 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     });
 
     // remove work which not in stored
-    for (
-      let workerIndex = 0;
-      workerIndex < walletRow.contractWorkers.length;
-      workerIndex++
-    ) {
+    for (let workerIndex = 0; workerIndex < walletRow.contractWorkers.length; workerIndex++) {
       const worker = walletRow.contractWorkers[workerIndex];
       let removeDeletedWorker = true;
       for (let i = 0; i < walletRow.data.info.contracts.length; i++) {
-        const contractInfo: WalletTypes.ContractInfo =
-          walletRow.data.info.contracts[i];
+        const contractInfo: WalletTypes.ContractInfo = walletRow.data.info.contracts[i];
         if (worker.id === contractInfo.address) {
           removeDeletedWorker = false;
           break;
@@ -357,10 +346,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   }
 
   deleteWallet(walletRow: WalletRow) {
-    if (
-      this.selectedWallet &&
-      walletRow.data.id === this.selectedWallet.data.id
-    ) {
+    if (this.selectedWallet && walletRow.data.id === this.selectedWallet.data.id) {
       this.selectWallet(null);
     }
 
@@ -421,10 +407,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     this.refreshContractWorkers(walletRow);
   }
 
-  isSelectedContract(
-    walletRow: WalletRow,
-    contract: WalletTypes.ContractInfo
-  ): boolean {
+  isSelectedContract(walletRow: WalletRow, contract: WalletTypes.ContractInfo): boolean {
     if (!walletRow.selectedContract) {
       return false;
     }
@@ -443,10 +426,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
    * @param walletRow
    * @param contract
    */
-  deleteContractInfoFromWallet(
-    walletRow: WalletRow,
-    contract: WalletTypes.ContractInfo
-  ) {
+  deleteContractInfoFromWallet(walletRow: WalletRow, contract: WalletTypes.ContractInfo) {
     if (walletRow.data.info.contracts === undefined) {
       walletRow.data.info.contracts = [];
     }
@@ -475,10 +455,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   }
 
   // https://medium.com/@piyopiyo/how-to-get-erc20-token-balance-with-web3-js-206df52f2561
-  getERC20TokenInfo(
-    walletRow: WalletRow,
-    contractInfo: WalletTypes.ContractInfo
-  ) {
+  getERC20TokenInfo(walletRow: WalletRow, contractInfo: WalletTypes.ContractInfo) {
     this.etherApi.getERC20TokenInfo(walletRow.data, contractInfo).then(
       (result: { name: string; symbol: string; decimal: number }) => {
         this.logger.debug('erc-20 token info', result);
@@ -491,10 +468,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
     );
   }
 
-  getERC20TokenBalance(
-    walletRow: WalletRow,
-    contractInfo: WalletTypes.ContractInfo
-  ) {
+  getERC20TokenBalance(walletRow: WalletRow, contractInfo: WalletTypes.ContractInfo) {
     this.etherApi.getERC20TokenBalance(walletRow.data, contractInfo).then(
       (result: { balance: BigNumber; adjustedBalance: BigNumber }) => {
         // { balance: BigNumber, adjustedBalance: BigNumber }

@@ -8,12 +8,7 @@ import * as firebase from 'firebase';
 import { Platform } from '@ionic/angular';
 import { UUID } from 'angular2-uuid';
 import { environment as env } from '../../environments/environment';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpResponse,
-  HttpRequest
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse, HttpRequest } from '@angular/common/http';
 import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
 
 import { TwitterConnect } from '@ionic-native/twitter-connect/ngx';
@@ -21,19 +16,22 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { Facebook } from '@ionic-native/facebook/ngx';
 
 import { AppStorageService, AppStorageTypes } from './appStorage.service';
+import { HttpHelperService } from './httpHelper.service';
 
 const API_BASE_ADDRESS = 'https://api-ep.edenchain.io/api';
 //const API_BASE_ADDRESS = 'https://edencore-end-point-dot-manifest-ivy-213501.appspot.com/api';
 
-// {
-//   "id": "a6d52821-734d-443f-11b8-b41c7f258c04",
-//   "jsonrpc": "2.0",
-//   "result": {
-//     "data": {},
-//     "err_code": -1,
-//     "msg": "deposit error"
-//   }
-// }
+/**
+{
+  "id": "a6d52821-734d-443f-11b8-b41c7f258c04",
+  "jsonrpc": "2.0",
+  "result": {
+    "data": {},
+    "err_code": -1,
+    "msg": "deposit error"
+  }
+}
+*/
 export interface JsonRpcBody {
   id: string;
   jsonrpc: string;
@@ -61,7 +59,8 @@ export class EdnRemoteApiService {
     private fbAuth: Facebook,
     private cordovaHttp: HTTP,
     private angularHttp: HttpClient,
-    private storage: AppStorageService
+    private storage: AppStorageService,
+    private httpHelper: HttpHelperService
   ) {}
 
   get baseUrl() {
@@ -69,10 +68,7 @@ export class EdnRemoteApiService {
       return API_BASE_ADDRESS;
     } else if (this.platform.is('desktop')) {
       const location = window.location;
-      if (
-        location.hostname === 'localhost' ||
-        location.hostname === '127.0.0.1'
-      ) {
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         const result = location.protocol + '//' + location.host + '/api';
         return result;
       } else {
@@ -170,34 +166,27 @@ export class EdnRemoteApiService {
                 ggIdToken = ggUser.idToken;
               }
 
-              const ggCredential = firebase.auth.GoogleAuthProvider.credential(
-                ggIdToken,
-                ggAccessToken
+              const ggCredential = firebase.auth.GoogleAuthProvider.credential(ggIdToken, ggAccessToken);
+
+              this.afAuth.auth.signInAndRetrieveDataWithCredential(ggCredential).then(
+                signinResult => {
+                  this.logger.debug('google-firebase signin complete');
+                  this.logger.debug(signinResult);
+
+                  finalResolve(signinResult);
+                },
+                err => {
+                  this.logger.debug('google-firebase signin error');
+                  this.logger.debug(err);
+                  finalReject(err);
+                }
               );
-
-              this.afAuth.auth
-                .signInAndRetrieveDataWithCredential(ggCredential)
-                .then(
-                  signinResult => {
-                    this.logger.debug('google-firebase signin complete');
-                    this.logger.debug(signinResult);
-
-                    finalResolve(signinResult);
-                  },
-                  err => {
-                    this.logger.debug('google-firebase signin error');
-                    this.logger.debug(err);
-                    finalReject(err);
-                  }
-                );
             },
             ggErr => {
               this.logger.debug('google login error');
               this.logger.debug(ggErr);
               if (ggErr === '12500') {
-                this.logger.debug(
-                  'android app sha-hash error ( firebase settings )'
-                );
+                this.logger.debug('android app sha-hash error ( firebase settings )');
               }
               finalReject(ggErr);
             }
@@ -230,9 +219,7 @@ export class EdnRemoteApiService {
             this.logger.debug('facebook login ok');
             this.logger.debug(fbResponse);
 
-            const fbCredential = firebase.auth.FacebookAuthProvider.credential(
-              fbResponse.authResponse.accessToken
-            );
+            const fbCredential = firebase.auth.FacebookAuthProvider.credential(fbResponse.authResponse.accessToken);
             this.afAuth.auth.signInWithCredential(fbCredential).then(
               signinResult => {
                 this.logger.debug('facebook-firebase signin complete');
@@ -279,42 +266,20 @@ export class EdnRemoteApiService {
             this.logger.debug('twitter login ok');
             this.logger.debug(twResponse);
 
-            // for ios testing
-            // window.cordova.plugins['firebase'].auth
-            //   .signinWithTwitter(twResponse.token, twResponse.secret)
-            //   .then(
-            //     signinResult => {
-            //       this.logger.debug('twitter-firebase signin complete');
-            //       this.logger.debug(signinResult);
-            //     },
-            //     signinErr => {
-            //       this.logger.debug('twitter-firebase signin error');
-            //       this.logger.debug(signinErr);
-            //     }
-            //   );
+            const twCredential = firebase.auth.TwitterAuthProvider.credential(twResponse.token, twResponse.secret);
 
-            const twCredential = firebase.auth.TwitterAuthProvider.credential(
-              twResponse.token,
-              twResponse.secret
+            this.afAuth.auth.signInAndRetrieveDataWithCredential(twCredential).then(
+              signinResult => {
+                this.logger.debug('twitter-firebase signin complete');
+                this.logger.debug(signinResult);
+                finalResolve(signinResult);
+              },
+              signinErr => {
+                this.logger.debug('twitter-firebase signin error');
+                this.logger.debug(signinErr);
+                finalReject(signinErr);
+              }
             );
-
-            // const provider = new firebase.auth.TwitterAuthProvider();
-            // this.afAuth.auth.signInWithPopup(provider).then(
-
-            this.afAuth.auth
-              .signInAndRetrieveDataWithCredential(twCredential)
-              .then(
-                signinResult => {
-                  this.logger.debug('twitter-firebase signin complete');
-                  this.logger.debug(signinResult);
-                  finalResolve(signinResult);
-                },
-                signinErr => {
-                  this.logger.debug('twitter-firebase signin error');
-                  this.logger.debug(signinErr);
-                  finalReject(signinErr);
-                }
-              );
           },
           twErr => {
             this.logger.debug('twitter login error');
@@ -406,94 +371,6 @@ export class EdnRemoteApiService {
     });
   }
 
-  createPostRequst(body: JsonRpcBody): Promise<any> {
-    return new Promise((finalResolve, finalReject) => {
-      const contentTypeKey = 'Content-Type';
-      const contentTypeVal = 'application/json';
-      if (this.platform.is('cordova')) {
-        this.logger.debug('run with cordova http');
-        const headers = {};
-        headers[contentTypeKey] = contentTypeVal;
-
-        if (env.config.logEdnApi) {
-          this.logger.debug('send edn api : ' + this.baseUrl);
-          this.logger.debug(body);
-        }
-
-        this.cordovaHttp.setDataSerializer('json');
-        const promise: Promise<HTTPResponse> = this.cordovaHttp.post(
-          this.baseUrl,
-          body,
-          headers
-        );
-
-        promise.then(
-          response => {
-            if (env.config.logEdnApi) {
-              this.logger.debug(response);
-            }
-            if (String(response.status).startsWith('2') && response.data) {
-              let responseData = null;
-              try {
-                responseData = JSON.parse(response.data);
-              } catch (error) {
-                this.logger.debug(error);
-              }
-
-              if (responseData) {
-                this.judgeEdnResponseResult(
-                  responseData,
-                  finalResolve,
-                  finalReject
-                );
-              } else {
-                finalReject(new Error('response data does not exists'));
-              }
-            } else {
-              finalReject(new Error('http error with ' + response.status));
-            }
-          },
-          error => {
-            if (env.config.logEdnApi) {
-              this.logger.debug('http response error');
-            }
-            finalReject(error);
-          }
-        );
-      } else {
-        if (env.config.logEdnApi) {
-          this.logger.debug('run with angular http');
-          this.logger.debug(body);
-        }
-
-        const headers = new HttpHeaders();
-        headers.set(contentTypeKey, contentTypeVal);
-
-        const promise: Promise<Object> = this.angularHttp
-          .post(this.baseUrl, body, {
-            headers: headers,
-            responseType: 'json'
-          })
-          .toPromise();
-
-        promise.then(
-          response => {
-            if (env.config.logEdnApi) {
-              this.logger.debug(response);
-            }
-            this.judgeEdnResponseResult(response, finalResolve, finalReject);
-          },
-          error => {
-            if (env.config.logEdnApi) {
-              this.logger.debug(error);
-            }
-            finalReject(error);
-          }
-        );
-      }
-    });
-  }
-
   // "id": "c461929a-9a5c-8e72-42f5-55fbdaa16669",
   // "jsonrpc": "2.0",
   // "result": {
@@ -501,19 +378,9 @@ export class EdnRemoteApiService {
   //   "err_code": 0,
   //   "msg": ""
   // }
-  judgeEdnResponseResult(
-    response: any,
-    resolve: (value?: {} | PromiseLike<{}>) => void,
-    reject: (reason?: any) => void
-  ) {
+  judgeEdnResponseResult(response: any, resolve: (value?: {} | PromiseLike<{}>) => void, reject: (reason?: any) => void) {
     const data = response;
-    if (
-      data &&
-      data.id &&
-      data.result &&
-      data.result.err_code !== undefined &&
-      data.result.err_code !== null
-    ) {
+    if (data && data.id && data.result && data.result.err_code !== undefined && data.result.err_code !== null) {
       if (String(data.result.err_code).trim() === '0') {
         resolve(data.result);
       } else {
@@ -529,16 +396,13 @@ export class EdnRemoteApiService {
     }
   }
 
-  private createBasicRequestPromise(
-    command: string,
-    params: any = {}
-  ): Promise<any> {
+  private createBasicRequestPromise(command: string, params: any = {}): Promise<any> {
     return new Promise((finalResolve, finalReject) => {
       this.createJsonBody(command, params).then(
         body => {
-          this.createPostRequst(body).then(
+          this.httpHelper.createJsonPostRequst(this.baseUrl, body, env.config.debugging.logEdnApi).then(
             data => {
-              finalResolve(data);
+              this.judgeEdnResponseResult(data, finalResolve, finalReject);
             },
             error => {
               finalReject(error);

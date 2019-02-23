@@ -65,6 +65,8 @@
 
   "NoTransactions": "No transactions found",
 
+  "order.success": "Order has been successfully placed",
+
   "To": "to",
   "From": "from",
 

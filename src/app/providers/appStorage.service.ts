@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
 
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -16,6 +16,8 @@ import { listutil, Map } from '../utils/listutil';
 import { Consts } from 'src/environments/constants';
 import * as CryptoJS from 'crypto-js';
 import { CryptoHelper } from '../utils/cryptoHelper';
+import { SQLite, SQLiteObject, DbTransaction } from '@ionic-native/sqlite/ngx';
+import { async } from 'q';
 
 export namespace AppStorageTypes {
   export interface User {
@@ -37,57 +39,70 @@ export namespace AppStorageTypes {
     tedn_public_key: string | undefined | null;
   }
 
-  export interface TxInfo {
-    startIndex: number;
-    endIndex: number;
-    countPerGroup: number;
-    incompleteSearchIndex: number;
-  }
-
-  export enum TxState {
-    Created = 'Created',
-    Receipted = 'Receipted'
-  }
-
-  export enum TxType {
-    EthTransfer = 'EthTransfer',
-    EthERC20Transfer = 'EthERC20Transfer',
-    KyberNetworkTrade = 'KyberNetworkTrade'
-  }
-
-  export enum TxSubType {
-    Send = 'Send',
-    Receive = 'Receive',
-    Trade = 'Trade'
-  }
-
-  export interface TxPartialLog {
-    state: TxState;
-    date: number;
-    data?: any;
-  }
-
-  export enum TxRowState {
-    Opened = 'Opened',
-    Closed = 'Closed'
-  }
-
-  export interface TxRowData {
-    type: TxType;
-    subType: TxSubType;
-    state: TxRowState;
-    hash: string;
-    logs: Array<TxPartialLog>;
-    info: any;
-    cDate: number;
-    mDate: number;
-    customData?: any;
-  }
-
   export interface TednWalletInfo {
     id: string;
     name: string;
     color: string;
+  }
+
+  export namespace Tx {
+    export interface TxInfo {
+      startIndex: number;
+      endIndex: number;
+      countPerGroup: number;
+      incompleteSearchIndex: number;
+    }
+
+    export enum TxState {
+      Created = 'Created',
+      Receipted = 'Receipted'
+    }
+
+    export enum TxType {
+      EthTransfer = 'EthTransfer',
+      EthERC20Transfer = 'EthERC20Transfer',
+      KyberNetworkTrade = 'KyberNetworkTrade',
+      IDEXTrade = 'IDEXTrade'
+    }
+
+    export enum TxSubType {
+      Send = 'Send',
+      Receive = 'Receive',
+      Trade = 'Trade'
+    }
+
+    export enum TxRowState {
+      Opened = 'Opened',
+      Closed = 'Closed'
+    }
+
+    export interface TxRowData {
+      type: TxType;
+      subType: TxSubType;
+      state: TxRowState;
+      hash: string;
+      logs: Array<TxPartialLog>;
+      info: any;
+      cDate: number;
+      mDate: number;
+      customData?: string;
+    }
+
+    export interface TxPartialLog {
+      state: TxState;
+      date: number;
+      data?: any;
+    }
+
+    export interface EthTxRowInfo {
+      from: string;
+      to: string;
+      amount: {
+        value: string;
+        decimal: number;
+        display: string;
+      };
+    }
   }
 }
 
@@ -123,14 +138,24 @@ export class AppStorageService {
 
   private userStateSubscribers: Array<Subscriber<AppStorageTypes.User>> = [];
   private walletsSubscribers: Array<Subscriber<void>> = [];
+  private localStorageTxManager: LocalStorageTxManager = null;
+  private sqliteTxManager: SqliteTxManager = null;
 
   constructor(
     private logger: NGXLogger,
     private platform: Platform,
     private afAuth: AngularFireAuth,
     private appVersion: AppVersion,
-    private store: LocalStorageService
-  ) {}
+    private store: LocalStorageService,
+    private sqlite: SQLite
+  ) {
+    this.localStorageTxManager = new LocalStorageTxManager(this.logger, this.store);
+    this.sqliteTxManager = new SqliteTxManager(this.logger, this.platform, this.sqlite);
+  }
+
+  initSqlite() {
+    this.sqliteTxManager.initDB();
+  }
 
   startFirebaseSigninCheck() {
     this.logger.debug('start firebase signgin check');
@@ -805,6 +830,396 @@ export class AppStorageService {
     return colors[randIdx];
   }
 
+  addTx(
+    type: AppStorageTypes.Tx.TxType,
+    subType: AppStorageTypes.Tx.TxSubType,
+    info: any,
+    customData: any,
+    walletInfo: WalletTypes.WalletInfo,
+    hash: string,
+    particialState: AppStorageTypes.Tx.TxState,
+    date: Date,
+    data?: any
+  ) {
+    if (this.sqliteTxManager.isSupported()) {
+      this.sqliteTxManager.addTx(type, subType, info, customData, walletInfo, hash, particialState, date, data);
+    } else {
+      this.localStorageTxManager.addTx(type, subType, info, customData, walletInfo, hash, particialState, date, data);
+    }
+  }
+
+  addTxLog(
+    rowState: AppStorageTypes.Tx.TxRowState,
+    walletInfo: WalletTypes.WalletInfo,
+    hash: string,
+    particialState: AppStorageTypes.Tx.TxState,
+    date: Date,
+    data?: any
+  ): Promise<AppStorageTypes.Tx.TxRowData> {
+    if (this.sqliteTxManager.isSupported()) {
+      return this.sqliteTxManager.addTxLog(rowState, walletInfo, hash, particialState, date, data);
+    } else {
+      return new Promise<AppStorageTypes.Tx.TxRowData>(async (finalResolve, finalReject) => {
+        finalResolve(this.localStorageTxManager.addTxLog(rowState, walletInfo, hash, particialState, date, data));
+      });
+    }
+  }
+
+  updateTxCustomData(walletInfo: WalletTypes.WalletInfo, hash: string, customData?: string) {
+    if (this.sqliteTxManager.isSupported()) {
+      this.sqliteTxManager.updateTxCustomData(walletInfo, hash, customData);
+    } else {
+      this.localStorageTxManager.updateTxCustomData(walletInfo, hash, customData);
+    }
+  }
+
+  getIncompleteTxList(walletInfo: WalletTypes.WalletInfo, customDataFilter?: string): Promise<Array<AppStorageTypes.Tx.TxRowData>> {
+    if (this.sqliteTxManager.isSupported()) {
+      return this.sqliteTxManager.getIncompleteTxList(walletInfo, customDataFilter);
+    } else {
+      return new Promise<Array<AppStorageTypes.Tx.TxRowData>>(async (finalResolve, finalReject) => {
+        finalResolve(this.localStorageTxManager.getIncompleteTxList(walletInfo, customDataFilter));
+      });
+    }
+  }
+
+  getTxListForPaging(
+    walletInfo: WalletTypes.WalletInfo,
+    pageIndex: number,
+    countPerPage: number,
+    sortByDesc: boolean,
+    stateFilter?: AppStorageTypes.Tx.TxRowState
+  ): Promise<Array<AppStorageTypes.Tx.TxRowData>> {
+    if (this.sqliteTxManager.isSupported()) {
+      return this.sqliteTxManager.getTxListForPaging(walletInfo, pageIndex, countPerPage, sortByDesc, stateFilter);
+    } else {
+      return new Promise<Array<AppStorageTypes.Tx.TxRowData>>(async (finalResolve, finalReject) => {
+        finalResolve(this.localStorageTxManager.getTxListForPaging(walletInfo, pageIndex, countPerPage, sortByDesc, stateFilter));
+      });
+    }
+  }
+}
+
+class SqliteTxManager {
+  constructor(private logger: NGXLogger, private platform: Platform, private sqlite: SQLite) {}
+  db: SQLiteObject = null;
+
+  isSupported(): boolean {
+    if (this.platform.is('cordova') && (this.platform.is('ios') || this.platform.is('android'))) {
+      return true;
+    }
+    return false;
+  }
+
+  isRunnable(): boolean {
+    if (this.isSupported()) {
+      if (this.db) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  initDB() {
+    if (!this.isSupported()) {
+      return;
+    }
+
+    this.sqlite
+      .create({
+        name: 'txdata.db',
+        location: 'default'
+      })
+      .then((txDb: SQLiteObject) => {
+        this.db = txDb;
+        this.createTable();
+      });
+  }
+
+  createTable() {
+    if (!this.db) {
+      return;
+    }
+
+    this.db.transaction((tx: DbTransaction) => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS Tx (walletId TEXT, type TEXT, subType TEXT, state TEXT, ' +
+          'hash TEXT, logs TEXT, info TEXT, cDate INT, mDate INT, customData TEXT)'
+      );
+    });
+  }
+
+  addTx(
+    type: AppStorageTypes.Tx.TxType,
+    subType: AppStorageTypes.Tx.TxSubType,
+    info: any,
+    customData: any,
+    walletInfo: WalletTypes.WalletInfo,
+    hash: string,
+    particialState: AppStorageTypes.Tx.TxState,
+    date: Date,
+    data?: any
+  ) {
+    const txData: AppStorageTypes.Tx.TxRowData = {
+      type: type,
+      subType: subType,
+      state: AppStorageTypes.Tx.TxRowState.Opened,
+      hash: hash,
+      info: info,
+      logs: [],
+      cDate: date.getTime(),
+      mDate: date.getTime()
+    };
+
+    if (customData) {
+      txData.customData = customData;
+    } else {
+      txData.customData = '';
+    }
+
+    const txLog: AppStorageTypes.Tx.TxPartialLog = {
+      state: particialState,
+      date: date.getTime()
+    };
+
+    if (data) {
+      txLog.data = data;
+    }
+
+    txData.logs.push(txLog);
+
+    const logger = this.logger;
+
+    this.db.transaction((tx: DbTransaction) => {
+      //(walletId TEXT, type TEXT, subType TEXT, state TEXT, ' +
+      //'hash TEXT, logs TEXT, info TEXT, cDate INT, mDate INT, customData TEXT)'
+
+      const infoText = JSON.stringify(txData.info);
+      const logsText = JSON.stringify(txData.logs);
+
+      tx.executeSql(
+        `INSERT INTO Tx VALUES('${walletInfo.id}','${txData.type}','${txData.subType}',` +
+          `'${txData.state}','${txData.hash}','${logsText}','${infoText}',${txData.cDate},${txData.mDate},'${txData.customData}')`,
+        [],
+        () => {
+          logger.debug('success');
+        },
+        err => {
+          logger.debug('failed', err);
+        }
+      );
+    });
+  }
+
+  findTx(walletInfo: WalletTypes.WalletInfo, txHash: string): Promise<AppStorageTypes.Tx.TxRowData> {
+    const logger = this.logger;
+
+    return new Promise<AppStorageTypes.Tx.TxRowData>(async (finalResolve, finalReject) => {
+      this.db.transaction((dbTx: DbTransaction) => {
+        //(walletId TEXT, type TEXT, subType TEXT, state TEXT, ' +
+        //'hash TEXT, logs TEXT, info TEXT, cDate INT, mDate INT, customData TEXT)'
+        dbTx.executeSql(
+          `SELECT * FROM Tx WHERE walletId = '${walletInfo.id}' AND hash = '${txHash}'`,
+          [],
+          (_dbTx, rs) => {
+            logger.debug('dbtx', _dbTx);
+            logger.debug('dbrs', rs);
+            const resultList = this.convertDBItemsToTxList(rs.rows);
+            if (resultList.length > 0) {
+              finalResolve(resultList[0]);
+            } else {
+              finalResolve(null);
+            }
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      });
+    });
+  }
+
+  private convertDBItemsToTxList(dbRows): Array<AppStorageTypes.Tx.TxRowData> {
+    const result: Array<AppStorageTypes.Tx.TxRowData> = [];
+    for (let i = 0; i < dbRows.length; i++) {
+      const rowItem = dbRows.item(i);
+      result.push(this.convertDBItemToTx(rowItem));
+    }
+    return result;
+  }
+
+  private convertDBItemToTx(dbItem): AppStorageTypes.Tx.TxRowData {
+    const result: AppStorageTypes.Tx.TxRowData = {
+      type: dbItem.type,
+      subType: dbItem.subType,
+      state: dbItem.state,
+      hash: dbItem.hash,
+      info: null,
+      logs: null,
+      cDate: dbItem.cDate,
+      mDate: dbItem.mDate,
+      customData: dbItem.customData
+    };
+
+    result.info = JSON.parse(dbItem.info);
+    result.logs = JSON.parse(dbItem.logs);
+
+    return result;
+  }
+
+  updateTxRow(walletInfo: WalletTypes.WalletInfo, txRow: AppStorageTypes.Tx.TxRowData): Promise<any> {
+    return new Promise((finalResolve, finalReject) => {
+      const infoText = JSON.stringify(txRow.info);
+      const logsText = JSON.stringify(txRow.logs);
+
+      this.db.transaction((dbTx: DbTransaction) => {
+        dbTx.executeSql(
+          `UPDATE Tx SET type = '${txRow.type}', subType = '${txRow.subType}', state = '${txRow.state}', hash = '${txRow.hash}'` +
+            `, logs = '${logsText}', info = '${infoText}', cDate = ${txRow.cDate}, mDate = ${txRow.mDate}` +
+            `, customData = '${txRow.customData}' WHERE walletId = '${walletInfo.id}' AND hash = '${txRow.hash}'`,
+          [],
+          _dbTx => {
+            finalResolve();
+            this.logger.debug('success');
+          },
+          err => {
+            finalReject(err);
+            this.logger.debug('failed', err);
+          }
+        );
+      });
+    });
+  }
+
+  addTxLog(
+    rowState: AppStorageTypes.Tx.TxRowState,
+    walletInfo: WalletTypes.WalletInfo,
+    hash: string,
+    particialState: AppStorageTypes.Tx.TxState,
+    date: Date,
+    data?: any
+  ): Promise<AppStorageTypes.Tx.TxRowData> {
+    return new Promise<AppStorageTypes.Tx.TxRowData>(async (finalResolve, finalReject) => {
+      const foundTx = await this.findTx(walletInfo, hash);
+      if (foundTx) {
+        const txLog: AppStorageTypes.Tx.TxPartialLog = {
+          state: particialState,
+          date: date.getTime()
+        };
+        if (data) {
+          txLog.data = data;
+        }
+
+        foundTx.state = rowState;
+        foundTx.logs.push(txLog);
+        foundTx.mDate = date.getTime();
+
+        this.updateTxRow(walletInfo, foundTx).then(
+          () => {
+            finalResolve(foundTx);
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      } else {
+        finalResolve(null);
+      }
+    });
+  }
+
+  updateTxCustomData(walletInfo: WalletTypes.WalletInfo, hash: string, customData?: string) {
+    return new Promise<AppStorageTypes.Tx.TxRowData>(async (finalResolve, finalReject) => {
+      const foundTx = await this.findTx(walletInfo, hash);
+      if (foundTx) {
+        foundTx.customData = customData;
+
+        this.updateTxRow(walletInfo, foundTx).then(
+          () => {
+            finalResolve(foundTx);
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      } else {
+        finalResolve(null);
+      }
+    });
+  }
+
+  getIncompleteTxList(walletInfo: WalletTypes.WalletInfo, customDataFilter?: string): Promise<Array<AppStorageTypes.Tx.TxRowData>> {
+    const logger = this.logger;
+
+    return new Promise<Array<AppStorageTypes.Tx.TxRowData>>(async (finalResolve, finalReject) => {
+      this.db.transaction((dbTx: DbTransaction) => {
+        let customDataCondition = '';
+        if (customDataFilter) {
+          customDataCondition = `OR customData = '${customDataFilter}'`;
+        }
+        dbTx.executeSql(
+          `SELECT * FROM Tx WHERE walletId = '${walletInfo.id}' AND ` +
+            `(state = '${AppStorageTypes.Tx.TxRowState.Opened}' ${customDataCondition})`,
+          [],
+          (_dbTx, rs) => {
+            logger.debug('dbtx', _dbTx);
+            logger.debug('dbrs', rs);
+            const resultList = this.convertDBItemsToTxList(rs.rows);
+
+            logger.debug('incomplete tx list : ', resultList);
+            finalResolve(resultList);
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      });
+    });
+  }
+
+  getTxListForPaging(
+    walletInfo: WalletTypes.WalletInfo,
+    pageIndex: number,
+    countPerPage: number,
+    sortByDesc: boolean,
+    stateFilter?: AppStorageTypes.Tx.TxRowState
+  ): Promise<Array<AppStorageTypes.Tx.TxRowData>> {
+    const logger = this.logger;
+    const passCount = pageIndex * countPerPage;
+
+    return new Promise<Array<AppStorageTypes.Tx.TxRowData>>(async (finalResolve, finalReject) => {
+      this.db.transaction((dbTx: DbTransaction) => {
+        const orderBy = sortByDesc ? 'DESC' : 'ASC';
+        let whereStatement = '';
+        if (stateFilter) {
+          whereStatement = `AND state = '${stateFilter}'`;
+        }
+
+        dbTx.executeSql(
+          `SELECT * FROM Tx WHERE walletId = '${
+            walletInfo.id
+          }' ${whereStatement} ORDER BY cDate ${orderBy} LIMIT ${countPerPage} OFFSET ${passCount}`,
+          [],
+          (_dbTx, rs) => {
+            logger.debug('dbtx', _dbTx);
+            logger.debug('dbrs', rs);
+            const resultList = this.convertDBItemsToTxList(rs.rows);
+            logger.debug('txlist for paging : ', resultList);
+            finalResolve(resultList);
+          },
+          error => {
+            finalReject(error);
+          }
+        );
+      });
+    });
+  }
+}
+
+class LocalStorageTxManager {
+  constructor(private logger: NGXLogger, private store: LocalStorageService) {}
+
   /**
    * Local Transaction
    */
@@ -816,9 +1231,9 @@ export class AppStorageService {
     return 'tx_info_' + walletInfo.id;
   }
 
-  getTxInfo(walletInfo: WalletTypes.WalletInfo): AppStorageTypes.TxInfo {
+  getTxInfo(walletInfo: WalletTypes.WalletInfo): AppStorageTypes.Tx.TxInfo {
     const key = this.getTxInfoKey(walletInfo);
-    let info: AppStorageTypes.TxInfo = this.store.get(key);
+    let info: AppStorageTypes.Tx.TxInfo = this.store.get(key);
     if (!info) {
       info = {
         startIndex: 0,
@@ -832,28 +1247,28 @@ export class AppStorageService {
     return info;
   }
 
-  setTxInfo(walletInfo: WalletTypes.WalletInfo, info: AppStorageTypes.TxInfo) {
+  setTxInfo(walletInfo: WalletTypes.WalletInfo, info: AppStorageTypes.Tx.TxInfo) {
     this.store.set(this.getTxInfoKey(walletInfo), info);
   }
 
   addTx(
-    type: AppStorageTypes.TxType,
-    subType: AppStorageTypes.TxSubType,
+    type: AppStorageTypes.Tx.TxType,
+    subType: AppStorageTypes.Tx.TxSubType,
     info: any,
     customData: any,
     walletInfo: WalletTypes.WalletInfo,
     hash: string,
-    state: AppStorageTypes.TxState,
+    particialState: AppStorageTypes.Tx.TxState,
     date: Date,
     data?: any
   ) {
-    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txInfo: AppStorageTypes.Tx.TxInfo = this.getTxInfo(walletInfo);
     const txList = this.getTxListAtIndex(walletInfo, txInfo.endIndex);
 
-    const txData: AppStorageTypes.TxRowData = {
+    const txData: AppStorageTypes.Tx.TxRowData = {
       type: type,
       subType: subType,
-      state: AppStorageTypes.TxRowState.Opened,
+      state: AppStorageTypes.Tx.TxRowState.Opened,
       hash: hash,
       info: info,
       logs: [],
@@ -864,10 +1279,12 @@ export class AppStorageService {
     if (customData) {
       txData.customData = customData;
     }
-    const txLog: AppStorageTypes.TxPartialLog = {
-      state: state,
+
+    const txLog: AppStorageTypes.Tx.TxPartialLog = {
+      state: particialState,
       date: date.getTime()
     };
+
     if (data) {
       txLog.data = data;
     }
@@ -884,25 +1301,26 @@ export class AppStorageService {
   }
 
   addTxLog(
-    rowState: AppStorageTypes.TxRowState,
+    rowState: AppStorageTypes.Tx.TxRowState,
     walletInfo: WalletTypes.WalletInfo,
     hash: string,
-    state: AppStorageTypes.TxState,
+    particialState: AppStorageTypes.Tx.TxState,
     date: Date,
     data?: any
-  ): AppStorageTypes.TxRowData {
+  ): AppStorageTypes.Tx.TxRowData {
     let updatedRowData = null;
 
     const foundResult: {
-      txRowData: AppStorageTypes.TxRowData;
+      txRowData: AppStorageTypes.Tx.TxRowData;
       groupIndex: number;
-      group: Array<AppStorageTypes.TxRowData>;
+      group: Array<AppStorageTypes.Tx.TxRowData>;
     } = this.findTx(walletInfo, hash, true);
+
     if (foundResult) {
       foundResult.txRowData.state = rowState;
 
-      const txLog: AppStorageTypes.TxPartialLog = {
-        state: state,
+      const txLog: AppStorageTypes.Tx.TxPartialLog = {
+        state: particialState,
         date: date.getTime()
       };
       if (data) {
@@ -918,11 +1336,11 @@ export class AppStorageService {
     return updatedRowData;
   }
 
-  updateTxCustomData(walletInfo: WalletTypes.WalletInfo, hash: string, customData?: any) {
+  updateTxCustomData(walletInfo: WalletTypes.WalletInfo, hash: string, customData?: string) {
     const foundResult: {
-      txRowData: AppStorageTypes.TxRowData;
+      txRowData: AppStorageTypes.Tx.TxRowData;
       groupIndex: number;
-      group: Array<AppStorageTypes.TxRowData>;
+      group: Array<AppStorageTypes.Tx.TxRowData>;
     } = this.findTx(walletInfo, hash, true);
     if (foundResult) {
       foundResult.txRowData.customData = customData;
@@ -935,15 +1353,15 @@ export class AppStorageService {
     txHash: string,
     sortByDesc: boolean
   ): {
-    txRowData: AppStorageTypes.TxRowData;
+    txRowData: AppStorageTypes.Tx.TxRowData;
     groupIndex: number;
-    group: Array<AppStorageTypes.TxRowData>;
+    group: Array<AppStorageTypes.Tx.TxRowData>;
   } {
-    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txInfo: AppStorageTypes.Tx.TxInfo = this.getTxInfo(walletInfo);
 
     let foundGroupIndex: number = null;
-    let foundGroup: Array<AppStorageTypes.TxRowData> = null;
-    let result: AppStorageTypes.TxRowData = null;
+    let foundGroup: Array<AppStorageTypes.Tx.TxRowData> = null;
+    let result: AppStorageTypes.Tx.TxRowData = null;
 
     const startIndex = txInfo.startIndex;
     const endIndex = txInfo.endIndex;
@@ -998,13 +1416,13 @@ export class AppStorageService {
     return null;
   }
 
-  findTxInList(txList: Array<AppStorageTypes.TxRowData>, txHash: string): AppStorageTypes.TxRowData {
+  findTxInList(txList: Array<AppStorageTypes.Tx.TxRowData>, txHash: string): AppStorageTypes.Tx.TxRowData {
     return txList.find(item => {
       return item.hash === txHash;
     });
   }
 
-  setTxList(walletInfo: WalletTypes.WalletInfo, groupIndex: number, list: Array<AppStorageTypes.TxRowData>) {
+  setTxList(walletInfo: WalletTypes.WalletInfo, groupIndex: number, list: Array<AppStorageTypes.Tx.TxRowData>) {
     const txKey = this.getTxKey(walletInfo, groupIndex);
     this.logger.debug('save tx list at ' + groupIndex);
     this.logger.debug(list);
@@ -1013,7 +1431,7 @@ export class AppStorageService {
 
   getTxListAtIndex(walletInfo: WalletTypes.WalletInfo, groupIndex: number) {
     const txKey = this.getTxKey(walletInfo, groupIndex);
-    let txList: Array<AppStorageTypes.TxRowData> = this.store.get(txKey);
+    let txList: Array<AppStorageTypes.Tx.TxRowData> = this.store.get(txKey);
     if (!txList) {
       txList = [];
     }
@@ -1021,20 +1439,17 @@ export class AppStorageService {
   }
 
   getLastTxList(walletInfo: WalletTypes.WalletInfo) {
-    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    const txInfo: AppStorageTypes.Tx.TxInfo = this.getTxInfo(walletInfo);
     const txKey = this.getTxKey(walletInfo, txInfo.endIndex);
-    let txList: Array<AppStorageTypes.TxRowData> = this.store.get(txKey);
+    let txList: Array<AppStorageTypes.Tx.TxRowData> = this.store.get(txKey);
     if (!txList) {
       txList = [];
     }
     return txList;
   }
 
-  getIncompleteTxList(
-    walletInfo: WalletTypes.WalletInfo,
-    listFilter?: (item: AppStorageTypes.TxRowData) => boolean
-  ): Array<AppStorageTypes.TxRowData> {
-    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+  getIncompleteTxList(walletInfo: WalletTypes.WalletInfo, customDataFilter?: string): Array<AppStorageTypes.Tx.TxRowData> {
+    const txInfo: AppStorageTypes.Tx.TxInfo = this.getTxInfo(walletInfo);
     const txList = [];
 
     const limitIndex = txInfo.incompleteSearchIndex;
@@ -1048,10 +1463,18 @@ export class AppStorageService {
       }
 
       for (let j = txGroup.length - 1; j >= 0; j--) {
-        const item: AppStorageTypes.TxRowData = txGroup[j];
-        if (item.state === AppStorageTypes.TxRowState.Opened || (listFilter && listFilter(item) === true)) {
+        const item: AppStorageTypes.Tx.TxRowData = txGroup[j];
+        if (item.state === AppStorageTypes.Tx.TxRowState.Opened || item.customData === customDataFilter) {
           txList.push(item);
         }
+      }
+    }
+
+    //update search limit if empty array
+    if (txList.length === 0) {
+      if (txInfo.incompleteSearchIndex !== txInfo.endIndex) {
+        txInfo.incompleteSearchIndex = txInfo.endIndex;
+        this.setTxInfo(walletInfo, txInfo);
       }
     }
 
@@ -1063,9 +1486,9 @@ export class AppStorageService {
     pageIndex: number,
     countPerPage: number,
     sortByDesc: boolean,
-    listFilter?: (item: AppStorageTypes.TxRowData) => boolean
-  ): Array<AppStorageTypes.TxRowData> {
-    const txInfo: AppStorageTypes.TxInfo = this.getTxInfo(walletInfo);
+    stateFilter?: AppStorageTypes.Tx.TxRowState
+  ): Array<AppStorageTypes.Tx.TxRowData> {
+    const txInfo: AppStorageTypes.Tx.TxInfo = this.getTxInfo(walletInfo);
     const txList = [];
 
     let passCount = pageIndex * countPerPage;
@@ -1075,24 +1498,31 @@ export class AppStorageService {
     if (sortByDesc) {
       for (let i = endIndex; i >= startIndex; i--) {
         const txKey = this.getTxKey(walletInfo, i);
-        const txGroup = this.store.get(txKey);
+        const txGroup: Array<AppStorageTypes.Tx.TxRowData> = this.store.get(txKey);
         if (txGroup === null || txGroup === undefined) {
           break;
         }
 
         for (let j = txGroup.length - 1; j >= 0; j--) {
-          if (passCount > 0) {
-            passCount -= 1;
-            continue;
-          }
-
           const item = txGroup[j];
-          if (listFilter) {
-            if (listFilter(item)) {
-              txList.push(item);
+          let addToList = false;
+
+          if (stateFilter) {
+            if (item.state === stateFilter) {
+              addToList = true;
+              break;
             }
           } else {
-            txList.push(item);
+            addToList = true;
+          }
+
+          if (addToList) {
+            if (passCount > 0) {
+              passCount -= 1;
+              continue;
+            } else {
+              txList.push(item);
+            }
           }
         }
 
@@ -1103,24 +1533,31 @@ export class AppStorageService {
     } else {
       for (let i = startIndex; i <= endIndex; i++) {
         const txKey = this.getTxKey(walletInfo, i);
-        const txGroup = this.store.get(txKey);
+        const txGroup: Array<AppStorageTypes.Tx.TxRowData> = this.store.get(txKey);
         if (txGroup === null || txGroup === undefined) {
           break;
         }
 
         for (let j = 0; j < txGroup.length; j++) {
-          if (passCount > 0) {
-            passCount -= 1;
-            continue;
-          }
+          let addToList = false;
 
           const item = txGroup[j];
-          if (listFilter) {
-            if (listFilter(item)) {
-              txList.push(item);
+          if (stateFilter) {
+            if (item.state === stateFilter) {
+              addToList = true;
+              break;
             }
           } else {
-            txList.push(item);
+            addToList = true;
+          }
+
+          if (addToList) {
+            if (passCount > 0) {
+              passCount -= 1;
+              continue;
+            } else {
+              txList.push(item);
+            }
           }
         }
 

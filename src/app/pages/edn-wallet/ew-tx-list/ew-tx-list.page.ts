@@ -24,6 +24,8 @@ import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 
+const itemCountPerPage = 100;
+
 @Component({
   selector: 'app-ew-tx-list',
   templateUrl: './ew-tx-list.page.html',
@@ -35,7 +37,7 @@ export class EwTxListPage implements OnInit, OnDestroy {
   currentPageIndex = 0;
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
-  txList: Array<AppStorageTypes.TxRowData> = [];
+  txList: Array<AppStorageTypes.Tx.TxRowData> = [];
 
   @ViewChild('summary') summary: EwSummary;
 
@@ -89,19 +91,16 @@ export class EwTxListPage implements OnInit, OnDestroy {
     this.subscriptionPack.clear();
   }
 
-  loadList(pageIndex: number, onComplete) {
+  async loadList(pageIndex: number, onComplete) {
     this.feedbackUI.showLoading();
 
-    const list = this.storage.getTxListForPaging(this.wallet, this.currentPageIndex, 100, true, (item: AppStorageTypes.TxRowData) => {
-      for (let j = 0; j < item.logs.length; j++) {
-        const logItem = item.logs[j];
-        if (logItem.state === AppStorageTypes.TxState.Receipted) {
-          return true;
-        }
-      }
-
-      return false;
-    });
+    const list = await this.storage.getTxListForPaging(
+      this.wallet,
+      pageIndex,
+      itemCountPerPage,
+      true,
+      AppStorageTypes.Tx.TxRowState.Closed
+    );
 
     list.forEach(item => {
       this.txList.push(item);
@@ -146,8 +145,8 @@ export class EwTxListPage implements OnInit, OnDestroy {
     return new Date(timeVal).toLocaleDateString();
   }
 
-  isSendTx(txItem: AppStorageTypes.TxRowData) {
-    if (txItem.subType === AppStorageTypes.TxSubType.Send) {
+  isSendTx(txItem: AppStorageTypes.Tx.TxRowData) {
+    if (txItem.subType === AppStorageTypes.Tx.TxSubType.Send) {
       return true;
     }
 

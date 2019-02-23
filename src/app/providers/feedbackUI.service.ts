@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastController } from '@ionic/angular';
 import { Map } from '../utils/listutil';
 import { UUID } from 'angular2-uuid';
-import { LoadingOptions, SpinnerTypes, AlertButton } from '@ionic/core';
+import { LoadingOptions, SpinnerTypes, AlertButton, ToastOptions } from '@ionic/core';
 import { AnalyticsService, AnalyticsEvent } from './analytics.service';
 
 export interface AlertOptions {
@@ -362,11 +362,12 @@ export class FeedbackUIService {
       toastMessage = message.message;
     }
 
-    const toast = await this.toastController.create({
+    const toastOptions: ToastOptions = {
       message: toastMessage,
       duration: duration,
       cssClass: cssClass
-    });
+    };
+    const toast = await this.toastController.create(toastOptions);
     toast.present();
   }
 }

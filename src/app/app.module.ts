@@ -65,7 +65,7 @@ export function createTranslateLoader(http: HttpClient) {
     QRCodeModule,
     // Logging
     LoggerModule.forRoot({
-      disableConsoleLogging: env.config.disableConsoleLogging,
+      disableConsoleLogging: env.config.debugging.disableConsoleLogging,
       level: NgxLoggerLevel.DEBUG,
       serverLoggingUrl: null,
       serverLogLevel: NgxLoggerLevel.ERROR
