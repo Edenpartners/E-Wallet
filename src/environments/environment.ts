@@ -35,7 +35,7 @@ export const environment: Environment = {
     },
 
     /** Test another ERC20 coin with replacement */
-    ednCoinKey: 'AST',
+    ednCoinKey: 'EDN',
     useDecryptPinCodeByPinCode: false,
     simulateHardwareBackButton: true,
     clearWalletsOnWipeStorage: false,

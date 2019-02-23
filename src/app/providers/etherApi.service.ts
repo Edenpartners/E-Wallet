@@ -19,15 +19,6 @@ import { Consts } from 'src/environments/constants';
 import { HttpHelperService } from './httpHelper.service';
 import { TranslateService } from '@ngx-translate/core';
 
-import { soliditySha3 as IdexSoliditySha3 } from 'web3-utils';
-import {
-  hashPersonalMessage as IdexhashPersonalMessage,
-  bufferToHex as IdexBufferToHex,
-  toBuffer as IdexToBuffer,
-  ecsign as IdexEcsign
-} from 'ethereumjs-util';
-import { mapValues as IdexMapValues } from 'lodash';
-
 class TracsactionReceiptTracker extends SubscriptionHandler<any> {
   isTracking = true;
 }
@@ -1026,6 +1017,8 @@ export class EtherApiService {
       walletInfo: WalletTypes.EthWalletInfo;
       targetErc20ContractCode: string;
       srcEthAmount: BigNumber;
+      useAutoExchangedDestAmount: boolean;
+      destAmount?: BigNumber;
     },
     password: string
   ): Promise<any> {
@@ -1069,21 +1062,6 @@ export class EtherApiService {
         return;
       }
 
-      let expectedTradeRate = null;
-
-      try {
-        expectedTradeRate = await this.idexGetExpectedTradeRateWithWallet(
-          params.walletInfo,
-          Consts.ETH_CODE,
-          params.targetErc20ContractCode
-        );
-      } catch (e) {
-        finalReject(e);
-      }
-      if (expectedTradeRate === null) {
-        return;
-      }
-
       let nonceVal: number = null;
       try {
         const nonceValStr = await this.idexGetNextNonce(w.address);
@@ -1098,20 +1076,47 @@ export class EtherApiService {
 
       const expires = 10000;
 
-      //calculate automatically converted dest token
-      const estimatedTradeResult = this.calculateTradeResult(
-        params.srcEthAmount,
-        Consts.ETH_DECIMAL,
-        destContractInfo.decimals,
-        ethers.utils.bigNumberify(expectedTradeRate.expectedRate)
-      );
+      let destAmountBn = null;
+
+      //calculate automatically
+      if (params.useAutoExchangedDestAmount) {
+        let expectedTradeRate = null;
+
+        try {
+          expectedTradeRate = await this.idexGetExpectedTradeRateWithWallet(
+            params.walletInfo,
+            Consts.ETH_CODE,
+            params.targetErc20ContractCode
+          );
+        } catch (e) {
+          finalReject(e);
+        }
+        if (expectedTradeRate === null) {
+          return;
+        }
+
+        //calculate automatically converted dest token
+        destAmountBn = this.calculateTradeResult(
+          params.srcEthAmount,
+          Consts.ETH_DECIMAL,
+          destContractInfo.decimals,
+          ethers.utils.bigNumberify(expectedTradeRate.expectedRate)
+        );
+      } else if (params.destAmount) {
+        destAmountBn = params.destAmount;
+      }
+
+      if (destAmountBn === null) {
+        finalReject(new Error());
+        return;
+      }
 
       //make untradable order
       //estimatedTradeResult = estimatedTradeResult.mul(10);
 
       const requestBody: any = {
         tokenBuy: destContractInfo.address,
-        amountBuy: estimatedTradeResult.toString(),
+        amountBuy: destAmountBn.toString(),
         tokenSell: srcContractInfo.address,
         amountSell: params.srcEthAmount.toString(),
         address: w.address,

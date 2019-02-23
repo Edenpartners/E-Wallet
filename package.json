@@ -65,11 +65,9 @@
     "cordova-support-google-services": "^1.2.1",
     "core-js": "^2.5.4",
     "crypto-js": "^3.1.9-1",
-    "ethereumjs-util": "^6.1.0",
     "ethers": "^4.0.9",
     "firebase": "^5.5.8",
     "ionic-plugin-deeplinks": "file:local-packages/cordova-plugins/ionic-plugin-deeplinks",
-    "lodash": "^4.17.11",
     "ngx-clipboard": "^11.1.9",
     "ngx-logger": "^3.3.6",
     "ngx-store": "mtraynham/ngx-store#angular_7_build",
@@ -79,7 +77,6 @@
     "rxjs-compat": "^6.3.3",
     "twitter-connect-plugin": "^0.6.0",
     "web3": "1.0.0-beta.36",
-    "web3-utils": "^1.0.0-beta.46",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

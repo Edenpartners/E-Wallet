@@ -59,11 +59,10 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
   @ViewChild('ethAmountInput') ethAmountInput: IonInput;
   @ViewChild('ednAmountInput') ednAmountInput: IonInput;
 
-  lockEthAmountChangeEvent = false;
-  lockEdnAmountChangeEvent = false;
-
   ednAmount = '0';
   ethAmount = '0';
+
+  useAutoConvertForIDEX = false;
 
   pinCodeConfirmCallback = null;
 
@@ -143,8 +142,10 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
   }
 
   restartRateTracker() {
+    this.dataTracker.stopTracker('ednRateTrackerIDEX');
+    this.dataTracker.stopTracker('ednRateTrackerKyber');
+
     if (this.selectedTrader === EthExchangerId.KyberNetwork) {
-      this.dataTracker.stopTracker('ednRateTrackerKyber');
       this.dataTracker.startTracker('ednRateTrackerKyber', () => {
         return new Promise<any>((finalResolve, finalReject) => {
           this.getTradeRateByKyber(
@@ -161,24 +162,23 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
         });
       });
     } else {
-      this.dataTracker.stopTracker('ednRateTrackerKyber');
-
-      this.dataTracker.stopTracker('ednRateTrackerIDEX');
-      this.dataTracker.startTracker('ednRateTrackerIDEX', () => {
-        return new Promise<any>((finalResolve, finalReject) => {
-          this.getTradeRateByIDEX(
-            rate => {
-              if (this.selectedTrader === EthExchangerId.IDEX) {
-                this.applyKyberRate(rate);
+      if (this.useAutoConvertForIDEX) {
+        this.dataTracker.startTracker('ednRateTrackerIDEX', () => {
+          return new Promise<any>((finalResolve, finalReject) => {
+            this.getTradeRateByIDEX(
+              rate => {
+                if (this.selectedTrader === EthExchangerId.IDEX) {
+                  this.applyKyberRate(rate);
+                }
+                finalResolve(rate);
+              },
+              error => {
+                finalReject(error);
               }
-              finalResolve(rate);
-            },
-            error => {
-              finalReject(error);
-            }
-          );
+            );
+          });
         });
-      });
+      }
     }
   }
 
@@ -266,8 +266,10 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
         this.applyKyberRate(this.dataTracker.getTracker('ednRateTrackerKyber').value);
       }
     } else if (this.selectedTrader === EthExchangerId.IDEX) {
-      if (this.dataTracker.getTracker('ednRateTrackerIDEX').value) {
-        this.applyKyberRate(this.dataTracker.getTracker('ednRateTrackerIDEX').value);
+      if (this.useAutoConvertForIDEX) {
+        if (this.dataTracker.getTracker('ednRateTrackerIDEX').value) {
+          this.applyKyberRate(this.dataTracker.getTracker('ednRateTrackerIDEX').value);
+        }
       }
     }
   }
@@ -363,7 +365,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
 
     let ethAmountBn = null;
     try {
-      ethAmountBn = ethers.utils.parseEther(String(this.ethAmount));
+      ethAmountBn = ethers.utils.parseUnits(String(this.ethAmount), Consts.ETH_DECIMAL);
     } catch (e) {
       this.logger.debug(e);
       return;
@@ -375,6 +377,24 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
     }
 
     if (ethAmountBn.lte(0)) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'));
+      return;
+    }
+
+    let ednAmountBn = null;
+    try {
+      ednAmountBn = ethers.utils.parseUnits(String(this.ednAmount), ednContractInfo.contractInfo.decimal);
+    } catch (e) {
+      this.logger.debug(e);
+      return;
+    }
+
+    if (!ednAmountBn) {
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
+      return;
+    }
+
+    if (ednAmountBn.lte(0)) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.positive'));
       return;
     }
@@ -393,6 +413,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
         loading.hide();
         this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
         this.ethAmount = '0';
+        this.ednAmount = '0';
       };
       const onTxReceipt = txReceiptData => {};
 
@@ -418,26 +439,28 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
         )
         .then(onSuccess, onError);
     } else if (this.selectedTrader === EthExchangerId.IDEX) {
-      this.etherApi
-        .idexTradeEthToErc20Token(
-          {
-            walletInfo: walletInfo,
-            targetErc20ContractCode: ednContractInfo.contractInfo.symbol,
-            srcEthAmount: ethAmountBn
-          },
-          walletPw
-        )
-        .then(
-          result => {
-            loading.hide();
-            this.feedbackUI.showToast(this.translate.instant('order.success'));
-            this.ethAmount = '0';
-          },
-          error => {
-            loading.hide();
-            this.feedbackUI.showErrorDialog(error);
-          }
-        );
+      const params: any = {
+        walletInfo: walletInfo,
+        targetErc20ContractCode: ednContractInfo.contractInfo.symbol,
+        srcEthAmount: ethAmountBn,
+        useAutoExchangedDestAmount: this.useAutoConvertForIDEX
+      };
+
+      if (!this.useAutoConvertForIDEX) {
+        params.destAmount = ednAmountBn;
+      }
+      this.etherApi.idexTradeEthToErc20Token(params, walletPw).then(
+        result => {
+          loading.hide();
+          this.feedbackUI.showToast(this.translate.instant('order.success'));
+          this.ethAmount = '0';
+          this.ednAmount = '0';
+        },
+        error => {
+          loading.hide();
+          this.feedbackUI.showErrorDialog(error);
+        }
+      );
     }
   }
 
