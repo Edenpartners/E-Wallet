@@ -20,9 +20,8 @@
       <ion-label class="sub-header font-size-18 margin-top-60">{{ 'Amount' | translate }}</ion-label>
 
       <ion-item lines="full" class="full-text-input margin-top-24" [ngClass]="{'selected':isInputHasNonZero(amountInput)}">
-        <ion-label class="invisible font-size-14">{{ 'EDN' | translate }}</ion-label>
-        <ion-input #amountInput class="font-size-24" type="number" color="text-light-1" text-center
-          [(ngModel)]="amount"></ion-input>
+        <ion-input #amountInput appWeakNumber class="font-size-24" color="text-light-1" text-right
+          [(ngModel)]="amount" (ionChange)="onAmountInputChange()"></ion-input>
         <ion-label class="font-size-14">{{ 'EDN' | translate }}</ion-label>
       </ion-item>
 

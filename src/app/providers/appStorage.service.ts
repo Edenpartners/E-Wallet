@@ -1510,7 +1510,6 @@ class LocalStorageTxManager {
           if (stateFilter) {
             if (item.state === stateFilter) {
               addToList = true;
-              break;
             }
           } else {
             addToList = true;
@@ -1545,7 +1544,6 @@ class LocalStorageTxManager {
           if (stateFilter) {
             if (item.state === stateFilter) {
               addToList = true;
-              break;
             }
           } else {
             addToList = true;

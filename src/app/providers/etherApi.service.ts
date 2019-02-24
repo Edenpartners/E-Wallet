@@ -19,7 +19,7 @@ import { Consts } from 'src/environments/constants';
 import { HttpHelperService } from './httpHelper.service';
 import { TranslateService } from '@ngx-translate/core';
 
-class TracsactionReceiptTracker extends SubscriptionHandler<any> {
+class TransactionReceiptTracker extends SubscriptionHandler<any> {
   isTracking = true;
 }
 
@@ -38,7 +38,7 @@ export class EtherApiService {
     private httpHelper: HttpHelperService,
     private translate: TranslateService
   ) {}
-  receiptTrackingHashes: Map<TracsactionReceiptTracker> = {};
+  receiptTrackingHashes: Map<TransactionReceiptTracker> = {};
 
   idexCurrencies = null;
   idexContractAddress = null;
@@ -97,7 +97,7 @@ export class EtherApiService {
           this.events.publish('eth.send.tx.create', params, tx);
 
           if (env.config.debugging.showDebugToast) {
-            this.feedbackUI.showToast('Tracsaction requested.');
+            this.feedbackUI.showToast('Transaction requested.');
           }
 
           onTransactionCreate(tx);
@@ -350,7 +350,7 @@ export class EtherApiService {
           this.events.publish('eth.erc20.send.tx.create', params, tx);
 
           if (env.config.debugging.showDebugToast) {
-            this.feedbackUI.showToast('Tracsaction requested.');
+            this.feedbackUI.showToast('Transaction requested.');
           }
 
           onTransactionCreate(tx);
@@ -396,7 +396,7 @@ export class EtherApiService {
   }
 
   getTransactionReceiptTrackingObserver(txHash: string): Observable<any> {
-    const tracker: TracsactionReceiptTracker = this.receiptTrackingHashes[txHash];
+    const tracker: TransactionReceiptTracker = this.receiptTrackingHashes[txHash];
 
     if (!tracker) {
       return null;
@@ -412,7 +412,7 @@ export class EtherApiService {
     repeatDelay = 3000,
     timeout = -1
   ): Promise<ethers.providers.TransactionReceipt> {
-    const tracker = new TracsactionReceiptTracker();
+    const tracker = new TransactionReceiptTracker();
     this.receiptTrackingHashes[txHash] = tracker;
 
     return new Promise<ethers.providers.TransactionReceipt>(async (finalResolve, finalReject) => {
@@ -460,7 +460,7 @@ export class EtherApiService {
               isComplete = true;
 
               if (env.config.debugging.showDebugToast) {
-                this.feedbackUI.showToast('Tracsaction receipted.');
+                this.feedbackUI.showToast('Transaction receipted.');
               }
 
               trackingFlagRemover();
@@ -561,7 +561,7 @@ export class EtherApiService {
         .then(tx => {
           this.events.publish('exchange.kyber.tx.create', params, tx);
           if (env.config.debugging.showDebugToast) {
-            this.feedbackUI.showToast('Tracsaction requested.');
+            this.feedbackUI.showToast('Transaction requested.');
           }
 
           onTransactionCreate(tx);

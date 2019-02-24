@@ -29,6 +29,7 @@ import { Events, IonInput } from '@ionic/angular';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+import { BigNumberHelper } from '../../../utils/bigNumberHelper';
 
 enum Mode {
   deposit = 'deposit',
@@ -56,10 +57,12 @@ export class TwTradePage implements OnInit, OnDestroy {
   selectedEthWalletId: string = null;
   selectedTednWalletId: string = null;
 
-  tradeAmount = 0;
+  tradeAmount = '0';
   pinCodeConfirmCallback = null;
 
   viewActivated = false;
+
+  @ViewChild('tradeAmountInput') tradeAmountInput: IonInput;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -162,6 +165,14 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.tednWallets = this.storage.getTednWallets();
     if (this.tednWallets.length > 0) {
       this.selectedTednWalletId = this.tednWallets[0].id;
+    }
+  }
+
+  onTradeAmountChange() {
+    const safeText = BigNumberHelper.safeText(this.tradeAmount, Consts.TEDN_DECIMAL);
+    if (safeText !== this.tradeAmount) {
+      this.tradeAmount = safeText;
+      this.tradeAmountInput.value = this.tradeAmount;
     }
   }
 

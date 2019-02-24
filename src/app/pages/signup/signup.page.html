@@ -13,14 +13,14 @@
     <div class="content flex-ch-h-centered">
       <div class="flex-ch-centered form-area page-width-normal">
         <div class="text-center text-light-1">
-          <ion-label class="font-size-10">{{ 'SignupComment' | translate }}</ion-label>
+          <ion-label class="font-size-12">{{ 'SignupComment' | translate }}</ion-label>
         </div>
 
         <form novalidate [formGroup]="signupForm" class="fill-width">
           <ion-item class="input-field" lines="none">
             <span class="input-field-icon email"></span>
             <ion-input #userEmail [placeholder]="'InputUserEmail' | translate" type="email"
-              formControlName="email" (keyup.enter)="userPasswd.setFocus()" class="font-size-09"
+              formControlName="email" (keyup.enter)="userPasswd.setFocus()" class="font-size-12"
               color="text-light-1"></ion-input>
             <span class="input-field-icon email invisible"></span>
           </ion-item>
@@ -35,7 +35,7 @@
 
           <ion-item class="input-field field-space" lines="none">
             <span class="input-field-icon lock"></span>
-            <ion-input #userPasswd clearOnEdit="true" type="password" class="font-size-09"
+            <ion-input #userPasswd clearOnEdit="true" type="password" class="font-size-12"
               formControlName="password" [placeholder]="'EnterPassword' | translate" (keyup.enter)="userPasswdConfirm.setFocus()"
               color="text-light-1"></ion-input>
             <span class="input-field-icon lock invisible"></span>
@@ -54,7 +54,7 @@
 
           <ion-item class="input-field field-space" lines="none">
             <ion-input #userPasswdConfirm clearOnEdit="true" type="password" formControlName="passwordConfirm"
-              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1" class="font-size-09"
+              [placeholder]="'ConfigmPasswd' | translate" color="text-light-1" class="font-size-12"
               (keyup.enter)="signup()"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="signupForm.get('passwordConfirm').touched && ( signupForm.get('passwordConfirm').invalid  || signupForm.hasError('areEqual') )">

@@ -14,7 +14,7 @@
         <form novalidate [formGroup]="profileForm" class="fill-width">
           <ion-item class="input-field" lines="none">
             <ion-input #displayName [placeholder]="'DisplayName' | translate" formControlName="displayName"
-              (keyup.enter)="phoneNumber.setFocus()" class="font-size-09" color="text-light-1"></ion-input>
+              (keyup.enter)="phoneNumber.setFocus()" class="font-size-12" color="text-light-1"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="profileForm.get('displayName').touched && profileForm.get('displayName').invalid">
             <div *ngIf="profileForm.get('displayName').hasError('required')">
@@ -24,7 +24,7 @@
 
           <ion-item class="input-field field-space" lines="none">
             <ion-input #phoneNumber [placeholder]="'PhoneNumber' | translate" formControlName="phoneNumber"
-              color="text-light-1" class="font-size-09"></ion-input>
+              color="text-light-1" class="font-size-12"></ion-input>
           </ion-item>
           <div class="form-error-msg" *ngIf="profileForm.get('phoneNumber').touched && profileForm.get('phoneNumber').invalid">
             <div *ngIf="profileForm.get('phoneNumber').hasError('required')">

@@ -32,6 +32,8 @@ import { EwSummary } from '../../../components/ew-summary/ew-summary';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
+import { BigNumberHelper } from '../../../utils/bigNumberHelper';
+
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 const AnalyticsCategory = 'edn transaction1';
 
@@ -47,13 +49,15 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   wallet: WalletTypes.EthWalletInfo;
 
   toAddress = '';
-  amount = 0;
+  amount = '0';
 
   pinCodeConfirmCallback = null;
 
   viewActivated = false;
 
   @ViewChild('summary') summary: EwSummary;
+
+  @ViewChild('amountInput') amountInput: IonInput;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -112,6 +116,18 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   }
 
   setEvents() {}
+
+  onAmountInputChange() {
+    const walletInfo = this.storage.findWalletById(this.walletId);
+    const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
+    const destContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
+
+    const safeText = BigNumberHelper.safeText(this.amount, destContractInfo.contractInfo.decimal);
+    if (safeText !== this.amount) {
+      this.amount = safeText;
+      this.amountInput.value = this.amount;
+    }
+  }
 
   onSendBtnClick() {
     this.analytics.logEvent({

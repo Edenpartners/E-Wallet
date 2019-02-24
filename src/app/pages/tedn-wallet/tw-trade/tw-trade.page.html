@@ -44,10 +44,8 @@
         <ion-label class="margin-top-3x sub-header font-size-18">{{ 'Amount' | translate }}</ion-label>
 
         <ion-item lines="full" class="full-text-input margin-top-2x" [ngClass]="{'selected':isInputHasNonZero(tradeAmountInput)}">
-          <ion-label class="invisible" *ngIf="mode === 'deposit'">{{ 'EDN' | translate }}</ion-label>
-          <ion-label class="invisible" *ngIf="mode === 'withdraw'">{{ 'TEDN' | translate }}</ion-label>
-
-          <ion-input color="text-light-1" text-center #tradeAmountInput type="number" [(ngModel)]="tradeAmount"></ion-input>
+          <ion-input color="text-light-1" text-right #tradeAmountInput appWeakNumber (ionChange)="onTradeAmountChange()"
+            [(ngModel)]="tradeAmount"></ion-input>
 
           <ion-label *ngIf="mode === 'deposit'">{{ 'EDN' | translate }}</ion-label>
           <ion-label *ngIf="mode === 'withdraw'">{{ 'TEDN' | translate }}</ion-label>

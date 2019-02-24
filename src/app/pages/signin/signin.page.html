@@ -15,7 +15,7 @@
           <ion-item class="input-field" lines="none">
             <span class="input-field-icon email"></span>
             <ion-input #userEmail type="email" formControlName="email" [placeholder]="'InputUserEmail' | translate"
-              (keyup.enter)="userPasswd.setFocus()" class="font-size-10" color="text-light-1">
+              (keyup.enter)="userPasswd.setFocus()" class="font-size-12" color="text-light-1">
             </ion-input>
             <span class="input-field-icon email invisible"></span>
           </ion-item>
@@ -32,7 +32,7 @@
           <ion-item class="input-field field-space" lines="none">
             <span class="input-field-icon lock"></span>
             <ion-input #userPasswd clearOnEdit="true" type="password" formControlName="password"
-              [placeholder]="'InputPassword' | translate" (keyup.enter)="signin()" class="font-size-10"
+              [placeholder]="'InputPassword' | translate" (keyup.enter)="signin()" class="font-size-12"
               color="text-light-1"></ion-input>
             <span class="input-field-icon lock invisible"></span>
           </ion-item>

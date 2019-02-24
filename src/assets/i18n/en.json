@@ -43,8 +43,8 @@
   "valid.tednWallet.required": "TEDN Wallet is required",
   "valid.wallet.unique": "Wallet already exists",
 
-  "transaction.requested": "Tracsaction requested",
-  "transaction.receipted": "Tracsaction receipted",
+  "transaction.requested": "Transaction requested",
+  "transaction.receipted": "Transaction receipted",
   "trade.complete": "Trade complete",
 
   "valid.pincode.required": "Pincode is required",
