@@ -259,7 +259,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     const onTransactionCreate = tx => {
       loadingHandler.hide();
       this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
-      this.tradeAmount = 0;
+      this.tradeAmount = '0';
     };
     const onTransactionReceipt = txReceipt => {};
 
@@ -341,7 +341,7 @@ export class TwTradePage implements OnInit, OnDestroy {
       .then(
         result => {
           this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
-          this.tradeAmount = 0;
+          this.tradeAmount = '0';
         },
         error => {
           this.feedbackUI.showErrorDialog(error, {

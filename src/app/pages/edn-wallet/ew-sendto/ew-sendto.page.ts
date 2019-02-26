@@ -193,7 +193,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       /** transaction info */
       loadingHandler.hide();
       this.feedbackUI.showToast(this.translate.instant('transaction.requested'));
-      this.amount = 0;
+      this.amount = '0';
     };
 
     const onTransactionReceipt = txReceipt => {};

@@ -60,6 +60,8 @@ export function createTranslateLoader(http: HttpClient) {
     AngularFireDatabaseModule,
     AngularFireAuthModule,
 
+    HttpClientModule,
+
     ClipboardModule,
     WebStorageModule,
     QRCodeModule,

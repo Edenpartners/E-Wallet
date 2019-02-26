@@ -14,7 +14,7 @@ export const environment: Environment = {
       showDebugToast: false,
       logIdexAPI: false
     },
-    useRedirectorOnDebugMode: true,
+    useRedirectorOnDebugMode: false,
     handleUserState: true,
     alterStartPath: '',
     compareUserIDTokenOnDeeplinkHandling: false,
@@ -38,7 +38,7 @@ export const environment: Environment = {
     clearTxHistoryOnWipeStorage: false,
     blockSignup: true,
     firebaseFeatures: {
-      analytics: false,
+      analytics: true,
       google: true,
       facebook: false,
       twitter: false
