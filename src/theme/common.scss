@@ -417,6 +417,14 @@ ion-checkbox {
   height: 12px;
 }
 
+ion-item {
+  --background-focused: rgba(0, 0, 0, 0);
+}
+
+ion-input {
+  --background-focused: rgba(0, 0, 0, 0);
+}
+
 /**
 * Header - Content - Footer Content
 */
