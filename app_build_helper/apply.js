@@ -389,9 +389,9 @@ function run() {
         runReplaceCordovaAndPackagePluginVariable(PRIORITY_ONLY_CONFIG, configPathItem, packageJson,
           facebookPluginId,
           'APP_NAME', facebook.APP_NAME);
-        runReplaceCordovaAndroidString(PRIORITY_ONLY_CONFIG, configPathItem, 'fb_app_id', facebook.APP_ID);
-        runReplaceCordovaAndroidString(PRIORITY_ONLY_CONFIG, configPathItem, 'fb_app_name',
-          facebook.APP_NAME);
+        // runReplaceCordovaAndroidString(PRIORITY_ONLY_CONFIG, configPathItem, 'fb_app_id', facebook.APP_ID);
+        // runReplaceCordovaAndroidString(PRIORITY_ONLY_CONFIG, configPathItem, 'fb_app_name',
+        //   facebook.APP_NAME);
       }
 
       if (config.firebase.google) {

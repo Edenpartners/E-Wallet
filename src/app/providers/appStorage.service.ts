@@ -17,7 +17,6 @@ import { Consts } from 'src/environments/constants';
 import * as CryptoJS from 'crypto-js';
 import { CryptoHelper } from '../utils/cryptoHelper';
 import { SQLite, SQLiteObject, DbTransaction } from '@ionic-native/sqlite/ngx';
-import { async } from 'q';
 
 export namespace AppStorageTypes {
   export interface User {

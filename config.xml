@@ -47,10 +47,6 @@
         <splash density="port-xhdpi" src="resources/android/splash/drawable-port-xhdpi-screen.png" />
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
-        <config-file parent="/resources" target="./res/values/strings.xml">
-            <string name="fb_app_id">X</string>
-            <string name="fb_app_name">X</string>
-        </config-file>
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:allowBackup="false" />
             <application android:fullBackupContent="false" />

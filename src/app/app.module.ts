@@ -42,6 +42,8 @@ import { TermsAndConditionPageModule } from './pages/signup-profile/terms-and-co
 import { env } from '../environments/environment';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 
+import { SQLite } from '@ionic-native/sqlite/ngx';
+
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
@@ -101,7 +103,9 @@ export function createTranslateLoader(http: HttpClient) {
     Facebook,
     TwitterConnect,
     GooglePlus,
-    FirebaseAnalytics
+    FirebaseAnalytics,
+
+    SQLite
   ],
   bootstrap: [AppComponent]
 })
