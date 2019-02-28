@@ -55,6 +55,10 @@ if (!cleanTarget || cleanTarget === 'node_modules') {
   deleteDir('../node_modules');
 }
 
+if (!cleanTarget || cleanTarget === 'www') {
+  deleteDir('../www');
+}
+
 if (!cleanTarget || cleanTarget === 'firebase-mobile-resources') {
   deleteDir('../google-services.json');
   deleteDir('../GoogleService-Info.plist');
