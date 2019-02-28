@@ -9,7 +9,7 @@
 log.txt
 *.sublime-project
 *.sublime-workspace
-.vscode/
+#.vscode/
 npm-debug.log*
 
 .idea/
@@ -19,7 +19,7 @@ npm-debug.log*
 .tmp/
 .versions/
 coverage/
-./www/
+/www/
 node_modules/
 tmp/
 temp/

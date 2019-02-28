@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "msjsdiag.debugger-for-chrome",
+    "esbenp.prettier-vscode", // for typescript, javascript
+    "hookyqr.beautify", // for html, css
+    "eg2.tslint",
+    "shinnn.stylelint"
+  ]
+}
