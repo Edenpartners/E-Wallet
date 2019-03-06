@@ -9,7 +9,8 @@
         <div class="flex-h-dir-v-centered margin-top-2x">
           <ion-label class="field-label font-size-13"> {{ 'CurrentBalance' | translate }}
           </ion-label>
-          <ion-label text-right class="tedn flex-item-fill"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
+          <ion-label #multilineLabel class="tedn flex-item-fill text-right"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted) }}</ion-label>
+          <ion-label class="field-value-tail">
             {{ 'TEDN' | translate }}
           </ion-label>
         </div>

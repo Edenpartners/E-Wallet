@@ -1,0 +1,30 @@
+<ion-content class="page-wrapper" scrollY="false" padding>
+  <div class="page-content flex-ch-centered fill">
+    <div class="popup-content flex-column">
+      <div class="popup-title" style="display: flex; height: 40px;">
+        <ion-button fill="clear" class="invisible">
+          <ion-icon class="close-icon" src="/assets/img/close.svg"></ion-icon>
+        </ion-button>
+        <div class="title-text flex-ch-centered fw-bold font-size-13"><span>{{ 'Address' | translate }}</span></div>
+        <ion-button color="text-dark-1" fill="clear" (click)="onCloseBtnTap()">
+          <ion-icon class="close-icon" src="/assets/img/close.svg"></ion-icon>
+        </ion-button>
+      </div>
+      <div class="popup-body">
+        <ion-content class="text-area-wrapper" scrollY="false">
+          <ion-textarea class="flex-item-fill font-size-12" placeholder="" [(ngModel)]="content"></ion-textarea>
+          <div [hidden]="!isCopyComplete" class="overlay avoid-touch flex-ch-centered">
+            <div class="flex-ch-centered">
+              <div class="done-icon"></div>
+              <div class="done-message font-size-09 fw-bold">{{ 'CopyComplete' | translate }}</div>
+            </div>
+          </div>
+        </ion-content>
+        <ion-button expand="block" color="theme-2" class="copy-btn fw-bold font-size-12 radius-10 height-31 no-uppercase margin-top-12"
+          (click)="onCopyBtnClick()">
+          {{ 'CopyAddress' | translate }}
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -32,6 +32,7 @@ import { FeedbackUIService } from './providers/feedbackUI.service';
 
 import { IonComponentUtils } from './utils/ion-component-utils';
 import { AnalyticsService } from './providers/analytics.service';
+import { ModalOptions } from '@ionic/core';
 
 const TRACKER_KEY_COINHD = 'coinHDAddress';
 const TRACKER_KEY_USERINFO = 'userInfo';
@@ -101,9 +102,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.showPinCodeModal();
     });
 
-    this.events.subscribe(Consts.EVENT_SHOW_MODAL, page => {
+    this.events.subscribe(Consts.EVENT_SHOW_MODAL, (page, params) => {
       this.logger.debug(Consts.EVENT_SHOW_MODAL);
-      this.showModal(page);
+      this.showModal(page, true, params);
     });
 
     this.events.subscribe(Consts.EVENT_CLOSE_MODAL, () => {
@@ -171,18 +172,24 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showModal(PinCodePage);
   }
 
-  async showModal(page: any, isFullScreen: boolean = true) {
+  async showModal(page: any, isFullScreen: boolean = true, params?: any) {
     if (this.hasModal) {
       return;
     }
     this.hasModal = true;
 
-    const options: any = {
+    const options: ModalOptions = {
       component: page
     };
+
     if (isFullScreen) {
       options.cssClass = 'full-screen-modal';
     }
+
+    if (params) {
+      options.componentProps = params;
+    }
+
     this.currentModal = await this.modalController.create(options);
     return await this.currentModal.present();
   }

@@ -98,7 +98,8 @@ const routes: Routes = [
   {
     path: 'privacy-policy',
     loadChildren: './pages/signup-profile/privacy-policy/privacy-policy.module#PrivacyPolicyPageModule'
-  }
+  },
+  { path: 'content-popup', loadChildren: './pages/common/content-popup/content-popup.module#ContentPopupPageModule' }
 ];
 
 // log a routing state

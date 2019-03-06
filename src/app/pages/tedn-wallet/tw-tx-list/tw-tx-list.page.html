@@ -12,7 +12,9 @@
         <div class="flex-h-dir-centered tedn page-width-normal">
           <ion-label class="field-label font-size-13"> {{ 'CurrentBalance' | translate }}
           </ion-label>
-          <ion-label text-right class="field-value flex-item-fill font-size-18"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted  | number: '.0-5') }}
+          <ion-label #multilineLabel class="field-value flex-item-fill font-size-18 text-right"> {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted) }}
+          </ion-label>
+          <ion-label class="field-value-tail font-size-18">
             {{ 'TEDN' | translate }}
           </ion-label>
         </div>

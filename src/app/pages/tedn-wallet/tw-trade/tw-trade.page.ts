@@ -30,6 +30,7 @@ import { Events, IonInput } from '@ionic/angular';
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 import { BigNumberHelper } from '../../../utils/bigNumberHelper';
+import { TextUtils } from 'src/app/utils/textutils';
 
 enum Mode {
   deposit = 'deposit',
@@ -64,6 +65,9 @@ export class TwTradePage implements OnInit, OnDestroy {
 
   @ViewChild('tradeAmountInput') tradeAmountInput: IonInput;
 
+  @ViewChild('multilineLabel') multilineLabel;
+  originFontSize: string = null;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -97,6 +101,49 @@ export class TwTradePage implements OnInit, OnDestroy {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
                 this.tednBalanceFormatted = ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL);
+
+                const labelEl: HTMLElement = this.multilineLabel.el;
+                const cStyle = getComputedStyle(labelEl);
+
+                if (this.originFontSize === null) {
+                  this.originFontSize = cStyle.fontSize;
+                }
+                const labelWidth: number = labelEl.getBoundingClientRect().width;
+                const measured = TextUtils.measureTextWithEl(
+                  this.tednBalanceFormatted,
+                  {
+                    fontFamily: cStyle.fontFamily,
+                    fontSize: this.originFontSize,
+                    fontWeight: cStyle.fontWeight,
+                    lineHeight: cStyle.lineHeight
+                  },
+                  labelWidth
+                );
+
+                let fontSize = this.originFontSize;
+                if (measured.lineCount > 1) {
+                  fontSize = '17px';
+                } else {
+                  fontSize = this.originFontSize;
+                }
+                labelEl.style.fontSize = fontSize;
+
+                const lastMeasured = TextUtils.measureTextWithEl(
+                  this.tednBalanceFormatted,
+                  {
+                    fontFamily: cStyle.fontFamily,
+                    fontSize: fontSize,
+                    fontWeight: cStyle.fontWeight,
+                    lineHeight: cStyle.lineHeight
+                  },
+                  labelWidth
+                );
+
+                if (lastMeasured.lineCount <= 1) {
+                  labelEl.style.textAlign = 'right';
+                } else {
+                  labelEl.style.textAlign = 'left';
+                }
               });
             });
           }

@@ -4,6 +4,7 @@ import { ButtonStyleDirective, ButtonTextHeightDirective } from './button-style'
 import { ScrollbarStyleDirective } from './scrollbar-style';
 import { ShadowCssDirective } from './shadow-css';
 import { WeakNumberInputDirective, DecimalsCurrenyInputDirective } from './weak-number-type-input';
+import { MultilineLayoutDirective } from './multiline-layout';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { WeakNumberInputDirective, DecimalsCurrenyInputDirective } from './weak-
     ScrollbarStyleDirective,
     ShadowCssDirective,
     WeakNumberInputDirective,
-    DecimalsCurrenyInputDirective
+    DecimalsCurrenyInputDirective,
+    MultilineLayoutDirective
   ],
   exports: [
     ButtonStyleDirective,
@@ -20,7 +22,8 @@ import { WeakNumberInputDirective, DecimalsCurrenyInputDirective } from './weak-
     ScrollbarStyleDirective,
     ShadowCssDirective,
     WeakNumberInputDirective,
-    DecimalsCurrenyInputDirective
+    DecimalsCurrenyInputDirective,
+    MultilineLayoutDirective
   ]
 })
 export class DirectivesModule {}

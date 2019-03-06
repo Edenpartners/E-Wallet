@@ -179,6 +179,10 @@
   background-size: cover;
 }
 
+.transparent-page {
+  background: none;
+}
+
 .page-wrapper {
   --background: var(--common-background-color);
   background: var(--common-background-color);
@@ -449,6 +453,14 @@ ion-input {
 
 .text-center {
   text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
 }
 
 .field-label {
@@ -820,6 +832,7 @@ ion-item.full-text-input.selected {
 .full-screen-modal {
   --width: 100%;
   --height: 100%;
+  --background: none;
 }
 
 .custom-loading {
@@ -834,6 +847,19 @@ ion-item.full-text-input.selected {
   }
 }
 
+
+.avoid-touch {
+  pointer-events: none;
+}
+
+.overlay {
+  z-index: 999;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+}
 
 //ios css patches
 .header-ios ion-toolbar:last-child {

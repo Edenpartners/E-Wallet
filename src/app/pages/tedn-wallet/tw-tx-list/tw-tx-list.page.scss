@@ -63,10 +63,10 @@
   }
 
   .icon-area>* {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     border-radius: 15px;
-    opacity: 0.54;
+    opacity: 1;
   }
 
   .inner-content {
@@ -95,4 +95,10 @@
   ion-toolbar {
     --background: none;
   }
+}
+
+
+.field-value-tail {
+  flex: none;
+  margin-left: var(--space-half);
 }

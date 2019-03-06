@@ -1,0 +1,64 @@
+@import '../../../../theme/common.scss';
+
+.popup-content {
+  width: 261px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-bottom: 16px;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+
+  .popup-title {
+    widows: 100%;
+
+    .title-text {
+      flex: 1;
+      flex-grow: 1;
+    }
+
+    .close-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+  }
+
+  .popup-body {
+    padding-right: 10px;
+    padding-left: 10px;
+
+    .text-area-wrapper {
+      height: 198px;
+    }
+
+    ion-textarea {
+      background: #FFFFFF;
+      box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      height: 100%;
+      text-align: justify;
+      color: #808080;
+      --padding-start: 8px;
+      --padding-end: 8px;
+    }
+  }
+
+  .copy-btn {
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+
+  .done-icon {
+    width: 47px;
+    height: 47px;
+    background-image: url('/assets/img/done.svg');
+    background-repeat: no-repeat;
+  }
+
+  .done-message {
+    padding-top: 10px;
+  }
+}

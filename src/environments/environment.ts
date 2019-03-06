@@ -12,7 +12,7 @@ export const environment: Environment = {
 
   config: {
     debugging: {
-      disableConsoleLogging: true,
+      disableConsoleLogging: false,
       logBlockchain: false,
       logEdnApi: false,
       showDebugToast: false,
@@ -20,13 +20,13 @@ export const environment: Environment = {
     },
 
     useRedirectorOnDebugMode: true,
-    handleUserState: true,
+    handleUserState: false,
     alterStartPath: '',
     compareUserIDTokenOnDeeplinkHandling: false,
     emailVerificationRequired: false,
 
     /** this is the ethereum network information which edn server running. */
-    ednEthNetwork: EthProviders.KnownNetworkType.homestead,
+    ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
 
     signinWithEdnUserInfo: true,
     useSideMenu: true,
@@ -38,7 +38,7 @@ export const environment: Environment = {
     /** Test another ERC20 coin with replacement */
     ednCoinKey: 'EDN',
     useDecryptPinCodeByPinCode: false,
-    simulateHardwareBackButton: false,
+    simulateHardwareBackButton: true,
     clearWalletsOnWipeStorage: false,
     clearPincodeOnWipeStorage: false,
     clearTxHistoryOnWipeStorage: false,

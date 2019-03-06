@@ -18,8 +18,11 @@
   <ion-item class="sub-item" lines="none">
     <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
     </ion-label>
-    <ion-label class="field-value" text-right> {{ (!ednBalanceAdjusted)?'-': (ednBalanceAdjusted  | number: '.0-5') }}
-      {{ 'EDN' | translate }}
+    <!-- {{ (!ednBalanceDisplay)?'-': (ednBalanceDisplay  | number: '.0-5') }} -->
+    <ion-label #multilineLabel text-wrap class="field-value text-right"> {{ (!ednBalanceDisplay)?'-': (ednBalanceDisplay) }}
+
+    </ion-label>
+    <ion-label class="field-value-tail"> {{ 'EDN' | translate }}
     </ion-label>
   </ion-item>
 </ion-list>

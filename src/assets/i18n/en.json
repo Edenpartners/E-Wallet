@@ -185,6 +185,8 @@
   "Expenses": "Expenses",
   "Address": "Address",
   "CurrentBalance": "Current Balance",
+  "CopyAddress": "Copy Address",
+  "CopyComplete": "Copy Complete!",
 
   "______________EDN_WALLET_LIST": "",
   "Receive": "RECEIVE",

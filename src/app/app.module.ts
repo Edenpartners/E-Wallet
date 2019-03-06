@@ -38,6 +38,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PinCodePageModule } from './pages/pin-code/pin-code/pin-code.module';
 import { PrivacyPolicyPageModule } from './pages/signup-profile/privacy-policy/privacy-policy.module';
 import { TermsAndConditionPageModule } from './pages/signup-profile/terms-and-condition/terms-and-condition.module';
+import { ContentPopupPageModule } from './pages/common/content-popup/content-popup.module';
 
 import { env } from '../environments/environment';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
@@ -85,7 +86,8 @@ export function createTranslateLoader(http: HttpClient) {
 
     PinCodePageModule,
     PrivacyPolicyPageModule,
-    TermsAndConditionPageModule
+    TermsAndConditionPageModule,
+    ContentPopupPageModule
   ],
   exports: [ClipboardModule, QRCodeModule],
   providers: [

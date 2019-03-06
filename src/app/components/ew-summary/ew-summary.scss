@@ -24,5 +24,12 @@ ion-list {
 
   .field-value {
     font-size: var(--font-size-18);
+    flex-grow: 1;
+  }
+
+  .field-value-tail {
+    flex: none;
+    margin-left: var(--space-half);
+    font-size: var(--font-size-13);
   }
 }
