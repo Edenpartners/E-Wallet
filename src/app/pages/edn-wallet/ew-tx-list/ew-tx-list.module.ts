@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedPageModule } from '../../../modules/shared.page.module';
 
 import { EwTxListPage } from './ew-tx-list.page';
+import { EwSummaryModule } from '../ew-summary/ew-summary';
 
 const routes: Routes = [
   {
@@ -12,7 +13,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [SharedPageModule, RouterModule.forChild(routes)],
+  imports: [SharedPageModule, RouterModule.forChild(routes), EwSummaryModule],
   exports: [],
   declarations: [EwTxListPage]
 })

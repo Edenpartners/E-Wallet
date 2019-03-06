@@ -28,7 +28,7 @@ import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
 
 import { Keyboard } from '@ionic-native/keyboard/ngx';
-import { EwSummary } from '../../../components/ew-summary/ew-summary';
+import { EwSummary } from '../ew-summary/ew-summary';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 

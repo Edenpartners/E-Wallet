@@ -10,12 +10,11 @@ import { Bip39Handler } from './testers/bip39-handler';
 import { EthProviderMaker } from './testers/eth-provider-maker';
 import { EthWalletManager } from './testers/eth-wallet-manager';
 import { NumPad } from './numpad/num-pad';
-import { EwSummary } from './ew-summary/ew-summary';
 
 @NgModule({
   imports: [IonicModule, TranslateModule, FormsModule, CommonModule],
-  declarations: [CommonNavBar, UserStateChecker, Bip39Handler, EthProviderMaker, EthWalletManager, NumPad, EwSummary],
-  exports: [CommonNavBar, UserStateChecker, Bip39Handler, EthProviderMaker, EthWalletManager, NumPad, EwSummary],
+  declarations: [CommonNavBar, UserStateChecker, Bip39Handler, EthProviderMaker, EthWalletManager, NumPad],
+  exports: [CommonNavBar, UserStateChecker, Bip39Handler, EthProviderMaker, EthWalletManager, NumPad],
   providers: []
 })
 export class ComponentsModule {}

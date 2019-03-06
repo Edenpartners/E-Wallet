@@ -1,30 +1,33 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgModule } from '@angular/core';
 
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 
-import { EthService, EthProviders } from '../../providers/ether.service';
+import { EthService, EthProviders } from 'src/app/providers/ether.service';
 import { NGXLogger } from 'ngx-logger';
 import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import { BigNumber } from 'ethers/utils';
-import { EtherDataService } from '../../providers/etherData.service';
-import { WalletService, WalletTypes } from '../../providers/wallet.service';
+import { EtherDataService } from 'src/app/providers/etherData.service';
+import { WalletService, WalletTypes } from 'src/app/providers/wallet.service';
 import { IonInput, IonLabel } from '@ionic/angular';
-import { EtherApiService } from '../../providers/etherApi.service';
-import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
-import { AppStorageTypes, AppStorageService } from '../../providers/appStorage.service';
+import { EtherApiService } from 'src/app/providers/etherApi.service';
+import { EdnRemoteApiService } from 'src/app/providers/ednRemoteApi.service';
+import { AppStorageTypes, AppStorageService } from 'src/app/providers/appStorage.service';
 
-import { DataTrackerService, ValueTracker } from '../../providers/dataTracker.service';
+import { DataTrackerService, ValueTracker } from 'src/app/providers/dataTracker.service';
 
-import { SubscriptionPack } from '../../utils/listutil';
-import { env } from '../../../environments/environment';
-import { FeedbackUIService } from '../../providers/feedbackUI.service';
+import { SubscriptionPack } from 'src/app/utils/listutil';
+import { env } from 'src/environments/environment';
+import { FeedbackUIService } from 'src/app/providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Events } from '@ionic/angular';
 
-import { Consts } from '../../../environments/constants';
-import { ContentPopupPage } from '../../pages/common/content-popup/content-popup.page';
+import { Consts } from 'src/environments/constants';
+import { ContentPopupPage } from 'src/app/pages/common/content-popup/content-popup.page';
 import { TextUtils } from 'src/app/utils/textutils';
+import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
+import { SharedPageModule } from 'src/app/modules/shared.page.module';
+import { UUID } from 'angular2-uuid';
 
 @Component({
   selector: 'ew-summary',
@@ -44,8 +47,9 @@ export class EwSummary {
   ednBalanceDisplay: string;
 
   @ViewChild('aliasInput') aliasInput: IonInput;
+
   @ViewChild('multilineLabel') multilineLabel;
-  originFontSize: string = null;
+  @ViewChild('multilineLayout') multilineLayout: MultilineLayoutDirective;
 
   keyboardVisible = false;
 
@@ -92,45 +96,7 @@ export class EwSummary {
       this.ednBalanceAdjusted = value.adjustedBalance;
 
       this.ednBalanceDisplay = this.ednBalanceAdjusted.toString();
-      //this.ednBalanceDisplay = this.ednBalanceDisplay + this.ednBalanceDisplay + this.ednBalanceDisplay + this.ednBalanceDisplay;
-
-      const labelEl: HTMLElement = this.multilineLabel.el;
-      const cStyle = getComputedStyle(labelEl);
-
-      if (this.originFontSize === null) {
-        this.originFontSize = cStyle.fontSize;
-      }
-      const labelWidth: number = labelEl.getBoundingClientRect().width;
-      const measured = TextUtils.measureTextWithEl(
-        this.ednBalanceDisplay,
-        { fontFamily: cStyle.fontFamily, fontSize: this.originFontSize, fontWeight: cStyle.fontWeight, lineHeight: cStyle.lineHeight },
-        labelWidth
-      );
-
-      let fontSize = this.originFontSize;
-      if (measured.lineCount > 1) {
-        fontSize = '16px';
-      } else {
-        fontSize = this.originFontSize;
-      }
-      labelEl.style.fontSize = fontSize;
-
-      const lastMeasured = TextUtils.measureTextWithEl(
-        this.ednBalanceDisplay,
-        {
-          fontFamily: cStyle.fontFamily,
-          fontSize: fontSize,
-          fontWeight: cStyle.fontWeight,
-          lineHeight: cStyle.lineHeight
-        },
-        labelWidth
-      );
-
-      if (lastMeasured.lineCount <= 1) {
-        labelEl.style.textAlign = 'right';
-      } else {
-        labelEl.style.textAlign = 'left';
-      }
+      this.multilineLayout.updateLayout();
     };
 
     this.subscriptionPack.addSubscription(() => {
@@ -165,3 +131,10 @@ export class EwSummary {
     this.aliasEditing = false;
   }
 }
+
+@NgModule({
+  imports: [SharedPageModule],
+  declarations: [EwSummary],
+  exports: [EwSummary]
+})
+export class EwSummaryModule {}

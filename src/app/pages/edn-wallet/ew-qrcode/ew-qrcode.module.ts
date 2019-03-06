@@ -4,6 +4,7 @@ import { SharedPageModule } from '../../../modules/shared.page.module';
 
 import { EwQrcodePage } from './ew-qrcode.page';
 import { QRCodeModule } from 'angularx-qrcode';
+import { EwSummaryModule } from '../ew-summary/ew-summary';
 
 const routes: Routes = [
   {
@@ -13,7 +14,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [SharedPageModule, RouterModule.forChild(routes), QRCodeModule],
+  imports: [SharedPageModule, RouterModule.forChild(routes), QRCodeModule, EwSummaryModule],
   declarations: [EwQrcodePage],
   exports: []
 })

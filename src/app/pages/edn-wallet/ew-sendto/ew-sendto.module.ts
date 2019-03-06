@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedPageModule } from '../../../modules/shared.page.module';
 
 import { EwSendtoPage } from './ew-sendto.page';
+import { EwSummaryModule } from '../ew-summary/ew-summary';
 
 const routes: Routes = [
   {
@@ -12,7 +13,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [SharedPageModule, RouterModule.forChild(routes)],
+  imports: [SharedPageModule, RouterModule.forChild(routes), EwSummaryModule],
   declarations: [EwSendtoPage]
 })
 export class EwSendtoPageModule {}

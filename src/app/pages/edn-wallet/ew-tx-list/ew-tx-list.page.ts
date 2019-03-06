@@ -20,7 +20,7 @@ import { DecimalPipe } from '@angular/common';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
-import { EwSummary } from '../../../components/ew-summary/ew-summary';
+import { EwSummary } from '../ew-summary/ew-summary';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 

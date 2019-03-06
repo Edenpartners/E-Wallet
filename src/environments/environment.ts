@@ -44,8 +44,8 @@ export const environment: Environment = {
     clearTxHistoryOnWipeStorage: false,
     blockSignup: false,
     firebaseFeatures: {
-      analytics: true,
-      google: true,
+      analytics: false,
+      google: false,
       facebook: false,
       twitter: false
     }
