@@ -32,6 +32,7 @@
     "@ionic-native/http": "^5.0.0",
     "@ionic-native/in-app-browser": "^5.0.0",
     "@ionic-native/keyboard": "^5.0.0",
+    "@ionic-native/social-sharing": "^5.2.0",
     "@ionic-native/splash-screen": "5.0.0",
     "@ionic-native/sqlite": "^5.2.0",
     "@ionic-native/status-bar": "5.0.0",
@@ -60,11 +61,13 @@
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
     "cordova-plugin-whitelist": "^1.3.3",
+    "cordova-plugin-x-socialsharing": "5.4.4",
     "cordova-sqlite-storage": "^3.1.0",
     "cordova-support-android-plugin": "^1.0.1",
     "cordova-support-google-services": "^1.2.1",
     "core-js": "^2.5.4",
     "crypto-js": "^3.1.9-1",
+    "es6-promise-plugin": "4.2.2",
     "ethers": "^4.0.9",
     "firebase": "^5.5.8",
     "ionic-plugin-deeplinks": "file:local-packages/cordova-plugins/ionic-plugin-deeplinks",
@@ -163,7 +166,10 @@
         "DEEPLINK_5_SCHEME": " ",
         "DEEPLINK_5_HOST": " "
       },
-      "cordova-sqlite-storage": {}
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-x-socialsharing": {
+        "ANDROID_SUPPORT_V4_VERSION": "24.1.1+"
+      }
     },
     "platforms": [
       "browser",

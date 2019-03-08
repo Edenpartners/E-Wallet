@@ -1,5 +1,12 @@
 <ion-header>
-  <common-nav-bar title="{{ 'EwMainTitle' | translate }}"></common-nav-bar>
+  <common-nav-bar title="{{ 'EwMainTitle' | translate }}">
+    <ion-button class="right-item" (click)="onShareBtnClick()">
+      <ion-icon src="/assets/img/share.svg" color="text-light-1" style="width:24px; height:24px;"></ion-icon>
+    </ion-button>
+    <ion-button class="right-item" (click)="onQrCodeClick()">
+      <ion-icon src="/assets/img/duplicate.svg" color="text-light-1" style="width:24px; height:24px;"></ion-icon>
+    </ion-button>
+  </common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper" no-padding>

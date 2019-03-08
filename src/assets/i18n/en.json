@@ -100,6 +100,7 @@
   "Twitter": "Twitter",
   "Google": "Google",
   "DontHaveAccount": "Don't have an account?",
+  "ShowPassword": "Show password",
 
   "______________SIGN_IN_POPUP": "",
   "SigninSuccessTitle": "Sign-in succeed.",

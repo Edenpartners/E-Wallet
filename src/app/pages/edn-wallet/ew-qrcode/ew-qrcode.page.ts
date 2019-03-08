@@ -88,4 +88,6 @@ export class EwQrcodePage implements OnInit, OnDestroy {
     this.cbService.copyFromContent(this.qrCodeData);
     this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
   }
+
+  onShareBtnClick() {}
 }

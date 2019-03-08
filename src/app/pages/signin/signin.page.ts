@@ -37,6 +37,7 @@ export class SigninPage implements OnInit {
   signinForm: FormGroup;
 
   viewActivated = false;
+  showPassword = false;
 
   constructor(
     public rs: RouterService,
