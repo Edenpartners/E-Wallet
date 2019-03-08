@@ -20,7 +20,7 @@
     </ion-label>
     <ion-label #multilineLabel #multilineLayout="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left' }"
       text-wrap class="field-value text-right">
-      {{ (!ednBalanceDisplay)?'-': (ednBalanceDisplay) }}
+      {{ (ednBalanceDisplay === null)?'-': (ednBalanceDisplay | number: '.0-1000') }}
 
     </ion-label>
     <ion-label class="field-value-tail"> {{ 'EDN' | translate }}

@@ -14,16 +14,19 @@
           </ion-label>
           <ion-label #multilineLabel #multilineLayout="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left'}"
             text-wrap class="field-value flex-item-fill font-size-18 text-right">
-            {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted) }}
+            {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted | number: '.0-1000') }}
           </ion-label>
-          <ion-label class="field-value-tail font-size-18">
+          <ion-label class="field-value-tail font-size-13">
             {{ 'TEDN' | translate }}
           </ion-label>
         </div>
       </div>
 
-      <ion-content class="content" scroll-y="true" appScrollbarStyle [hidden]="txList.length < 1">
-        <ion-list lines="none" *ngIf="txList.length > 0">
+      <ion-content class="content" scroll-y="true" appScrollbarStyle [hidden]="isNoData">
+        <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
+          <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
+        <ion-list lines="none">
           <ion-item lines="none" *ngFor="let item of txList">
             <div class="row-icon-content">
               <div class="icon-area">
@@ -32,32 +35,39 @@
               </div>
               <div class="inner-content">
                 <div class="flex-h-dir">
-                  <ion-label class="label fw-bold flex-item-auto font-size-16" color="text-dark-1-1">
+                  <ion-label text-wrap class="label fw-bold flex-item-auto font-size-16" color="text-dark-1-1">
                     {{ item.amountDisplay | number: '.0-1000' }} {{ 'TEDN' | translate }}
                   </ion-label>
                 </div>
                 <div class="flex-h-dir">
-                  <ion-label class="flex-item-fill address font-size-14" color="text-dark-2" *ngIf="item.isSend">
+                  <ion-label text-wrap class="flex-item-fill address font-size-14" color="text-dark-2"
+                    *ngIf="item.isSend">
                     {{ ('To' | translate) }} {{ item.to_addr }}
                   </ion-label>
-                  <ion-label class="flex-item-fill address font-size-14" color="text-dark-2" *ngIf="!item.isSend">
+                  <ion-label text-wrap class="flex-item-fill address font-size-14" color="text-dark-2"
+                    *ngIf="!item.isSend">
                     {{ ('From' | translate ) }} {{ item.from_addr }}
                   </ion-label>
+                </div>
 
-                  <ion-label class="flex-item-auto date" color="text-dark-2">
-                    {{ item.regdateText }}
+                <div class="flex-h-dir">
+                  <ion-label class="flex-item-fill date text-right font-size-14" color="text-dark-2">
+                    {{ item.regdate | date:'medium' }}
                   </ion-label>
                 </div>
               </div>
             </div>
           </ion-item>
         </ion-list>
-        <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+        <ion-infinite-scroll #infiniteScroll (ionInfinite)="doInfinite($event)">
           <ion-infinite-scroll-content></ion-infinite-scroll-content>
         </ion-infinite-scroll>
       </ion-content>
 
-      <ion-content class="content" [hidden]="txList.length > 0">
+      <ion-content class="content" [hidden]="!isNoData">
+        <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
+          <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
         <div class="flex-ch-centered fill">
           <div class="flex-h-dir-centered">
             <ion-icon name="information-circle-outline" color="text-dark-1"></ion-icon>

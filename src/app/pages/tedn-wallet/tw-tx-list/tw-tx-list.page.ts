@@ -22,7 +22,7 @@ import { DecimalPipe } from '@angular/common';
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
-import { Events } from '@ionic/angular';
+import { Events, IonInfiniteScroll } from '@ionic/angular';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 import { TextUtils } from 'src/app/utils/textutils';
@@ -37,7 +37,7 @@ interface TednTransaction {
   to_addr: string;
   amount: string;
   amountDisplay: string;
-  regdate: number;
+  regdate: Date;
   regdateText: string;
 }
 
@@ -52,6 +52,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
   walletId: string;
   wallet: AppStorageTypes.TednWalletInfo;
 
+  isNoData = false;
   txList: Array<TednTransaction> = [];
   currentPage = 1;
   totalCount = 0;
@@ -61,6 +62,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
 
   @ViewChild('multilineLabel') multilineLabel;
   @ViewChild('multilineLayout') multilineLayout: MultilineLayoutDirective;
+  @ViewChild('infiniteScroll') infiniteScroll: IonInfiniteScroll;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -98,8 +100,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
               });
             });
 
-            this.txList = [];
-            this.loadList(this.currentPage, () => {});
+            this.reloadList();
           }
         } catch (e) {
           this.logger.debug(e);
@@ -108,14 +109,38 @@ export class TwTxListPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {}
-
-  ionViewWillEnter() {
-    this.currentPage = 1;
+  ngOnDestroy() {
+    this.subscriptionPack.clear();
   }
 
-  ionViewDidLeave() {
-    this.subscriptionPack.clear();
+  ionViewWillEnter() {}
+
+  ionViewDidLeave() {}
+
+  reloadList(evt?: any) {
+    this.infiniteScroll.disabled = false;
+    this.isNoData = false;
+    this.txList = [];
+    this.currentPage = 1;
+
+    if (evt && evt.target) {
+      evt.target.complete();
+    }
+
+    this.loadList(this.currentPage, () => {
+      if (this.txList.length < 1) {
+        this.isNoData = true;
+      }
+    });
+  }
+
+  doInfinite(evt) {
+    this.loadList(this.currentPage + 1, () => {
+      this.infiniteScroll.complete();
+      if (this.txList.length >= this.totalCount) {
+        this.infiniteScroll.disabled = true;
+      }
+    });
   }
 
   loadList(pageNum: number, onComplete: () => void) {
@@ -143,7 +168,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
           to_addr: item.to_addr,
           amount: item.amount,
           amountDisplay: ethers.utils.formatUnits(String(item.amount), Consts.TEDN_DECIMAL),
-          regdate: item.regdate,
+          regdate: this.getDate(item.regdate),
           regdateText: this.getDateString(item.regdate)
         });
       }
@@ -207,18 +232,12 @@ export class TwTxListPage implements OnInit, OnDestroy {
     }
   }
 
-  getDateString(regdate) {
-    return new Date(regdate * 1000).toLocaleDateString();
-    //return new Date(regdate * 1000).toLocaleString();
+  getDate(regdate) {
+    return new Date(regdate * 1000);
   }
 
-  doInfinite(evt) {
-    this.loadList(this.currentPage + 1, () => {
-      evt.target.complete();
-      if (this.txList.length >= this.totalCount) {
-        evt.target.disabled = true;
-      }
-    });
+  getDateString(regdate) {
+    return new Date(regdate * 1000).toLocaleDateString();
   }
 
   onReceiveClick() {

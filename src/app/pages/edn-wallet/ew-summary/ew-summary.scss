@@ -16,6 +16,10 @@ ion-list {
 .sub-item {
   color: var(--color-text-light-1);
 
+  --padding-start: var(--space-16);
+  --padding-end: var(--space-16);
+  --inner-padding-end: 0;
+
   .field-label {
     flex: none;
     margin-right: var(--space-normal);

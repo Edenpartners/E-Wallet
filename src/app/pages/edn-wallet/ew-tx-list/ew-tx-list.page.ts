@@ -19,7 +19,7 @@ import { DecimalPipe } from '@angular/common';
 
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Events } from '@ionic/angular';
+import { Events, IonInfiniteScroll } from '@ionic/angular';
 import { EwSummary } from '../ew-summary/ew-summary';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
@@ -34,12 +34,14 @@ const itemCountPerPage = 100;
 export class EwTxListPage implements OnInit, OnDestroy {
   private subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
+  isNoData = false;
   currentPageIndex = 0;
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
   txList: Array<AppStorageTypes.Tx.TxRowData> = [];
 
   @ViewChild('summary') summary: EwSummary;
+  @ViewChild('infiniteScroll') infiniteScroll: IonInfiniteScroll;
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -71,8 +73,8 @@ export class EwTxListPage implements OnInit, OnDestroy {
           this.walletId = String(params['id']); // (+) converts string 'id' to a number
           this.wallet = this.storage.findWalletById(this.walletId);
           this.logger.debug('a wallet ' + this.wallet.id);
-          this.txList = [];
-          this.loadList(0, addedCount => {});
+
+          this.reloadList();
 
           this.summary.startGetInfo(this.walletId);
         } catch (e) {
@@ -89,6 +91,32 @@ export class EwTxListPage implements OnInit, OnDestroy {
   ionViewDidLeave() {
     this.logger.debug('did leave tx');
     this.subscriptionPack.clear();
+  }
+
+  reloadList(evt?: any) {
+    this.infiniteScroll.disabled = false;
+    this.isNoData = false;
+    this.currentPageIndex = 0;
+    this.txList = [];
+
+    if (evt && evt.target) {
+      evt.target.complete();
+    }
+
+    this.loadList(0, addedCount => {
+      if (this.txList.length < 1) {
+        this.isNoData = true;
+      }
+    });
+  }
+
+  doInfinite(evt) {
+    this.loadList(this.currentPageIndex + 1, addedCount => {
+      this.infiniteScroll.complete();
+      if (addedCount <= 0) {
+        this.infiniteScroll.disabled = true;
+      }
+    });
   }
 
   async loadList(pageIndex: number, onComplete) {
@@ -140,6 +168,10 @@ export class EwTxListPage implements OnInit, OnDestroy {
     this.rs.navigateByUrl(`/ew-qrcode/${this.wallet.id}`);
   }
 
+  getDate(timeVal) {
+    return new Date(timeVal);
+  }
+
   getDateString(timeVal) {
     //return new Date(timeVal).toLocaleString();
     return new Date(timeVal).toLocaleDateString();
@@ -151,14 +183,5 @@ export class EwTxListPage implements OnInit, OnDestroy {
     }
 
     return false;
-  }
-
-  doInfinite(evt) {
-    this.loadList(this.currentPageIndex + 1, addedCount => {
-      evt.target.complete();
-      if (addedCount <= 0) {
-        evt.target.disabled = true;
-      }
-    });
   }
 }

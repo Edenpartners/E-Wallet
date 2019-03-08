@@ -25,8 +25,6 @@
   --color-theme-2: #614DA0;
 
   --space-normal: 16px;
-  --space-2x: 32px;
-  --space-3x: 48px;
   --space-half: 8px;
   --space-qt: 4px;
 
@@ -34,14 +32,17 @@
   --space-05: 5px;
   --space-10: 10px;
   --space-12: 12px;
+  --space-16: 16px;
   --space-18: 18px;
   --space-22: 22px;
   --space-24: 24px;
+  --space-28: 28px;
   --space-30: 30px;
   --space-32: 32px;
   --space-34: 34px;
   --space-36: 36px;
   --space-40: 40px;
+  --space-48: 48px;
   --space-49: 49px;
   --space-60: 60px;
 
@@ -721,84 +722,30 @@ ion-select {
   margin-right: var(--space-05);
 }
 
-.margin-right-10 {
-  --margin-right: var(--space-10);
-  margin-right: var(--space-10);
-}
-
-.margin-top-05 {
-  --margin-top: var(--space-05);
-  margin-top: var(--space-05);
-}
-
-.margin-top-12 {
-  --margin-top: var(--space-12);
-  margin-top: var(--space-12);
-}
-
-.margin-top-18 {
-  --margin-top: var(--space-18);
-  margin-top: var(--space-18);
-}
-
-.margin-top-22 {
-  --margin-top: var(--space-22);
-  margin-top: var(--space-22);
-}
-
-.margin-top-24 {
-  --margin-top: var(--space-24);
-  margin-top: var(--space-24);
-}
-
-.margin-top-30 {
-  --margin-top: var(--space-30);
-  margin-top: var(--space-30);
-}
-
-.margin-top-32 {
-  --margin-top: var(--space-32);
-  margin-top: var(--space-32);
-}
-
-.margin-top-34 {
-  --margin-top: var(--space-34);
-  margin-top: var(--space-34);
-}
-
-.margin-top-36 {
-  --margin-top: var(--space-36);
-  margin-top: var(--space-36);
-}
-
-.margin-top-40 {
-  --margin-top: var(--space-40);
-  margin-top: var(--space-40);
-}
-
-.margin-top-49 {
-  --margin-top: var(--space-49);
-  margin-top: var(--space-49);
-}
-
-.margin-top-60 {
-  --margin-top: var(--space-60);
-  margin-top: var(--space-60);
-}
+.margin-right-10 { --margin-right: var(--space-10); margin-right: var(--space-10) }
+.margin-top-05 { --margin-top: var(--space-05); margin-top: var(--space-05); }
+.margin-top-12 { --margin-top: var(--space-12); margin-top: var(--space-12); }
+.margin-top-18 { --margin-top: var(--space-18); margin-top: var(--space-18); }
+.margin-top-22 { --margin-top: var(--space-22); margin-top: var(--space-22); }
+.margin-top-24 { --margin-top: var(--space-24); margin-top: var(--space-24); }
+.margin-top-28 { --margin-top: var(--space-28); margin-top: var(--space-28); }
+.margin-top-30 { --margin-top: var(--space-30); margin-top: var(--space-30); }
+.margin-top-32 { --margin-top: var(--space-32); margin-top: var(--space-32); }
+.margin-top-34 { --margin-top: var(--space-34); margin-top: var(--space-34); }
+.margin-top-36 { --margin-top: var(--space-36); margin-top: var(--space-36); }
+.margin-top-40 { --margin-top: var(--space-40); margin-top: var(--space-40); }
+.margin-top-48 { --margin-top: var(--space-48); margin-top: var(--space-48); }
+.margin-top-49 { --margin-top: var(--space-49); margin-top: var(--space-49); }
+.margin-top-60 { --margin-top: var(--space-60); margin-top: var(--space-60); }
 
 .margin-top {
   --margin-top: var(--space-normal);
   margin-top: var(--space-normal);
 }
 
-.margin-top-2x {
-  --margin-top: var(--space-2x);
-  margin-top: var(--space-2x);
-}
-
-.margin-top-3x {
-  --margin-top: var(--space-3x);
-  margin-top: var(--space-3x);
+.margin-top-32 {
+  --margin-top: var(--space-32);
+  margin-top: var(--space-32);
 }
 
 .margin-top-half {
@@ -897,6 +844,10 @@ ion-item.full-text-input.selected {
 
 .indent {
   margin-left: var(--space-12);
+}
+
+.refresher-pulling-icon {
+  color:#ffffff;
 }
 
 @font-face {

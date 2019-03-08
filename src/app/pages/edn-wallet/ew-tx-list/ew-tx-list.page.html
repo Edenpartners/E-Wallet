@@ -8,8 +8,11 @@
       <div class="header">
         <ew-summary #summary></ew-summary>
       </div>
-      <ion-content class="content" class="content" appScrollbarStyle [hidden]="txList.length < 1">
-        <ion-list *ngIf="txList.length > 0">
+      <ion-content class="content" class="content" appScrollbarStyle [hidden]="isNoData">
+        <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
+          <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
+        <ion-list>
           <ion-item lines="none" *ngFor="let item of txList">
             <div class="row-icon-content">
               <div class="icon-area">
@@ -23,11 +26,13 @@
                   </ion-label>
                 </div>
                 <div class="flex-h-dir">
-                  <ion-label class="flex-item-fill address font-size-14" color="text-dark-2">
+                  <ion-label text-wrap class="flex-item-fill address font-size-14" color="text-dark-2">
                     {{ isSendTx(item) ? ('To' | translate) : ('From' | translate ) }} {{ item.info.to }}
                   </ion-label>
-                  <ion-label class="flex-item-auto date font-size-14" color="text-dark-2">
-                    {{ getDateString(item.cDate) }}
+                </div>
+                <div class="flex-h-dir">
+                  <ion-label class="text-right flex-item-fill date font-size-14" color="text-dark-2">
+                    {{ getDate(item.cDate) | date:'medium' }}
                   </ion-label>
                 </div>
               </div>
@@ -35,12 +40,15 @@
           </ion-item>
         </ion-list>
 
-        <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+        <ion-infinite-scroll #infiniteScroll (ionInfinite)="doInfinite($event)">
           <ion-infinite-scroll-content></ion-infinite-scroll-content>
         </ion-infinite-scroll>
       </ion-content>
 
-      <ion-content class="content" [hidden]="txList.length > 0">
+      <ion-content class="content" [hidden]="!isNoData">
+        <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
+          <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
         <div class="flex-ch-centered fill">
           <div class="flex-h-dir-centered">
             <ion-icon name="information-circle-outline" color="text-dark-1"></ion-icon>
