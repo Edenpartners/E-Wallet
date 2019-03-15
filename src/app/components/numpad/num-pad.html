@@ -1,7 +1,7 @@
 <div class="playground-wrapper">
   <div class="playground">
     <!-- All you need to play with -->
-    <div class="numpad">
+    <div class="numpad" [ngClass]="{'avoid-touch':isDisabled()}">
       <div class="num-button" (click)="inputPin('1')">1</div>
       <div class="num-button" (click)="inputPin('2')">2</div>
       <div class="num-button" (click)="inputPin('3')">3</div>

@@ -14,7 +14,7 @@
           </ion-label>
           <ion-label #multilineLabel #multilineLayout="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left'}"
             text-wrap class="field-value flex-item-fill font-size-18 text-right">
-            {{ (!tednBalanceFormatted)?'-': (tednBalanceFormatted | number: '.0-1000') }}
+            {{ (!tednBalanceFormatted)?'-': tednBalanceFormatted }}
           </ion-label>
           <ion-label class="field-value-tail font-size-13">
             {{ 'TEDN' | translate }}
@@ -36,7 +36,7 @@
               <div class="inner-content">
                 <div class="flex-h-dir">
                   <ion-label text-wrap class="label fw-bold flex-item-auto font-size-16" color="text-dark-1-1">
-                    {{ item.amountDisplay | number: '.0-1000' }} {{ 'TEDN' | translate }}
+                    {{ item.amountDisplay }} {{ 'TEDN' | translate }}
                   </ion-label>
                 </div>
                 <div class="flex-h-dir">

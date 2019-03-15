@@ -47,31 +47,30 @@
         </form>
 
         <div>
-          <ion-item float-right class="check-box margin-top-12 font-size-10" lines="none">
+          <ion-item float-right class="check-box margin-top-12 font-size-10 margin-right-04" lines="none">
             <ion-checkbox mode="md" color="theme-1" #showPasswordCheckbox [(ngModel)]="showPassword"></ion-checkbox>
             <ion-label color="text-light-1" class="checkbox-label font-size-12">{{ 'ShowPassword' | translate }}</ion-label>
           </ion-item>
         </div>
 
-
-        <div class="margin-top">
+        <div class="margin-top-12">
           <ion-button class="signin fw-bold radius-10 font-size-12 no-uppercase margin-bottom-0"
             expand="block" color="theme-2" (click)="signin()">{{ 'Signin' | translate }}</ion-button>
         </div>
 
-        <div class="margin-top">
+        <div class="margin-top-16">
           <ion-button [hidden]="env.config.blockSignup" class="signin fw-bold radius-10 font-size-12 no-uppercase"
             expand="block" color="gray-button" (click)="signup()">{{ 'Signup' | translate }}</ion-button>
         </div>
 
-        <div class="margin-top-half">
+        <div class="margin-top-08">
           <ion-button appBtnStyle color="text-dark-2" class="text-button no-uppercase font-size-14"
             expand="block" fill="clear" (click)="onForgotPasswdClick()">
             {{ 'IsForgotPasswd' | translate }}
           </ion-button>
         </div>
 
-        <div class="flex-h-dir-centered margin-top social-wrapper" margin-bottom>
+        <div class="flex-h-dir-centered margin-top-16 social-wrapper" margin-bottom>
           <ion-button appBtnStyle (click)="signinWithFacebook()" *ngIf="env.config.firebaseFeatures.facebook">
             <ion-icon src="/assets/img/facebook.svg" class="social-icon"></ion-icon>
           </ion-button>

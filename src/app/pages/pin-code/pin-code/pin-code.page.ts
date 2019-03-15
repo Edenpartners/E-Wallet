@@ -15,6 +15,10 @@ import { SubscriptionPack } from '../../../utils/listutil';
 import { Consts } from '../../../../environments/constants';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+import { environment } from 'src/environments/environment';
+import { Environment } from 'src/environments/environment.interface';
+
+import { String, StringBuilder } from 'typescript-string-operations';
 
 const AnalyticsCategory = 'confirm pin';
 
@@ -24,15 +28,6 @@ const AnalyticsCategory = 'confirm pin';
   styleUrls: ['./pin-code.page.scss']
 })
 export class PinCodePage implements OnInit, OnDestroy {
-  @ViewChild(NumPad) numPad: NumPad;
-
-  isModal = false;
-  isCreation = false;
-  isConfirmStep = true;
-  isComplete = false;
-
-  subscriptionPack: SubscriptionPack = new SubscriptionPack();
-
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -44,12 +39,32 @@ export class PinCodePage implements OnInit, OnDestroy {
     private analytics: AnalyticsService
   ) {
     this.logger.trace('init pin-code');
+
+    this.env = environment;
   }
+  @ViewChild(NumPad) numPad: NumPad;
+
+  isModal = false;
+  isCreation = false;
+  isConfirmStep = true;
+  isComplete = false;
+
+  isBlocked = false;
+
+  subscriptionPack: SubscriptionPack = new SubscriptionPack();
+
+  env: Environment;
+
+  nextPinCodeEnableRemainTimeCalculator = null;
+  nextPinCodeEnableRemainTime = 0;
+  nextPinCodeEnableRemainTimeDisplay = '0';
 
   ngOnInit() {}
   ngOnDestroy() {}
 
   ionViewWillEnter() {
+    this.checkPinCodeOverFailedState();
+
     this.isModal = false;
     this.isCreation = false;
     this.isConfirmStep = true;
@@ -79,6 +94,10 @@ export class PinCodePage implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  ionViewWillLeave() {
+    this.clearNextPinCodeEnableRemainTimeCalculator();
   }
 
   ionViewDidLeave() {
@@ -141,14 +160,120 @@ export class PinCodePage implements OnInit, OnDestroy {
         const code = this.numPad.getDecryptedUserInput();
         this.numPad.clearPinCode();
         if (this.storage.isValidPinNumber(code)) {
+          this.storage.pinCodeFailedCount = 0;
+          this.storage.nextPinCodeEnableTime = null;
+
           this.events.publish(Consts.EVENT_PIN_CODE_RESULT, this.storage.getWalletPassword(code));
           this.isComplete = true;
           this.events.publish(Consts.EVENT_CLOSE_MODAL);
         } else {
+          this.storage.pinCodeFailedCount = this.storage.pinCodeFailedCount + 1;
+          if (this.isPinCodeOverFailed()) {
+            const failedOffsetTime = 30000;
+            const overFailedCount = this.storage.pinCodeFailedCount - this.env.config.pinCode.maxPinCodeRetryCount;
+
+            let nextOffsetTime = failedOffsetTime;
+            //30 , 60 , 120 , 240
+            for (let i = 0; i < overFailedCount; i++) {
+              nextOffsetTime = nextOffsetTime * 2;
+            }
+
+            const now = new Date();
+            const nextRetryDateTime = new Date(now.getTime() + nextOffsetTime);
+            this.storage.nextPinCodeEnableTime = nextRetryDateTime;
+          }
+
           this.numPad.clearPinCode();
           this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
         }
+
+        this.checkPinCodeOverFailedState();
       }
+    }
+  }
+
+  clearNextPinCodeEnableRemainTimeCalculator() {
+    if (this.nextPinCodeEnableRemainTimeCalculator !== null) {
+      clearInterval(this.nextPinCodeEnableRemainTimeCalculator);
+      this.nextPinCodeEnableRemainTimeCalculator = null;
+    }
+  }
+
+  checkPinCodeOverFailedState() {
+    if (this.isPinCodeOverFailed()) {
+      this.clearNextPinCodeEnableRemainTimeCalculator();
+      this.calculateNextPinCodeEnableRemainTime();
+      setInterval(() => {
+        this.calculateNextPinCodeEnableRemainTime();
+      }, 100);
+    }
+  }
+
+  getRetryStateComment() {
+    const textFormat = this.translate.instant('VerificationFailedFormat');
+    return String.Format(textFormat, this.remainRetryCount());
+  }
+
+  remainRetryCount(): number {
+    const result = this.env.config.pinCode.maxPinCodeRetryCount - this.storage.pinCodeFailedCount;
+    if (result <= 0) {
+      return 1;
+    }
+    return result;
+  }
+
+  isRetryState(): boolean {
+    if (this.storage.pinCodeFailedCount > 0 && this.storage.pinCodeFailedCount < this.env.config.pinCode.maxPinCodeRetryCount) {
+      return true;
+    }
+
+    if (this.isPinCodeOverFailed() && !this.isPinCodeLocked()) {
+      return true;
+    }
+
+    return false;
+  }
+
+  isPinCodeOverFailed(): boolean {
+    if (this.storage.pinCodeFailedCount >= this.env.config.pinCode.maxPinCodeRetryCount) {
+      return true;
+    }
+    return false;
+  }
+
+  getLockedComment() {
+    const textFormat = this.translate.instant('RemainTimeFormat');
+    return String.Format(textFormat, this.nextPinCodeEnableRemainTimeDisplay);
+  }
+
+  isPinCodeLocked(): boolean {
+    if (this.isPinCodeOverFailed()) {
+      const nextAvailableTime: Date = this.storage.nextPinCodeEnableTime;
+      if (!nextAvailableTime) {
+        return false;
+      }
+
+      if (new Date().getTime() < nextAvailableTime.getTime()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  calculateNextPinCodeEnableRemainTime() {
+    try {
+      const nextAvailableTime: Date = this.storage.nextPinCodeEnableTime;
+      if (nextAvailableTime) {
+        this.nextPinCodeEnableRemainTime = nextAvailableTime.getTime() - new Date().getTime();
+      } else {
+        this.nextPinCodeEnableRemainTime = 0;
+      }
+
+      const remainSecs = String.Format('{0}', this.nextPinCodeEnableRemainTime / 1000);
+      this.nextPinCodeEnableRemainTimeDisplay = String.Format('{0}', parseInt(remainSecs, 10));
+    } catch (error) {
+      this.logger.debug(error);
     }
   }
 }

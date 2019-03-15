@@ -35,6 +35,12 @@
                 "input": "src/theme/variables.scss"
               },
               {
+                "input": "src/theme/common.scss"
+              },
+              {
+                "input": "src/theme/custom-fonts.scss"
+              },
+              {
                 "input": "src/global.scss"
               }
             ],

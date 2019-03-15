@@ -176,7 +176,7 @@ export class BackupWalletPage implements OnInit {
       }
     }
 
-    if (env.config.useDecryptPinCodeByPinCode) {
+    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
       return;
     }

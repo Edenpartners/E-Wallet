@@ -26,8 +26,15 @@ ion-list {
     font-size: var(--font-size-13);
   }
 
-  .field-value {
+  .address {
+    font-size: var(--font-size-13);
+  }
+
+  .balance {
     font-size: var(--font-size-18);
+  }
+
+  .field-value {
     flex-grow: 1;
   }
 

@@ -27,6 +27,7 @@ import { Events, IonInfiniteScroll } from '@ionic/angular';
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 import { TextUtils } from 'src/app/utils/textutils';
 import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
+import { BigNumberHelper } from '../../../utils/bigNumberHelper';
 
 const countPerPage = 30;
 const useDummyData = false;
@@ -96,7 +97,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
             this.subscriptionPack.addSubscription(() => {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
-                this.tednBalanceFormatted = ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL);
+                this.tednBalanceFormatted = BigNumberHelper.removeZeroPrecision(ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL));
               });
             });
 

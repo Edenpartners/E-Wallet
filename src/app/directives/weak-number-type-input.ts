@@ -32,7 +32,9 @@ export class WeakNumberInputDirective implements OnChanges, OnInit {
 export class DecimalsCurrenyInputDirective implements OnInit, OnDestroy {
   @Input('appLimitedDecimals') decimals: number;
 
-  private subscription: Subscription;
+  private subscription: Subscription = null;
+
+  constructor(private targetInput: IonInput) {}
 
   ngOnInit() {
     console.log('init decimals currency input', this.targetInput, this.decimals);
@@ -45,6 +47,7 @@ export class DecimalsCurrenyInputDirective implements OnInit, OnDestroy {
     console.log('destroy decimals currency input', this.targetInput);
     if (this.subscription) {
       this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 
@@ -58,6 +61,4 @@ export class DecimalsCurrenyInputDirective implements OnInit, OnDestroy {
       this.targetInput.value = safeText;
     }
   }
-
-  constructor(private targetInput: IonInput) {}
 }

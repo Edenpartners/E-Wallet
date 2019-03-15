@@ -12,7 +12,7 @@
   }
 
   .comment {
-    font-size: .9em;
+    font-size: var(--font-size-14);
   }
 
   ion-label,
@@ -53,4 +53,11 @@ num-pad {
 
 .code-box.selected {
   background: var(--color-theme-1);
+}
+
+.pincode-error {
+  color: var(--color-error);
+  text-align: center;
+  font-size: var(--font-size-14);
+  font-weight: bold;
 }

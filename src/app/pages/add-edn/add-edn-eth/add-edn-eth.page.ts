@@ -319,7 +319,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
       if (this.lastFocusedInput === 'eth') {
         try {
           const rateDivResult = this.etherApi.calculateTradeResult(srcAmountBn, srcDecimal, destDecimal, applyRateBn);
-          this.ednAmount = ethers.utils.formatUnits(rateDivResult, destDecimal);
+          this.ednAmount = BigNumberHelper.removeZeroPrecision(ethers.utils.formatUnits(rateDivResult, destDecimal));
         } catch (error) {
           this.ednAmount = '0';
           this.logger.debug(error);
@@ -327,7 +327,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
       } else if (this.lastFocusedInput === 'edn') {
         try {
           const rateDivResult = this.etherApi.calculateTradeResultReversed(destAmountBn, srcDecimal, destDecimal, applyRateBn);
-          this.ethAmount = ethers.utils.formatUnits(rateDivResult, srcDecimal);
+          this.ethAmount = BigNumberHelper.removeZeroPrecision(ethers.utils.formatUnits(rateDivResult, srcDecimal));
         } catch (error) {
           this.ethAmount = '0';
           this.logger.debug(error);

@@ -2,6 +2,9 @@ import { ethers, Wallet, Contract } from 'ethers';
 import { BigNumber } from 'ethers/utils';
 
 export class BigNumberHelper {
+  /**
+   * remove double dot
+   */
   static safeText(originalText: string, decimals: number): string {
     let bn: BigNumber = null;
     try {
@@ -17,7 +20,7 @@ export class BigNumberHelper {
         result = texts[0] + '.' + texts[1];
 
         const precisionsText = texts[1];
-        console.log('precisionsText', precisionsText);
+
         if (precisionsText.length > decimals) {
           result = texts[0] + '.' + precisionsText.substr(0, decimals);
         }
@@ -25,5 +28,17 @@ export class BigNumberHelper {
     }
 
     return result;
+  }
+
+  static removeZeroPrecision(numberText: string): string {
+    const dotIndex = numberText.indexOf('.');
+    if (dotIndex > 0) {
+      const otherText = numberText.substring(dotIndex);
+      if (otherText === '.0') {
+        return numberText.substring(0, dotIndex);
+      }
+    }
+
+    return numberText;
   }
 }

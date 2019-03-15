@@ -83,7 +83,7 @@ export class RestoreWalletPage implements OnInit {
     }
     this.logger.debug(this.userInputMnemonic);
 
-    if (env.config.useDecryptPinCodeByPinCode) {
+    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'), this.getErrorAnalytics());
       return;
     }

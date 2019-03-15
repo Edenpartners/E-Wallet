@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  EventEmitter,
-  Output,
-  OnDestroy
-} from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, OnDestroy, OnChanges } from '@angular/core';
 import { SafeMemoryStorage } from '../../utils/safeMemoryStorage';
 import { UUID } from 'angular2-uuid';
 import { NGXLogger } from 'ngx-logger';
@@ -15,12 +8,13 @@ import { NGXLogger } from 'ngx-logger';
   templateUrl: 'num-pad.html',
   styleUrls: ['num-pad.scss']
 })
-export class NumPad implements OnInit, OnDestroy {
+export class NumPad implements OnInit, OnDestroy, OnChanges {
   userInputCount = 0;
   memStorage = new SafeMemoryStorage();
   encryptPassword = null;
 
   @Output() change = new EventEmitter<any>();
+  @Input() disabled = null;
 
   constructor(private logger: NGXLogger) {}
 
@@ -30,8 +24,19 @@ export class NumPad implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.clear();
   }
+  ngOnChanges() {}
+
+  isDisabled(): boolean {
+    if (this.disabled === '' || this.disabled === true || this.disabled === 'true') {
+      return true;
+    }
+    return false;
+  }
 
   inputPin(code) {
+    if (this.isDisabled()) {
+      return;
+    }
     if (this.userInputCount >= 6) {
       return;
     }
@@ -79,11 +84,7 @@ export class NumPad implements OnInit, OnDestroy {
   }
 
   saveCurrentInputAndReset() {
-    this.memStorage.setWithEncryption(
-      'saved',
-      this.getDecryptedUserInput(),
-      this.encryptPassword
-    );
+    this.memStorage.setWithEncryption('saved', this.getDecryptedUserInput(), this.encryptPassword);
 
     this.memStorage.remove('code');
     this.userInputCount = 0;

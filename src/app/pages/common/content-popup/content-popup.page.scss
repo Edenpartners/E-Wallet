@@ -44,21 +44,20 @@
     }
   }
 
-  .copy-btn {
-    margin-bottom: 0px;
-    margin-left: 0px;
-    margin-right: 0px;
-  }
-
-
   .done-icon {
     width: 47px;
     height: 47px;
-    background-image: url('/assets/img/done.svg');
-    background-repeat: no-repeat;
   }
 
   .done-message {
     padding-top: 10px;
+    color: var(--color-text-dark-1);
+    font-size: var(--font-size-09);
+  }
+
+  .copy-btn {
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
   }
 }

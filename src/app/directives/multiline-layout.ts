@@ -8,24 +8,30 @@ import { TextUtils } from '../utils/textutils';
   selector: '[appMultilineLayout]',
   exportAs: 'multilineLayout'
 })
-export class MultilineLayoutDirective implements OnInit, OnDestroy {
+export class MultilineLayoutDirective implements OnInit, OnDestroy, OnChanges {
   @Input('appMultilineLayout') options: {
     fontSizeForSingle?: string;
     fontSizeForMulti?: string;
     textAlignForSingle?: string;
     textAlignForMulti?: string;
     altContentText?: string;
+    log?: boolean;
   };
 
   originFontSize: string = null;
 
   private changes: MutationObserver;
 
+  constructor(private target: ElementRef) {}
+
   ngOnInit() {
     this.setOriginFontSize();
 
     this.changes = new MutationObserver((mutations: MutationRecord[]) => {
       mutations.forEach((mutation: MutationRecord) => {
+        if (this.options.log) {
+          console.log('mutation', mutation, this.target.nativeElement);
+        }
         if (mutation.type === 'characterData') {
           this.updateLayout();
         }
@@ -46,12 +52,26 @@ export class MultilineLayoutDirective implements OnInit, OnDestroy {
     this.changes.disconnect();
   }
 
+  ngOnChanges() {
+    this.updateLayout();
+  }
+
   private getContentText(): string {
     if (this.options.altContentText !== null && this.options.altContentText !== undefined) {
+      if (this.options.log) {
+        console.log('return alt content text');
+      }
       return this.options.altContentText;
     }
 
-    return this.target.nativeElement.innerText;
+    const innerText = this.target.nativeElement.innerText;
+    const innerHTML = this.target.nativeElement.innerHTML;
+
+    if (!innerText && innerHTML) {
+      return innerHTML;
+    }
+
+    return innerText;
   }
 
   private getElement(): HTMLElement {
@@ -89,8 +109,6 @@ export class MultilineLayoutDirective implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private target: ElementRef) {}
-
   public updateLayout() {
     const labelEl: HTMLElement = this.getElement();
     const cStyle = getComputedStyle(labelEl);
@@ -105,6 +123,11 @@ export class MultilineLayoutDirective implements OnInit, OnDestroy {
     );
 
     const fontSize = this.getFontSizeForLineCount(measured.lineCount);
+
+    if (this.options.log) {
+      console.log('content text : ', contentText, measured, fontSize);
+      console.log(this.target.nativeElement);
+    }
 
     labelEl.style.fontSize = fontSize;
 

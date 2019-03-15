@@ -30,6 +30,7 @@
 
   --space-00: 0px;
   --space-05: 5px;
+  --space-08: 8px;
   --space-10: 10px;
   --space-12: 12px;
   --space-16: 16px;
@@ -51,6 +52,7 @@
   --color-divider: #909090;
   --color-item-underline: #585858;
   --color-item-underline-focused: #D57C48;
+  --color-error: #D57C48;
 
   --radius: 10px;
   --radius-05: 5px;
@@ -64,6 +66,7 @@
   --height-41: 41px;
 
   --font-size-07: 7px;
+  --font-size-08: 8px;
   --font-size-09: 9px;
   --font-size-10: 10px;
   --font-size-11: 11px;
@@ -722,25 +725,54 @@ ion-select {
   margin-right: var(--space-05);
 }
 
-.margin-right-10 { --margin-right: var(--space-10); margin-right: var(--space-10) }
-.margin-top-05 { --margin-top: var(--space-05); margin-top: var(--space-05); }
-.margin-top-12 { --margin-top: var(--space-12); margin-top: var(--space-12); }
-.margin-top-18 { --margin-top: var(--space-18); margin-top: var(--space-18); }
-.margin-top-22 { --margin-top: var(--space-22); margin-top: var(--space-22); }
-.margin-top-24 { --margin-top: var(--space-24); margin-top: var(--space-24); }
-.margin-top-28 { --margin-top: var(--space-28); margin-top: var(--space-28); }
-.margin-top-30 { --margin-top: var(--space-30); margin-top: var(--space-30); }
-.margin-top-32 { --margin-top: var(--space-32); margin-top: var(--space-32); }
-.margin-top-34 { --margin-top: var(--space-34); margin-top: var(--space-34); }
-.margin-top-36 { --margin-top: var(--space-36); margin-top: var(--space-36); }
-.margin-top-40 { --margin-top: var(--space-40); margin-top: var(--space-40); }
-.margin-top-48 { --margin-top: var(--space-48); margin-top: var(--space-48); }
-.margin-top-49 { --margin-top: var(--space-49); margin-top: var(--space-49); }
-.margin-top-60 { --margin-top: var(--space-60); margin-top: var(--space-60); }
+.margin-right-10 {
+  --margin-right: var(--space-10);
+  margin-right: var(--space-10)
+}
 
-.margin-top {
-  --margin-top: var(--space-normal);
-  margin-top: var(--space-normal);
+.margin-top-05 {
+  --margin-top: var(--space-05);
+  margin-top: var(--space-05);
+}
+
+.margin-top-08 {
+  --margin-top: var(--space-08);
+  margin-top: var(--space-08);
+}
+
+.margin-top-12 {
+  --margin-top: var(--space-12);
+  margin-top: var(--space-12);
+}
+
+.margin-top-16 {
+  --margin-top: var(--space-16);
+  margin-top: var(--space-16);
+}
+
+.margin-top-18 {
+  --margin-top: var(--space-18);
+  margin-top: var(--space-18);
+}
+
+.margin-top-22 {
+  --margin-top: var(--space-22);
+  margin-top: var(--space-22);
+}
+
+.margin-top-24 {
+  --margin-top: var(--space-24);
+  margin-top: var(--space-24);
+}
+
+.margin-top-28 {
+  --margin-top: var(--space-28);
+  margin-top: var(--space-28);
+}
+
+.margin-top-30 {
+  --margin-top: var(--space-30);
+  margin-top: var(--space-30);
 }
 
 .margin-top-32 {
@@ -748,9 +780,39 @@ ion-select {
   margin-top: var(--space-32);
 }
 
-.margin-top-half {
-  --margin-top: var(--space-half);
-  margin-top: var(--space-half);
+.margin-top-34 {
+  --margin-top: var(--space-34);
+  margin-top: var(--space-34);
+}
+
+.margin-top-36 {
+  --margin-top: var(--space-36);
+  margin-top: var(--space-36);
+}
+
+.margin-top-40 {
+  --margin-top: var(--space-40);
+  margin-top: var(--space-40);
+}
+
+.margin-top-48 {
+  --margin-top: var(--space-48);
+  margin-top: var(--space-48);
+}
+
+.margin-top-49 {
+  --margin-top: var(--space-49);
+  margin-top: var(--space-49);
+}
+
+.margin-top-60 {
+  --margin-top: var(--space-60);
+  margin-top: var(--space-60);
+}
+
+.margin-top-32 {
+  --margin-top: var(--space-32);
+  margin-top: var(--space-32);
 }
 
 
@@ -847,126 +909,13 @@ ion-item.full-text-input.selected {
 }
 
 .refresher-pulling-icon {
-  color:#ffffff;
+  color: #ffffff;
 }
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-HairlineItalic.ttf');
-  font-weight: 100;
-  font-style: italic, oblique;
-}
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Hairline.ttf');
-  font-weight: 100;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-ThinItalic.ttf');
-  font-weight: 200;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Thin.ttf');
-  font-weight: 200;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-LightItalic.ttf');
-  font-weight: 300;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Light.ttf');
-  font-weight: 300;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Italic.ttf');
-  font-weight: 400;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Regular.ttf');
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-MediumItalic.ttf');
-  font-weight: 500;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Medium.ttf');
-  font-weight: 500;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-SemiboldItalic.ttf');
-  font-weight: 600;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Semibold.ttf');
-  font-weight: 600;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-BoldItalic.ttf');
-  font-weight: 700;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Bold.ttf');
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-HeavyItalic.ttf');
-  font-weight: 800;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Heavy.ttf');
-  font-weight: 800;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-BlackItalic.ttf');
-  font-weight: 900;
-  font-style: italic, oblique;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('/assets/fonts/Lato/Lato-Black.ttf');
-  font-weight: 900;
-}
-
-* {
-  font-family: Lato;
+/** Icons */
+.done-icon {
+  background-size: 100% 100%;
+  background-image: url('/assets/img/done.svg');
+  background-repeat: no-repeat;
 }

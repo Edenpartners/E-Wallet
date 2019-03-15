@@ -155,6 +155,8 @@
   "______________CONFIRM_PIN_CODE": "",
   "ConfirmPinTitle": "Confirm PIN",
   "ConfirmPinComment": "Enter 6-digit PIN",
+  "VerificationFailedFormat": "Verification failed : <span style=\"color:#ffffff;\">{0}</span> times left.",
+  "RemainTimeFormat": "Pin code verification too many failed.</br>You have to have <span style=\"color:#ffffff;\">{0}</span> seconds to retry.",
 
   "______________BACKUP_WALLET_NOTICE": "",
   "BackupWalletTitle": "Backup Wallet",
@@ -194,6 +196,7 @@
   "Send": "SEND",
 
   "______________EDN_WALLET_QRCODE": "",
+  "Copied":"Copied",
 
   "______________EDN_WALLET_SEND": "",
   "SendTo": "Send To",

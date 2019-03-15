@@ -2,3 +2,15 @@
   --height: auto;
   height: auto;
 }
+
+
+.done-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.done-message {
+  padding-top: 4px;
+  color: var(--color-theme-1);
+  font-size: var(--font-size-12);
+}

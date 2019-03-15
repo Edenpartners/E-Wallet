@@ -1,7 +1,7 @@
 <ion-header>
   <common-nav-bar title="{{ 'EwMainTitle' | translate }}">
     <ion-button class="right-item" (click)="onShareBtnClick()">
-      <ion-icon src="/assets/img/share.svg" color="text-light-1" style="width:24px; height:24px;"></ion-icon>
+      <ion-icon src="/assets/img/share-ic.svg" color="text-light-1" style="width:24px; height:24px;"></ion-icon>
     </ion-button>
     <ion-button class="right-item" (click)="onQrCodeClick()">
       <ion-icon src="/assets/img/duplicate.svg" color="text-light-1" style="width:24px; height:24px;"></ion-icon>
@@ -20,6 +20,11 @@
         <ion-button class="qr-wrapper" (click)="onQrCodeClick()" fill="clear" *ngIf="qrCodeData">
           <qrcode [qrdata]="qrCodeData" [size]="200" [level]="'M'"></qrcode>
         </ion-button>
+      </div>
+
+      <div class="flex-ch-centered margin-top-18" [hidden]="!showCopiedIcon">
+        <div class="done-icon"></div>
+        <div class="done-message fw-bold">{{ 'Copied' | translate }}</div>
       </div>
     </div>
   </div>

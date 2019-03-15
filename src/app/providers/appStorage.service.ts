@@ -113,7 +113,10 @@ enum StoreKeys {
   _coinHDAddr = '_coinHDAddr',
   _additionalInfo = '_additionalInfo',
   pinCode = 'pin-code',
-  salt = 'salt'
+  salt = 'salt',
+
+  pinCodeFailedCount = 'pinCodeFailedCount',
+  nextPinCodeEnableTime = 'nextPinCodeEnableTime'
 }
 
 @Injectable({
@@ -124,16 +127,7 @@ export class AppStorageService {
   private _fbUser: firebase.User = null;
   private fbUserSubscription: Subscription = null;
 
-  // {
-  //   "display_name": null,
-  //   "email": "test2@test.com",
-  //   "eth_address": "|xxx|xxx",
-  //   "phone_number": null,
-  //   "tedn_public_key": "xSY0TNfyQYBNle9hdV05GNWZHnctOdzPFhNXyNlcB98"
-  // }
-  @LocalStorage() private _userInfo: AppStorageTypes.UserInfo = null;
   @LocalStorage() private _wallets = [];
-  @LocalStorage() private _coinHDAddr = '';
 
   private userStateSubscribers: Array<Subscriber<AppStorageTypes.User>> = [];
   private walletsSubscribers: Array<Subscriber<void>> = [];
@@ -195,7 +189,7 @@ export class AppStorageService {
   }
 
   wipeData() {
-    this._userInfo = null;
+    this.userInfo = null;
     this.store.remove(StoreKeys._additionalInfo);
 
     if (env.config.clearPincodeOnWipeStorage) {
@@ -257,7 +251,7 @@ export class AppStorageService {
     this.logger.debug(newSalt, val, hashedVal);
 
     let newPinCodeToSave = null;
-    if (env.config.useDecryptPinCodeByPinCode) {
+    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
       newPinCodeToSave = CryptoJS.AES.encrypt(hashedVal, val).toString();
     } else {
       newPinCodeToSave = hashedVal;
@@ -330,7 +324,7 @@ export class AppStorageService {
     this.logger.debug('is valid pin? : ' + guessingPinCode);
 
     let pinNumberToCompere = null;
-    if (env.config.useDecryptPinCodeByPinCode) {
+    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
       const savingDecryptedHashedVal = this.getDecryptedPinNumber(guessingPinCode);
       pinNumberToCompere = savingDecryptedHashedVal;
     } else {
@@ -356,7 +350,7 @@ export class AppStorageService {
 
   getWalletPassword(guessingPinCode?: string, validate: boolean = false): string | null {
     let result = null;
-    if (env.config.useDecryptPinCodeByPinCode) {
+    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
       if (guessingPinCode !== undefined && guessingPinCode !== null) {
         if (this.isValidPinNumber(guessingPinCode)) {
           result = this.getDecryptedPinNumber(guessingPinCode);
@@ -394,7 +388,7 @@ export class AppStorageService {
       const hashedVal = CryptoJS.SHA256(mergedVal).toString(CryptoJS.enc.Base64);
 
       let newPinCodeToSave = null;
-      if (env.config.useDecryptPinCodeByPinCode) {
+      if (env.config.pinCode.useDecryptPinCodeByPinCode) {
         newPinCodeToSave = CryptoJS.AES.encrypt(hashedVal, val).toString();
       } else {
         newPinCodeToSave = hashedVal;
@@ -447,14 +441,32 @@ export class AppStorageService {
 
   set userInfo(info: AppStorageTypes.UserInfo) {
     const wasSignedIn = this.isSignedIn;
-    this._userInfo = info;
+
+    if (info === null) {
+      this.store.remove(StoreKeys._userInfo);
+    } else {
+      this.store.set(StoreKeys._userInfo, info);
+    }
+
     if (this.isSignedIn !== wasSignedIn) {
       this.notifyToUserStateObservers();
     }
   }
 
+  // {
+  //   "display_name": null,
+  //   "email": "test2@test.com",
+  //   "eth_address": "|xxx|xxx",
+  //   "phone_number": null,
+  //   "tedn_public_key": "xSY0TNfyQYBNle9hdV05GNWZHnctOdzPFhNXyNlcB98"
+  // }
   get userInfo(): AppStorageTypes.UserInfo {
-    return this._userInfo;
+    const result = this.store.get(StoreKeys._userInfo);
+    if (!result) {
+      return null;
+    }
+
+    return result;
   }
 
   private getExtractedUserEthAddresses(): Array<string> {
@@ -462,7 +474,9 @@ export class AppStorageService {
       return [];
     }
     const result = [];
-    this._userInfo.eth_address.split('|').forEach(item => {
+
+    const userInfo: AppStorageTypes.UserInfo = this.userInfo;
+    userInfo.eth_address.split('|').forEach(item => {
       if (item.length > 0) {
         result.push(item);
       }
@@ -475,7 +489,7 @@ export class AppStorageService {
    * @param address
    */
   addEthAddressToUserInfoTemporary(address: string) {
-    const userInfo = this.userInfo;
+    const userInfo: AppStorageTypes.UserInfo = this.userInfo;
     if (!userInfo) {
       return;
     }
@@ -574,12 +588,16 @@ export class AppStorageService {
     listutil.notifyToObservers(this.userStateSubscribers, this.user);
   }
 
-  get coinHDAddress() {
-    return this._coinHDAddr;
+  get coinHDAddress(): string {
+    const result = this.store.get(StoreKeys._coinHDAddr);
+    if (!result) {
+      return '';
+    }
+    return result;
   }
 
   set coinHDAddress(val: string) {
-    this._coinHDAddr = val;
+    this.store.set(StoreKeys._coinHDAddr, val);
   }
 
   /**
@@ -897,7 +915,46 @@ export class AppStorageService {
       });
     }
   }
-}
+
+  get pinCodeFailedCount(): number {
+    const result = this.store.get(StoreKeys.pinCodeFailedCount);
+    if (!result) {
+      return 0;
+    }
+    return result;
+  }
+
+  set pinCodeFailedCount(val: number) {
+    if (!val) {
+      this.store.remove(StoreKeys.pinCodeFailedCount);
+    } else {
+      this.store.set(StoreKeys.pinCodeFailedCount, val);
+    }
+  }
+
+  get nextPinCodeEnableTime(): Date {
+    const result: any = this.store.get(StoreKeys.nextPinCodeEnableTime);
+    if (!result) {
+      return null;
+    }
+
+    let resultDate: Date = null;
+    try {
+      resultDate = new Date(parseInt(result, 10));
+    } catch (e) {
+      this.logger.debug(e);
+    }
+    return resultDate;
+  }
+
+  set nextPinCodeEnableTime(val: Date) {
+    if (!val) {
+      this.store.remove(StoreKeys.nextPinCodeEnableTime);
+    } else {
+      this.store.set(StoreKeys.nextPinCodeEnableTime, val.getTime());
+    }
+  }
+} //end of AppStorageService
 
 class SqliteTxManager {
   constructor(private logger: NGXLogger, private platform: Platform, private sqlite: SQLite) {}

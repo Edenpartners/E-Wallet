@@ -32,15 +32,20 @@
           <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 4) || isComplete)}"></span>
           <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 5) || isComplete)}"></span>
         </div>
+
+        <div class="pincode-error margin-top-18" *ngIf="isRetryState()" [innerHTML]="getRetryStateComment() | safeHtml">
+        </div>
+        <div class="pincode-error margin-top-18" *ngIf="isPinCodeLocked()" [innerHTML]="getLockedComment() | safeHtml">
+        </div>
       </div>
 
-      <div class="footer" [hidden]="isConfirmStep">
+      <div class="footer" *ngIf="isCreation && !isConfirmStep">
         <ion-button expand="block" color="theme-1" class="radius-10" [disabled]="numPad.getUserInputCount() !== 6"
           (click)="onCreatePinBtnClick()">
           {{ 'CreatePin' | translate }}
         </ion-button>
       </div>
     </div>
-    <num-pad class="content" style="width:100%;" (change)="onNumChange()"></num-pad>
+    <num-pad [disabled]="isPinCodeLocked()" class="content" style="width:100%;" (change)="onNumChange()"></num-pad>
   </div>
 </ion-content>

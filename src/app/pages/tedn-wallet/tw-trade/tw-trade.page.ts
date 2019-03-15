@@ -101,7 +101,7 @@ export class TwTradePage implements OnInit, OnDestroy {
             this.subscriptionPack.addSubscription(() => {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
-                this.tednBalanceFormatted = ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL);
+                this.tednBalanceFormatted = BigNumberHelper.removeZeroPrecision(ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL));
               });
             });
           }

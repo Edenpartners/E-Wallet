@@ -21,6 +21,8 @@ import { HTTP } from '@ionic-native/http/ngx';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+
 //===== firebase
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule, AngularFireDatabase } from '@angular/fire/database';
@@ -107,7 +109,8 @@ export function createTranslateLoader(http: HttpClient) {
     GooglePlus,
     FirebaseAnalytics,
 
-    SQLite
+    SQLite,
+    SocialSharing
   ],
   bootstrap: [AppComponent]
 })

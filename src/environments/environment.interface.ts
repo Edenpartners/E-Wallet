@@ -30,7 +30,11 @@ export interface Environment {
     };
     ednCoinKey: string;
 
-    useDecryptPinCodeByPinCode: boolean;
+    pinCode: {
+      useDecryptPinCodeByPinCode: boolean;
+      maxPinCodeRetryCount: number;
+    };
+
     simulateHardwareBackButton: boolean;
     clearWalletsOnWipeStorage: boolean;
     clearPincodeOnWipeStorage: boolean;

@@ -12,6 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Events } from '@ionic/angular';
 import { EwSummary } from '../ew-summary/ew-summary';
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 
 const AnalyticsCategory = 'edn transaction2';
 
@@ -27,6 +28,8 @@ export class EwQrcodePage implements OnInit, OnDestroy {
   walletId: string;
   wallet: WalletTypes.EthWalletInfo;
 
+  showCopiedIcon = false;
+
   @ViewChild('summary') summary: EwSummary;
 
   constructor(
@@ -38,7 +41,8 @@ export class EwQrcodePage implements OnInit, OnDestroy {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private socialSharing: SocialSharing
   ) {}
 
   ngOnInit() {}
@@ -87,7 +91,11 @@ export class EwQrcodePage implements OnInit, OnDestroy {
 
     this.cbService.copyFromContent(this.qrCodeData);
     this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
+
+    this.showCopiedIcon = true;
   }
 
-  onShareBtnClick() {}
+  onShareBtnClick() {
+    this.socialSharing.share(this.qrCodeData);
+  }
 }
