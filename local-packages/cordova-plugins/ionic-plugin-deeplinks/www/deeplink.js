@@ -1,11 +1,10 @@
-
 var argscheck = require('cordova/argscheck'),
-    utils = require('cordova/utils'),
-    exec = require('cordova/exec');
+  utils = require('cordova/utils'),
+  exec = require('cordova/exec');
 
 var PLUGIN_NAME = 'IonicDeeplinkPlugin';
 
-var extend = function(out) {
+var extend = function (out) {
   out = out || {};
 
   for (var i = 1; i < arguments.length; i++) {
@@ -19,7 +18,6 @@ var extend = function(out) {
   return out;
 };
 
-
 var IonicDeeplink = {
   /**
    * How long to wait after a deeplink match before navigating.
@@ -28,30 +26,30 @@ var IonicDeeplink = {
    */
   NAVIGATION_DELAY: 800,
 
-  canOpenApp: function(app, cb) {
+  canOpenApp: function (app, cb) {
     exec(cb, null, PLUGIN_NAME, 'canOpenApp', []);
   },
-  route: function(paths, success, error) {
+  route: function (paths, success, error) {
     var self = this;
 
     this.paths = paths;
 
-    this.onDeepLink(function(data) {
+    this.onDeepLink(function (data) {
       console.log('On deep link', data);
       var realPath, pathData, matchedParams, args, finalArgs, didRoute;
 
       realPath = self._getRealPath(data);
       args = self._queryToObject(data.url)
 
-      for(var targetPath in paths) {
+      for (var targetPath in paths) {
         pathData = paths[targetPath];
 
         matchedParams = self.routeMatch(targetPath, realPath);
 
-        if(matchedParams !== false) {
+        if (matchedParams !== false) {
           finalArgs = extend({}, matchedParams, args);
 
-          if(typeof(success) === 'function') {
+          if (typeof (success) === 'function') {
             success({
               $route: pathData,
               $args: finalArgs,
@@ -63,8 +61,8 @@ var IonicDeeplink = {
         }
       }
 
-      if(!didRoute) {
-        if(typeof(error) === 'function') {
+      if (!didRoute) {
+        if (typeof (error) === 'function') {
           error({
             $link: data
           });
@@ -73,14 +71,14 @@ var IonicDeeplink = {
     })
   },
 
-  routeWithNavController: function(navController, paths, options, success, error) {
+  routeWithNavController: function (navController, paths, options, success, error) {
     var self = this;
 
     var defaultOptions = {
       root: false
     };
 
-    if(typeof options !== 'function') {
+    if (typeof options !== 'function') {
       options = extend(defaultOptions, options);
     } else {
       success = options;
@@ -88,22 +86,22 @@ var IonicDeeplink = {
       options = defaultOptions;
     }
 
-    this.route(paths, function(match) {
+    this.route(paths, function (match) {
 
       // Defer this to ensure animations run
-      setTimeout(function() {
-        if(options.root === true) {
+      setTimeout(function () {
+        if (options.root === true) {
           navController.setRoot(match.$route, match.$args);
         } else {
           navController.push(match.$route, match.$args);
         }
       }, self.NAVIGATION_DELAY);
 
-      if(typeof(success) === 'function') {
+      if (typeof (success) === 'function') {
         success(match);
       }
-    }, function(nomatch) {
-      if(typeof(error) === 'function') {
+    }, function (nomatch) {
+      if (typeof (error) === 'function') {
         error(nomatch);
       }
     });
@@ -112,7 +110,7 @@ var IonicDeeplink = {
   /**
    * Check if the path matches the route.
    */
-  routeMatch: function(route, path) {
+  routeMatch: function (route, path) {
     if (route === path) {
       return {};
     }
@@ -124,7 +122,7 @@ var IonicDeeplink = {
     // This is used for things like /post/:id
     var routeParams = {};
 
-    if(parts.length !== routeParts.length) {
+    if (parts.length !== routeParts.length) {
       // Can't possibly match if the lengths are different
       return false;
     }
@@ -132,15 +130,15 @@ var IonicDeeplink = {
     // Otherwise, we need to check each part
 
     var rp, pp;
-    for(var i = 0; i < parts.length; i++) {
+    for (var i = 0; i < parts.length; i++) {
       pp = parts[i];
       rp = routeParts[i];
 
-      if(rp[0] == ':') {
+      if (rp[0] == ':') {
         // We have a route param, store it in our
         // route params without the colon
         routeParams[rp.slice(1)] = pp;
-      } else if(pp !== rp) {
+      } else if (pp !== rp) {
         return false;
       }
 
@@ -148,20 +146,22 @@ var IonicDeeplink = {
     return routeParams;
   },
 
-  _queryToObject: function(q) {
-    if(!q) return {};
+  _queryToObject: function (q) {
+    if (!q) return {};
 
     var qIndex = q.lastIndexOf('?');
-    if(qIndex < 0) return {};
+    if (qIndex < 0) return {};
 
     // Get everything after the ?
     q = q.slice(q.lastIndexOf('?') + 1);
 
-    var i = 0, retObj = {}, pair = null,
+    var i = 0,
+      retObj = {},
+      pair = null,
       qArr = q.split('&');
 
     for (; i < qArr.length; i++) {
-      if(!qArr[i]) { continue; }
+      if (!qArr[i]) { continue; }
       pair = qArr[i].split('=');
       retObj[pair[0]] = pair[1];
     };
@@ -176,43 +176,43 @@ var IonicDeeplink = {
    *
    * This method tries to infer what the proper "path" is from the URL
    */
-  _getRealPath: function(data) {
+  _getRealPath: function (data) {
     // If we have a fragment, we use that as the path
-    if(data.fragment) {
+    if (data.fragment) {
       var fi = data.fragment.indexOf('?');
-      if(fi > -1) {
+      if (fi > -1) {
         return data.fragment.slice(0, fi).slice(1);
       }
       return data.fragment.slice(1);
     }
 
-    if(!data.path) {
-      if(data.host.charAt(0) != '/') data.host = '/' + data.host;
+    if (!data.path) {
+      if (data.host.charAt(0) != '/') data.host = '/' + data.host;
       return data.host;
     }
 
     var hostOrScheme = data.host || data.scheme + '://';
     var restOfUrl = data.url.slice(data.url.indexOf(hostOrScheme) + hostOrScheme.length);
 
-    if(restOfUrl.indexOf('?') > -1) {
+    if (restOfUrl.indexOf('?') > -1) {
       restOfUrl = restOfUrl.slice(0, restOfUrl.indexOf('?'));
     }
 
-    if(restOfUrl.indexOf('#') > -1) {
+    if (restOfUrl.indexOf('#') > -1) {
       restOfUrl = restOfUrl.slice(0);
     }
 
     return restOfUrl;
   },
 
-  onDeepLink: function(callback) {
-    var innerCB = function(data) {
+  onDeepLink: function (callback) {
+    var innerCB = function (data) {
       callback(data);
     };
     exec(innerCB, null, PLUGIN_NAME, 'onDeepLink', []);
   },
 
-  getHardwareInfo: function(callback) {
+  getHardwareInfo: function (callback) {
     exec(callback, null, PLUGIN_NAME, 'getHardwareInfo', []);
   }
 };

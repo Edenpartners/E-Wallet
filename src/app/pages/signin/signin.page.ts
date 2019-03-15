@@ -36,7 +36,6 @@ export class SigninPage implements OnInit {
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
   signinForm: FormGroup;
 
-  viewActivated = false;
   showPassword = false;
 
   constructor(
@@ -64,7 +63,6 @@ export class SigninPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.viewActivated = true;
     this.resetFormData();
 
     this.subscriptionPack.addSubscription(() => {
@@ -80,9 +78,7 @@ export class SigninPage implements OnInit {
     });
   }
 
-  ionViewWillLeave() {
-    this.viewActivated = false;
-  }
+  ionViewWillLeave() {}
   ionViewDidLeave() {
     this.resetFormData();
     this.subscriptionPack.clear();

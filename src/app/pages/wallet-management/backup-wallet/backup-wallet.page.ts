@@ -4,7 +4,7 @@ import { RouterService } from '../../../providers/router.service';
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
@@ -250,7 +250,7 @@ export class BackupWalletPage implements OnInit {
       }
     });
 
-    this.cbService.copyFromContent(this.mnemonic);
+    this.cbService.copyText(this.mnemonic);
     this.feedbackUI.showToast(this.translate.instant('TextCopiedIntoClipboard'));
   }
 }

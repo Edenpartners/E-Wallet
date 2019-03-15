@@ -10,9 +10,13 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { LoggerModule, NgxLoggerLevel, LoggerConfig } from 'ngx-logger';
-import { ClipboardModule } from 'ngx-clipboard';
+
+import { ClipboardModule as NgxClipboardModule } from 'ngx-clipboard';
+import { Clipboard } from '@ionic-native/clipboard/ngx';
+
 import { WebStorageModule } from 'ngx-store';
 import { QRCodeModule } from 'angularx-qrcode';
+import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner/ngx';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -46,6 +50,7 @@ import { env } from '../environments/environment';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 import { SQLite } from '@ionic-native/sqlite/ngx';
+import { QrscannerPageModule } from './pages/common/qrscanner/qrscanner.module';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -67,7 +72,7 @@ export function createTranslateLoader(http: HttpClient) {
 
     HttpClientModule,
 
-    ClipboardModule,
+    NgxClipboardModule,
     WebStorageModule,
     QRCodeModule,
     // Logging
@@ -89,9 +94,10 @@ export function createTranslateLoader(http: HttpClient) {
     PinCodePageModule,
     PrivacyPolicyPageModule,
     TermsAndConditionPageModule,
-    ContentPopupPageModule
+    ContentPopupPageModule,
+    QrscannerPageModule
   ],
-  exports: [ClipboardModule, QRCodeModule],
+  exports: [NgxClipboardModule, QRCodeModule],
   providers: [
     InAppBrowser,
     StatusBar,
@@ -110,7 +116,9 @@ export function createTranslateLoader(http: HttpClient) {
     FirebaseAnalytics,
 
     SQLite,
-    SocialSharing
+    SocialSharing,
+    Clipboard,
+    QRScanner
   ],
   bootstrap: [AppComponent]
 })

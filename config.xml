@@ -145,6 +145,7 @@
         <variable name="FACEID_USAGE_DESCRIPTION" value=" " />
     </plugin>
     <plugin name="cordova-plugin-qrscanner" spec="2.6.0" />
+    <plugin name="cordova-clipboard" spec="1.2.1" />
     <engine name="browser" spec="5.0.4" />
     <engine name="ios" spec="4.5.5" />
     <engine name="android" spec="7.1.4" />

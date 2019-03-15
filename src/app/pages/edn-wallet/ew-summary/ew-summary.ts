@@ -4,7 +4,7 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 import { EthService, EthProviders } from 'src/app/providers/ether.service';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { BigNumber } from 'ethers/utils';
 import { EtherDataService } from 'src/app/providers/etherData.service';
 import { WalletService, WalletTypes } from 'src/app/providers/wallet.service';

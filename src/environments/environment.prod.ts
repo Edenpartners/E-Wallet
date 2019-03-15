@@ -8,7 +8,7 @@ export const environment: Environment = {
 
   config: {
     debugging: {
-      disableConsoleLogging: true,
+      disableConsoleLogging: false,
       logBlockchain: false,
       logEdnApi: false,
       showDebugToast: false,

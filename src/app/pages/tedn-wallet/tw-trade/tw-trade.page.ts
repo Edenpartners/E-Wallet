@@ -5,7 +5,7 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorageService } from 'ngx-store';
 import { EtherDataService } from '../../../providers/etherData.service';
@@ -61,8 +61,6 @@ export class TwTradePage implements OnInit, OnDestroy {
 
   tradeAmount = '0';
   pinCodeConfirmCallback = null;
-
-  viewActivated = false;
 
   @ViewChild('tradeAmountInput') tradeAmountInput: IonInput;
 
@@ -137,7 +135,6 @@ export class TwTradePage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
-    this.viewActivated = true;
     this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
       if (this.pinCodeConfirmCallback && walletPw) {
         this.pinCodeConfirmCallback(walletPw);
@@ -152,9 +149,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     //this.refreshList();
   }
 
-  ionViewWillLeave() {
-    this.viewActivated = false;
-  }
+  ionViewWillLeave() {}
 
   ionViewDidLeave() {
     this.pinCodeConfirmCallback = null;

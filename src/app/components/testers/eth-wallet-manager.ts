@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, EventEmitter, Output, Input, SimpleChange
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { EtherDataService } from '../../providers/etherData.service';
 import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 
@@ -149,7 +149,7 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   }
 
   copyToClipboard(text: string) {
-    this.cbService.copyFromContent(text);
+    this.cbService.copyText(text);
   }
 
   isWalletRowExists(walletRow: WalletRow): boolean {

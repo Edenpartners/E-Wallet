@@ -11,7 +11,7 @@
   </ion-item>
   <ion-item class="sub-item" lines="none">
     <ion-label class="field-label"> {{ 'Address' | translate }}</ion-label>
-    <ion-label [appMultilineLayout]="{ fontSizeForSingle:'13px', fontSizeForMulti:'13px', textAlignForSingle:'right', textAlignForMulti:'left', log:true }"
+    <ion-label [appMultilineLayout]="{ fontSizeForSingle:'13px', fontSizeForMulti:'13px', textAlignForSingle:'right', textAlignForMulti:'left', log:false }"
       text-wrap class="field-value address text-right" (click)="onWalletAddressClick(wallet.address)">
       {{ wallet ? wallet.address : '' }}
     </ion-label>

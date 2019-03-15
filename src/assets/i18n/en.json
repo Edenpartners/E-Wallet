@@ -67,6 +67,8 @@
 
   "order.success": "Order has been successfully placed",
 
+  "valid.qrcode.permission": "Permission was denied",
+
   "To": "to",
   "From": "from",
 

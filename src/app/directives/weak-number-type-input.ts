@@ -12,9 +12,6 @@ import { BigNumberHelper } from '../utils/bigNumberHelper';
 })
 export class WeakNumberInputDirective implements OnChanges, OnInit {
   ngOnInit() {
-    console.log('weak-number');
-    console.log(this.targetInput);
-
     if (this.targetInput) {
       this.targetInput.getInputElement().then((nativeInputElement: HTMLInputElement) => {
         nativeInputElement.setAttribute('type', 'number');
@@ -37,14 +34,12 @@ export class DecimalsCurrenyInputDirective implements OnInit, OnDestroy {
   constructor(private targetInput: IonInput) {}
 
   ngOnInit() {
-    console.log('init decimals currency input', this.targetInput, this.decimals);
     this.subscription = this.targetInput.ionChange.subscribe(() => {
       this.validateValue();
     });
   }
 
   ngOnDestroy() {
-    console.log('destroy decimals currency input', this.targetInput);
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;

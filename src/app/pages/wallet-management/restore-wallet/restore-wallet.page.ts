@@ -3,7 +3,7 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';
 import { EtherApiService } from '../../../providers/etherApi.service';
@@ -26,7 +26,6 @@ const AnalyticsCategory2 = 'import wallet2';
 })
 export class RestoreWalletPage implements OnInit {
   userInputMnemonic = '';
-  viewActivated = false;
   env: any;
 
   constructor(
@@ -48,13 +47,9 @@ export class RestoreWalletPage implements OnInit {
 
   ngOnInit() {}
 
-  ionViewWillEnter() {
-    this.viewActivated = true;
-  }
+  ionViewWillEnter() {}
 
-  ionViewWillLeave() {
-    this.viewActivated = false;
-  }
+  ionViewWillLeave() {}
 
   ionViewDidLeave() {}
 

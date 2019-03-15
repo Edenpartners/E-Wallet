@@ -57,6 +57,7 @@
   --radius: 10px;
   --radius-05: 5px;
   --radius-10: 10px;
+  --radius-20: 20px;
 
   --height-22: 22px;
   --height-23: 23px;
@@ -181,6 +182,14 @@
 .ion-page {
   background: url('/assets/img/ssscccczzzz_750x1334.png');
   background-size: cover;
+}
+
+.ion-page.transparent-page {
+  background: none transparent;
+}
+
+.ion-page.hidden-page {
+  display:none;
 }
 
 .transparent-page {
@@ -673,6 +682,11 @@ ion-select {
 .radius-10 {
   border-radius: var(--radius-10);
   --border-radius: var(--radius-10);
+}
+
+.radius-20 {
+  border-radius: var(--radius-20);
+  --border-radius: var(--radius-20);
 }
 
 .social-icon {

@@ -3,7 +3,7 @@ import { RouterService } from '../../../providers/router.service';
 
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { EtherDataService } from '../../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../../providers/wallet.service';

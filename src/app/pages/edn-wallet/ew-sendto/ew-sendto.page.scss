@@ -46,4 +46,19 @@
       margin-bottom: 5px;
     }
   }
+
+  .address-tools {
+    display: flex;
+    flex-direction: row-reverse;
+
+    ion-button {
+      --background: rgba(255, 255, 255, 0.5);
+      border-radius: var(--radius-20);
+      --border-radius: var(--radius-20);
+      font-size: var(--font-size-12);
+      color: var(--color-text-dark-1);
+      height: 25px;
+      text-transform: none;
+    }
+  }
 }

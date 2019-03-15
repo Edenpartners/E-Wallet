@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { UUID } from 'angular2-uuid';
 import { EtherDataService } from '../../../providers/etherData.service';

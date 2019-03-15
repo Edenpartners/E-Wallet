@@ -5,38 +5,20 @@ import { UUID } from 'angular2-uuid';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { environment as env } from '../../environments/environment';
 
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  EventEmitter,
-  Output,
-  Input,
-  SimpleChanges,
-  OnChanges,
-  ViewChild
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output, Input, SimpleChanges, OnChanges, ViewChild } from '@angular/core';
 
 import { EthService, EthProviders } from './ether.service';
 import { ethers } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { EtherDataService } from './etherData.service';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 
 import { WalletService, WalletTypes } from './wallet.service';
 
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { EtherApiService } from './etherApi.service';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from 'src/app/providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from 'src/app/providers/appStorage.service';
 import { Subscription, of, Observable } from 'rxjs';
 import { Subscriber } from 'rxjs';
 
@@ -249,9 +231,7 @@ export class DataTrackerService {
     }
   }
 
-  startEtherBalanceTracking(
-    walletInfo: WalletTypes.EthWalletInfo
-  ): ValueTracker {
+  startEtherBalanceTracking(walletInfo: WalletTypes.EthWalletInfo): ValueTracker {
     const valueGetter = () => {
       return new Promise((finalResolve, finalReject) => {
         this.etherApi.getEthBalance(walletInfo).then(
@@ -275,10 +255,7 @@ export class DataTrackerService {
     this.stopTracker(PREFIX_WALLET + walletInfo.id);
   }
 
-  startERC20ContractBalanceTracking(
-    walletInfo: WalletTypes.EthWalletInfo,
-    ctInfo: WalletTypes.ContractInfo
-  ): ValueTracker {
+  startERC20ContractBalanceTracking(walletInfo: WalletTypes.EthWalletInfo, ctInfo: WalletTypes.ContractInfo): ValueTracker {
     const walletTracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
     const contractBalanceTrackerKey = PREFIX_CONTRACT + ctInfo.address;
     const contractBalanceGetter = () => {
@@ -294,16 +271,10 @@ export class DataTrackerService {
       });
     };
 
-    return walletTracker.startChildTracker(
-      contractBalanceTrackerKey,
-      contractBalanceGetter
-    );
+    return walletTracker.startChildTracker(contractBalanceTrackerKey, contractBalanceGetter);
   }
 
-  stopERC20ContractBalanceTracker(
-    walletInfo: WalletTypes.EthWalletInfo,
-    ctInfo: WalletTypes.ContractInfo
-  ) {
+  stopERC20ContractBalanceTracker(walletInfo: WalletTypes.EthWalletInfo, ctInfo: WalletTypes.ContractInfo) {
     const walletTracker = this.getTracker(PREFIX_WALLET + walletInfo.id);
     walletTracker.stopChildTracker(PREFIX_CONTRACT + ctInfo.address);
   }

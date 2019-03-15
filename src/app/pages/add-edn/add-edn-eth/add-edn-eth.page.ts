@@ -6,7 +6,7 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { EtherDataService } from '../../../providers/etherData.service';
@@ -67,8 +67,6 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
   pinCodeConfirmCallback = null;
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
-
-  viewActivated = false;
   lastFocusedInput = 'eth';
 
   constructor(
@@ -106,7 +104,6 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
-    this.viewActivated = true;
     this.refreshWalletList();
     this.restartRateTracker();
 
@@ -122,9 +119,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
     });
   }
 
-  ionViewWillLeave() {
-    this.viewActivated = false;
-  }
+  ionViewWillLeave() {}
 
   ionViewDidLeave() {
     this.subscriptionPack.clear();

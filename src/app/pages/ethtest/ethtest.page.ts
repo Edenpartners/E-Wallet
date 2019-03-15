@@ -2,13 +2,8 @@ import { Component, OnInit, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { EthService, EthProviders } from '../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import {
-  getJsonWalletAddress,
-  BigNumber,
-  AbiCoder,
-  Transaction
-} from 'ethers/utils';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
+import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
 import { LocalStorage, LocalStorageService } from 'ngx-store';
 import { EtherDataService } from '../../providers/etherData.service';
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
@@ -16,14 +11,8 @@ import { IonInput } from '@ionic/angular';
 import { EtherApiService } from '../../providers/etherApi.service';
 import { Bip39Handler } from '../../components/testers/bip39-handler';
 import { EthProviderMaker } from '../../components/testers/eth-provider-maker';
-import {
-  EthWalletManager,
-  WalletRow
-} from '../../components/testers/eth-wallet-manager';
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../providers/appStorage.service';
+import { EthWalletManager, WalletRow } from '../../components/testers/eth-wallet-manager';
+import { AppStorageTypes, AppStorageService } from '../../providers/appStorage.service';
 
 import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -115,7 +104,7 @@ export class EthtestPage implements OnInit, OnDestroy {
   }
 
   copyToClipboard(text: string) {
-    this.cbService.copyFromContent(text);
+    this.cbService.copyText(text);
   }
 
   txToString(tx: any): string {
@@ -143,9 +132,7 @@ export class EthtestPage implements OnInit, OnDestroy {
 
     const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
     if (!walletPw) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.areEqual')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
 
@@ -195,9 +182,7 @@ export class EthtestPage implements OnInit, OnDestroy {
 
     const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
     if (walletPw === null) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.areEqual')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
 
@@ -243,22 +228,15 @@ export class EthtestPage implements OnInit, OnDestroy {
     // convert to
     let adjustedAmount: BigNumber = null;
     try {
-      adjustedAmount = ethers.utils.parseUnits(
-        sendingAmountInput.value,
-        contractInfo.contractInfo.decimal
-      );
+      adjustedAmount = ethers.utils.parseUnits(sendingAmountInput.value, contractInfo.contractInfo.decimal);
     } catch (e) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.amount.pattern')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.amount.pattern'));
       return;
     }
 
     const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
     if (walletPw === null) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.areEqual')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
 
@@ -292,10 +270,7 @@ export class EthtestPage implements OnInit, OnDestroy {
    * https://github.com/KyberNetwork/smart-contracts/blob/master/contracts/KyberNetworkProxy.sol
    * ERC 20 sol : https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol
    */
-  kyberNetworkTradeEthToErc20Token(
-    kyberTradeEthToErcTargetAddressInput: IonInput,
-    kyberTradeEthToErcAmountInput: IonInput
-  ) {
+  kyberNetworkTradeEthToErc20Token(kyberTradeEthToErcTargetAddressInput: IonInput, kyberTradeEthToErcAmountInput: IonInput) {
     if (!this.selectedWallet) {
       this.feedbackUI.showErrorDialog('select an wallet first');
       return;
@@ -317,15 +292,11 @@ export class EthtestPage implements OnInit, OnDestroy {
 
     const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
     if (walletPw === null) {
-      this.feedbackUI.showErrorDialog(
-        this.translate.instant('valid.pincode.areEqual')
-      );
+      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
 
-    const etherAmountBn = ethers.utils.parseEther(
-      kyberTradeEthToErcAmountInput.value
-    );
+    const etherAmountBn = ethers.utils.parseEther(kyberTradeEthToErcAmountInput.value);
     this.etherApi
       .kyberNetworkTradeEthToErc20Token(
         {

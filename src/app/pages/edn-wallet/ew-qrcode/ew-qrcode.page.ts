@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
-import { ClipboardService } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NGXLogger } from 'ngx-logger';
@@ -89,7 +89,7 @@ export class EwQrcodePage implements OnInit, OnDestroy {
       }
     });
 
-    this.cbService.copyFromContent(this.qrCodeData);
+    this.cbService.copyText(this.qrCodeData);
     this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
 
     this.showCopiedIcon = true;

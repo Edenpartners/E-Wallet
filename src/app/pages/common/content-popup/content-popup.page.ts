@@ -1,7 +1,7 @@
 import { Component, OnInit, HostBinding } from '@angular/core';
 import { NavParams, Events } from '@ionic/angular';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { Consts } from 'src/environments/constants';
 import { TranslateService } from '@ngx-translate/core';
 import { FeedbackUIService } from 'src/app/providers/feedbackUI.service';
@@ -38,7 +38,7 @@ export class ContentPopupPage implements OnInit {
 
   onCopyBtnClick() {
     this.feedbackUI.showToast(this.translate.instant('wallet.address.copied'));
-    this.cbService.copyFromContent(this.content);
+    this.cbService.copyText(this.content);
     this.isCopyComplete = true;
 
     if (this.timeoutRunner !== null) {

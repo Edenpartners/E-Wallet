@@ -1,15 +1,9 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  EventEmitter,
-  Output
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output } from '@angular/core';
 
 import { EthService } from '../../providers/ether.service';
 import { ethers } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService } from 'ngx-clipboard';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
 import { EtherDataService } from '../../providers/etherData.service';
 import { FeedbackUIService } from '../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -29,25 +23,15 @@ import { TranslateService } from '@ngx-translate/core';
           <ion-label>Wallet Index</ion-label>
         </ion-col>
         <ion-col size="auto">
-          <ion-input
-            placeholder=""
-            [(ngModel)]="restoreWalletIndex"
-          ></ion-input>
+          <ion-input placeholder="" [(ngModel)]="restoreWalletIndex"></ion-input>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="auto" class="no-border">
-          <ion-button color="light" (click)="generateRandomMnemonic()"
-            >Generate</ion-button
-          >
+          <ion-button color="light" (click)="generateRandomMnemonic()">Generate</ion-button>
         </ion-col>
         <ion-col size="auto" class="no-border">
-          <ion-button
-            color="light"
-            (click)="copyMWToCliboard()"
-            class="margin-left"
-            >Copy</ion-button
-          >
+          <ion-button color="light" (click)="copyMWToCliboard()" class="margin-left">Copy</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -81,7 +65,7 @@ export class Bip39Handler implements OnInit, OnDestroy {
     this.copyToClipboard(this.getTrimmedMWords());
   }
   copyToClipboard(text: string) {
-    this.cbService.copyFromContent(text);
+    this.cbService.copyText(text);
   }
 
   getTrimmedMWords() {
@@ -89,9 +73,7 @@ export class Bip39Handler implements OnInit, OnDestroy {
   }
 
   getBIP39DerivationPath() {
-    return this.etherData.getBIP39DerivationPath(
-      String(this.restoreWalletIndex)
-    );
+    return this.etherData.getBIP39DerivationPath(String(this.restoreWalletIndex));
   }
 
   // @link : https://docs.ethers.io/ethers.js/html/api-wallet.html
@@ -102,9 +84,7 @@ export class Bip39Handler implements OnInit, OnDestroy {
       return;
     }
 
-    const path = this.etherData.getBIP39DerivationPath(
-      String(this.restoreWalletIndex)
-    );
+    const path = this.etherData.getBIP39DerivationPath(String(this.restoreWalletIndex));
     this.restoreApply.emit({ mw: mWords, path: path });
   }
 }

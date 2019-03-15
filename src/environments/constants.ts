@@ -14,4 +14,5 @@ export class Consts {
   static EVENT_PIN_CODE_RESULT = 'pincode.result';
   static EVENT_SHOW_MODAL = 'ui:showModal';
   static EVENT_CLOSE_MODAL = 'ui:closeModal';
+  static EVENT_QR_SCAN_RESULT = 'qrscan.result';
 }

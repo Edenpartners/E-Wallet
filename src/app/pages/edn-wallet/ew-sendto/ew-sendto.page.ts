@@ -5,9 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { EthService, EthProviders } from '../../../providers/ether.service';
 import { ethers, Wallet, Contract } from 'ethers';
 import { NGXLogger } from 'ngx-logger';
-import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
-import { getJsonWalletAddress, BigNumber, AbiCoder, Transaction } from 'ethers/utils';
-import { LocalStorage, LocalStorageService } from 'ngx-store';
+import { ClipboardService } from 'src/app/providers/clipboard.service';
+import { BigNumber } from 'ethers/utils';
 import { UUID } from 'angular2-uuid';
 import { Observable, interval, Subscription } from 'rxjs';
 import { EtherDataService } from '../../../providers/etherData.service';
@@ -22,7 +21,7 @@ import { DataTrackerService } from '../../../providers/dataTracker.service';
 import { SubscriptionPack } from '../../../utils/listutil';
 import { env } from '../../../../environments/environment';
 
-import { FeedbackUIService, LoadingHandler } from '../../../providers/feedbackUI.service';
+import { FeedbackUIService, LoadingHandler, AlertOptions } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
 import { Events } from '@ionic/angular';
@@ -31,10 +30,11 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { EwSummary } from '../ew-summary/ew-summary';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
-
 import { BigNumberHelper } from '../../../utils/bigNumberHelper';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+import { QrscannerPage } from 'src/app/pages/common/qrscanner/qrscanner.page';
+
 const AnalyticsCategory = 'edn transaction1';
 
 @Component({
@@ -53,10 +53,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   pinCodeConfirmCallback = null;
 
-  viewActivated = false;
-
   @ViewChild('summary') summary: EwSummary;
-
   @ViewChild('amountInput') amountInput: IonInput;
 
   constructor(
@@ -64,7 +61,6 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     private rs: RouterService,
     public eths: EthService,
     private cbService: ClipboardService,
-    private store: LocalStorageService,
     private logger: NGXLogger,
     private etherData: EtherDataService,
     private walletService: WalletService,
@@ -83,7 +79,6 @@ export class EwSendtoPage implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   ionViewWillEnter() {
-    this.viewActivated = true;
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
@@ -102,10 +97,15 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       }
       this.pinCodeConfirmCallback = null;
     });
+
+    this.events.subscribe(Consts.EVENT_QR_SCAN_RESULT, (scanResult: any) => {
+      if (scanResult) {
+        this.toAddress = scanResult;
+      }
+    });
   }
 
   ionViewWillLeave() {
-    this.viewActivated = false;
     this.summary.stopGetInfo();
   }
 
@@ -226,5 +226,17 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
   isInputHasNonZero(input: IonInput): boolean {
     return IonComponentUtils.isInputHasNonZero(input);
+  }
+
+  async onPasteAddressBtnClick() {
+    try {
+      this.toAddress = await this.cbService.pasteText();
+    } catch (e) {
+      this.logger.debug(e);
+    }
+  }
+
+  onScanQRBtnClick() {
+    this.events.publish(Consts.EVENT_SHOW_MODAL, QrscannerPage);
   }
 }
