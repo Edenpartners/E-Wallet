@@ -1,0 +1,78 @@
+@import '../../../../theme/common.scss';
+
+.inner-content {
+  height: 100%;
+  align-items: center;
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .comment-1 {
+      font-size: var(--font-size-18);
+      font-weight: var(--fw-bold);
+    }
+
+    .function-box {
+      margin-top: 50px;
+
+      .icon-box {
+        width: 81px;
+
+        .icon {
+          width: 81px;
+          height: 81px;
+
+          font-weight: var(--fw-bold);
+          color: var(--color-text-light-1);
+          font-size: var(--font-size-24);
+
+          padding-bottom: 2px;
+        }
+
+        .name {
+          margin-top: 7px;
+          font-weight: var(--fw-bold);
+          font-size: var(--font-size-14);
+          color: var(--color-text-light-1);
+        }
+
+        .icon.touch-id {
+          background-image: url('/assets/img/touch-id.svg');
+          background-size: 100% 100%;
+        }
+
+        .icon.pin-code {
+          background-image: url('/assets/img/ellipse.svg');
+          background-size: 100% 100%;
+        }
+      }
+
+      .center {
+        width: 46px;
+        height: 1px;
+        background-color: #8c8794;
+        margin-top: 40px;
+      }
+    }
+
+    .comment-2 {
+      margin-top: 42px;
+      color: var(--color-text-light-1);
+      font-size: var(--font-size-14);
+      text-align: center;
+      width: 100%;
+    }
+  }
+
+
+}
+
+.footer {
+  width: 100%;
+}
+
+ion-item {
+  --background: transparent;
+}

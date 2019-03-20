@@ -6,11 +6,11 @@
   <div class="page-content fill flex-ch-h-centered">
     <div class="page-width-wide">
       <div class="header">
-        <div class="flex-h-dir-v-centered margin-top-30">
+        <div class="tedn flex-h-dir-v-centered margin-top-30">
           <ion-label class="field-label font-size-13"> {{ 'CurrentBalance' | translate }}
           </ion-label>
           <ion-label #multilineLabel #multilineLayout="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left'}"
-            text-wrap class="tedn flex-item-fill text-right"> {{ (tednBalanceFormatted === null)?'-': tednBalanceFormatted }}</ion-label>
+            text-wrap class="field-value flex-item-fill text-right"> {{ (tednBalanceFormatted === null)?'-': (tednBalanceFormatted | comma) }}</ion-label>
           <ion-label class="field-value-tail font-size-13">
             {{ 'TEDN' | translate }}
           </ion-label>

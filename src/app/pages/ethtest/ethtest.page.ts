@@ -24,7 +24,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class EthtestPage implements OnInit, OnDestroy {
   title = '';
-  pinCode = '';
+  currentPinCode = '';
   oldPinCode = '';
 
   @ViewChild(Bip39Handler) bip39Handler: Bip39Handler;
@@ -45,8 +45,8 @@ export class EthtestPage implements OnInit, OnDestroy {
   ) {}
 
   setPinCode() {
-    if (this.pinCode.length === 6) {
-      this.storage.setPinNumber(this.pinCode, this.oldPinCode);
+    if (this.currentPinCode.length === 6) {
+      this.storage.setPinCode(this.currentPinCode, true, this.oldPinCode);
       this.ethWalletManager.refreshList(true);
     } else {
       this.feedbackUI.showErrorDialog('pin code error!');
@@ -130,8 +130,8 @@ export class EthtestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
-    if (!walletPw) {
+    const pinCode = this.storage.getPinCodeWithValidate(this.currentPinCode);
+    if (!pinCode) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
@@ -141,7 +141,7 @@ export class EthtestPage implements OnInit, OnDestroy {
       path,
       this.ethProviderMaker.selectedWalletProviderType,
       this.ethProviderMaker.selectedWalletConnectionInfo,
-      walletPw
+      pinCode
     );
     this.storage.addWallet(walletInfo);
   }
@@ -180,8 +180,8 @@ export class EthtestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
-    if (walletPw === null) {
+    const pinCode = this.storage.getPinCodeWithValidate(this.currentPinCode);
+    if (pinCode === null) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
@@ -195,7 +195,7 @@ export class EthtestPage implements OnInit, OnDestroy {
           sendEthTo: sendEthTo,
           sendWeiAmount: sendEthAmountBn
         },
-        walletPw,
+        pinCode,
         onTxCreate
       )
       .then(
@@ -234,8 +234,8 @@ export class EthtestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
-    if (walletPw === null) {
+    const pinCode = this.storage.getPinCodeWithValidate(this.currentPinCode);
+    if (pinCode === null) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
@@ -256,7 +256,7 @@ export class EthtestPage implements OnInit, OnDestroy {
           toAddress: toAddressInput.value,
           srcAmount: adjustedAmount
         },
-        walletPw,
+        pinCode,
         onTransactionCreate,
         onTransactionReceipt
       )
@@ -290,8 +290,8 @@ export class EthtestPage implements OnInit, OnDestroy {
       this.feedbackUI.showErrorDialog(error);
     };
 
-    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
-    if (walletPw === null) {
+    const pinCode = this.storage.getPinCodeWithValidate(this.currentPinCode);
+    if (pinCode === null) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
@@ -304,7 +304,7 @@ export class EthtestPage implements OnInit, OnDestroy {
           targetErc20ContractAddres: kyberTradeEthToErcTargetAddressInput.value,
           srcEthAmount: etherAmountBn
         },
-        walletPw,
+        pinCode,
         onTxCreate,
         onTxReceipt
       )

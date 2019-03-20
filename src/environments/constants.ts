@@ -1,4 +1,7 @@
 export class Consts {
+  static APP_INTERNAL_VERSION_NUMBER = 1;
+  static GLOBAL_SECRET = '#sk3Vikj@3+.Z';
+
   static TEDN_DEFAULT = '_default_';
   static TEDN_DECIMAL = 18;
 
@@ -15,4 +18,12 @@ export class Consts {
   static EVENT_SHOW_MODAL = 'ui:showModal';
   static EVENT_CLOSE_MODAL = 'ui:closeModal';
   static EVENT_QR_SCAN_RESULT = 'qrscan.result';
+
+  static FINGER_PRINT_OPTIONS = {
+    clientId: 'ewallet-fingerprint', //Key for platform keychain
+    clientSecret: 'password', //Secret password. Only for android
+    disableBackup: true, //Disable 'use backup' option. Only for android (optional)
+    localizedFallbackTitle: 'Use Pin', //Title of fallback button. Only for iOS
+    localizedReason: 'Scan your fingerprint please' //Description in authentication dialogue. Only for iOS
+  };
 }

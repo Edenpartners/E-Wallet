@@ -37,7 +37,7 @@ const routes: Routes = [
   },
   {
     path: 'pin-code',
-    loadChildren: './pages/pin-code/pin-code/pin-code.module#PinCodePageModule'
+    loadChildren: './pages/local-auth/pin-code/pin-code.module#PinCodePageModule'
   },
   {
     path: 'backup-wallet',
@@ -100,7 +100,9 @@ const routes: Routes = [
     loadChildren: './pages/signup-profile/privacy-policy/privacy-policy.module#PrivacyPolicyPageModule'
   },
   { path: 'content-popup', loadChildren: './pages/common/content-popup/content-popup.module#ContentPopupPageModule' },
-  { path: 'qrscanner', loadChildren: './pages/common/qrscanner/qrscanner.module#QrscannerPageModule' }
+  { path: 'qrscanner', loadChildren: './pages/common/qrscanner/qrscanner.module#QrscannerPageModule' },
+  { path: 'regauth-guide', loadChildren: './pages/local-auth/regauth-guide/regauth-guide.module#RegauthGuidePageModule' },
+  { path: 'regauth-intro', loadChildren: './pages/local-auth/regauth-intro/regauth-intro.module#RegauthIntroPageModule' }
 ];
 
 // log a routing state

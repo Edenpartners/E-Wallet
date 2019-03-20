@@ -71,6 +71,9 @@
 
   "To": "to",
   "From": "from",
+  "Next":"Next",
+  "Later":"LATER",
+  "Using":"Using",
 
   "TEST": "Test {{value}}",
 
@@ -159,6 +162,11 @@
   "ConfirmPinComment": "Enter 6-digit PIN",
   "VerificationFailedFormat": "Verification failed : <span style=\"color:#ffffff;\">{0}</span> times left.",
   "RemainTimeFormat": "Pin code verification too many failed.</br>You have to have <span style=\"color:#ffffff;\">{0}</span> seconds to retry.",
+  "AuthWithTouchID": "Login with Touch ID",
+
+  "______________CONFIRM_TOUCH_ID": "",
+  "TouchIDLogon": "Touch ID log on",
+  "AuthWithPinCode": "Login with Pin code",
 
   "______________BACKUP_WALLET_NOTICE": "",
   "BackupWalletTitle": "Backup Wallet",
@@ -212,5 +220,18 @@
   "WithdrawEDNFrom": "Withdraw EDN from",
   "DepositAsTEDNInto": "Deposit as TEDN into",
   "WithdrawTEDNFrom": "Withdraw TEDN from",
-  "DepositAsEDNInto": "Deposit as EDN into"
+  "DepositAsEDNInto": "Deposit as EDN into",
+
+  "______________REG_AUTH_INTRO": "",
+  "RegAuthIntroTitle": "",
+  "RegAuthIntroComment":"Register the authentication method to be used on the e-wallet.",
+  "RegAuthIntroComment2":"Fingerprint registration is available as an authentication method in mobile devices that support fingerprint recognition.",
+  "TouchID":"Touch ID",
+  "PinCode":"PIN code",
+
+  "______________REG_AUTH_GUIDE": "",
+  "RegAuthGuideTitle": "Touch ID",
+  "RegAuthGuideComment":"Enable fingerprint authentication for quick login?",
+  "RegAuthGuideComment2":"You can use e-wallet service with all the fingerprint information registered in your mobile phone. Please make sure that someone's fingerprint is registered.",
+  "RegAuthGuideFinish":"Finished appointment"
 }

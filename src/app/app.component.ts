@@ -24,7 +24,7 @@ import { Events } from '@ionic/angular';
 import { DataTrackerService } from './providers/dataTracker.service';
 import { SubscriptionPack } from './utils/listutil';
 import { TransactionLoggerService } from './providers/transactionLogger.service';
-import { PinCodePage } from './pages/pin-code/pin-code/pin-code.page';
+import { PinCodePage } from './pages/local-auth/pin-code/pin-code.page';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
@@ -33,6 +33,7 @@ import { FeedbackUIService } from './providers/feedbackUI.service';
 import { IonComponentUtils } from './utils/ion-component-utils';
 import { AnalyticsService } from './providers/analytics.service';
 import { ModalOptions } from '@ionic/core';
+import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
 
 const TRACKER_KEY_COINHD = 'coinHDAddress';
 const TRACKER_KEY_USERINFO = 'userInfo';
@@ -81,8 +82,14 @@ export class AppComponent implements OnInit, OnDestroy {
     private modalController: ModalController,
     private deeplinks: Deeplinks,
     private feedbackUI: FeedbackUIService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private faio: FingerprintAIO
   ) {
+    const internalVersionNumber = this.storage.internalVersionNumber;
+    if (internalVersionNumber < Consts.APP_INTERNAL_VERSION_NUMBER) {
+      this.upgradeAppData(internalVersionNumber, Consts.APP_INTERNAL_VERSION_NUMBER);
+    }
+
     this.env = env;
     this.resetEnvConfigText();
     translate.setDefaultLang('en');
@@ -142,6 +149,21 @@ export class AppComponent implements OnInit, OnDestroy {
     this.analytics.stopScreenLogging();
   }
 
+  upgradeAppData(fromVersionNumber: number, toVersionNumber: number) {
+    let nextVersionNumber = null;
+    if (fromVersionNumber === 0) {
+      this.storage.wipeAllData();
+      nextVersionNumber = 1;
+    }
+
+    this.logger.debug(`perform internal upgrade from ${fromVersionNumber} to ${nextVersionNumber}`);
+
+    this.storage.internalVersionNumber = nextVersionNumber;
+    if (nextVersionNumber < toVersionNumber) {
+      this.upgradeAppData(nextVersionNumber, toVersionNumber);
+    }
+  }
+
   initializeApp() {
     IonComponentUtils.startWindowSizeChecker();
     this.transactionLogger.initEvents();
@@ -149,10 +171,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.platform.ready().then(() => {
       this.setHardwareBackButtonHandler();
       this.appVersion.getVersionCode().then(val => {
+        this.logger.debug('version code : ' + val);
         this.appVersionCode = val;
       });
 
       this.appVersion.getVersionNumber().then(val => {
+        this.logger.debug('version number : ' + val);
         this.appVersionNumber = val;
       });
 
@@ -262,7 +286,11 @@ export class AppComponent implements OnInit, OnDestroy {
           this.lastBackButtonPressedTime = null;
         }, 1000);
       } else {
-        navigator['app'].exitApp();
+        try {
+          navigator['app'].exitApp();
+        } catch (e) {
+          this.logger.debug(e);
+        }
       }
     } else {
       if (this.rs.canGoBack()) {
@@ -427,9 +455,21 @@ export class AppComponent implements OnInit, OnDestroy {
 
               if (this.storage.isUserInfoValidated) {
                 if (!env.config.emailVerificationRequired || this.storage.isUserEmailVerified) {
-                  if (!this.storage.hasPinNumber) {
+                  if (!this.storage.hasPinCode) {
                     this.logger.info('user signed in but no pincode, goto pincode');
-                    this.rs.navigateToRoot('/pin-code?isCreation=true');
+
+                    if (env.config.pinCode.testFingerprintFeature) {
+                      this.rs.navigateToRoot('/regauth-intro');
+                    } else {
+                      this.faio.isAvailable().then(
+                        (result: any) => {
+                          this.rs.navigateToRoot('/regauth-intro');
+                        },
+                        (error: any) => {
+                          this.rs.navigateToRoot('/pin-code?isCreation=true');
+                        }
+                      );
+                    }
                   } else {
                     this.logger.info('user signed in, goto home');
                     this.rs.navigateToRoot('/home');

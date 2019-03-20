@@ -30,6 +30,7 @@
 
   --space-00: 0px;
   --space-05: 5px;
+  --space-07: 7px;
   --space-08: 8px;
   --space-10: 10px;
   --space-12: 12px;
@@ -83,6 +84,13 @@
 
   --page-width-normal: 70%;
   --page-width-wide: 80%;
+
+
+  --fw-bold: bold;
+  --fw-500: 500;
+  --fw-900: 900;
+  --fw-normal: 400;
+  --fw-medium: 500;
 }
 
 .height-22 {
@@ -421,6 +429,15 @@ ion-header {
   --ion-color-contrast-rgb: 255, 255, 255;
   --ion-color-shade: #565656;
   --ion-color-tint: #727272;
+}
+
+.ion-color-gray-2-button {
+  --ion-color-base: #979797;
+  --ion-color-base-rgb: 151,151,151;
+  --ion-color-contrast: #ffffff;
+  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-shade: #858585;
+  --ion-color-tint: #a1a1a1;
 }
 
 ion-checkbox {

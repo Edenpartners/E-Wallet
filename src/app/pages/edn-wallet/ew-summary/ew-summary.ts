@@ -28,6 +28,7 @@ import { TextUtils } from 'src/app/utils/textutils';
 import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
 import { SharedPageModule } from 'src/app/modules/shared.page.module';
 import { UUID } from 'angular2-uuid';
+import { BigNumberHelper } from 'src/app/utils/bigNumberHelper';
 
 @Component({
   selector: 'ew-summary',
@@ -95,7 +96,7 @@ export class EwSummary {
       this.ednBalance = value.balance;
       this.ednBalanceAdjusted = value.adjustedBalance;
 
-      this.ednBalanceDisplay = this.ednBalanceAdjusted.toString();
+      this.ednBalanceDisplay = BigNumberHelper.removeZeroPrecision(this.ednBalanceAdjusted.toString());
       this.multilineLayout.updateLayout();
     };
 

@@ -132,7 +132,7 @@ export class SigninPage implements OnInit {
 
     try {
       const userResult = await this.ednApi.signinFirebaseUser(this.signinForm.get('email').value, this.signinForm.get('password').value);
-      await this.runEdnSignup();
+      await this.runEdnSignin();
     } catch (e) {
       this.feedbackUI.showErrorDialog(e);
     } finally {
@@ -152,7 +152,7 @@ export class SigninPage implements OnInit {
     this.feedbackUI.showLoading();
     try {
       const userResult = await this.ednApi.signinFirebaseUserWithFacebook();
-      await this.runEdnSignup();
+      await this.runEdnSignin();
     } catch (e) {
       this.feedbackUI.showErrorDialog(e);
     } finally {
@@ -172,7 +172,7 @@ export class SigninPage implements OnInit {
     this.feedbackUI.showLoading();
     try {
       const userResult = await this.ednApi.signinFirebaseUserWithTwitter();
-      await this.runEdnSignup();
+      await this.runEdnSignin();
     } catch (e) {
       this.feedbackUI.showErrorDialog(e);
     } finally {
@@ -193,7 +193,7 @@ export class SigninPage implements OnInit {
 
     try {
       const userResult = await this.ednApi.signinFirebaseUserWithGoogle();
-      await this.runEdnSignup();
+      await this.runEdnSignin();
     } catch (e) {
       this.feedbackUI.showErrorDialog(e);
     } finally {
@@ -242,23 +242,28 @@ export class SigninPage implements OnInit {
     return new Promise<any>((finalResolve, finalReject) => {
       signinPromise.then(
         ednResult => {
-          this.logger.debug('edn signin success !');
+          this.logger.debug('edn signin success !', ednResult);
 
-          this.ednApi.getUserInfo().then(
-            userInfoResult => {
-              if (userInfoResult.data) {
-                this.storage.userInfo = userInfoResult.data;
-                finalResolve();
-              } else {
-                finalReject(new Error());
+          if (ednResult.data && ednResult.data.email) {
+            this.storage.userInfo = ednResult.data;
+            finalResolve();
+          } else {
+            this.ednApi.getUserInfo().then(
+              userInfoResult => {
+                if (userInfoResult.data) {
+                  this.storage.userInfo = userInfoResult.data;
+                  finalResolve();
+                } else {
+                  finalReject(new Error());
+                }
+              },
+              userInfoError => {
+                this.logger.debug(userInfoError);
+                this.logger.debug('userInfoError !');
+                finalReject(userInfoError);
               }
-            },
-            userInfoError => {
-              this.logger.debug(userInfoError);
-              this.logger.debug('userInfoError !');
-              finalReject(userInfoError);
-            }
-          );
+            );
+          }
         },
         ednError => {
           finalReject(ednError);

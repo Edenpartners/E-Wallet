@@ -7,10 +7,7 @@ import { IonHeader, Platform } from '@ionic/angular';
 import { EdnRemoteApiService } from '../../providers/ednRemoteApi.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 
-import {
-  AppStorageTypes,
-  AppStorageService
-} from '../../providers/appStorage.service';
+import { AppStorageTypes, AppStorageService } from '../../providers/appStorage.service';
 
 import { WalletService, WalletTypes } from '../../providers/wallet.service';
 import { FeedbackUIService } from '../../providers/feedbackUI.service';
@@ -18,7 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { emailPattern } from '../../utils/regex-validations';
-import { env } from 'src/environments/environment.prod';
+import { env } from 'src/environments/environment';
 
 @Component({
   selector: 'app-signup',
@@ -43,15 +40,8 @@ export class SignupPage implements OnInit {
   ngOnInit() {
     this.signupForm = new FormGroup(
       {
-        email: new FormControl('', [
-          Validators.required,
-          Validators.pattern(emailPattern)
-        ]),
-        password: new FormControl('', [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(12)
-        ]),
+        email: new FormControl('', [Validators.required, Validators.pattern(emailPattern)]),
+        password: new FormControl('', [Validators.required, Validators.minLength(8), Validators.maxLength(12)]),
         passwordConfirm: new FormControl('', [Validators.required])
       },
       {
@@ -73,6 +63,7 @@ export class SignupPage implements OnInit {
     );
     this.resetFormData();
   }
+
   ionViewWillEnter() {
     this.resetFormData();
   }
@@ -109,10 +100,7 @@ export class SignupPage implements OnInit {
     const loading = this.feedbackUI.showRandomKeyLoading();
 
     this.ednApi
-      .registerFirebaseUser(
-        this.signupForm.get('email').value,
-        this.signupForm.get('password').value
-      )
+      .registerFirebaseUser(this.signupForm.get('email').value, this.signupForm.get('password').value)
       .then(
         success => {
           this.runEdnSignup();
@@ -129,29 +117,62 @@ export class SignupPage implements OnInit {
   runEdnSignup() {
     const loading = this.feedbackUI.showRandomKeyLoading();
 
-    this.logger.debug('run edn signup');
-    this.ednApi
-      .signup()
-      .then(
-        userInfoResult => {
-          if (userInfoResult.data) {
-            this.storage.userInfo = userInfoResult.data;
-            //this.rs.navigateByUrl('/signup-profile');
-          }
+    let signupPromise;
+    if (env.config.patches.useSigninForSignup) {
+      signupPromise = this.ednApi.signin();
+    } else {
+      signupPromise = this.ednApi.signup();
+    }
+
+    const onFailed = (error: any) => {
+      this.feedbackUI.showErrorAndRetryDialog(
+        error,
+        () => {
+          this.runEdnSignup();
         },
-        ednError => {
-          this.feedbackUI.showErrorAndRetryDialog(
-            ednError,
-            () => {
-              this.runEdnSignup();
-            },
-            () => {}
-          );
+        () => {}
+      );
+    };
+    signupPromise.then(
+      ednResult => {
+        this.logger.debug('edn signin success !', ednResult);
+
+        if (ednResult.data && ednResult.data.email) {
+          this.storage.userInfo = ednResult.data;
+          loading.hide();
+        } else {
+          this.ednApi
+            .getUserInfo()
+            .then(
+              userInfoResult => {
+                if (userInfoResult.data) {
+                  this.storage.userInfo = userInfoResult.data;
+                } else {
+                  onFailed(new Error());
+                }
+              },
+              userInfoError => {
+                this.logger.debug(userInfoError);
+                this.logger.debug('userInfoError !');
+                onFailed(userInfoError);
+              }
+            )
+            .finally(() => {
+              loading.hide();
+            });
         }
-      )
-      .finally(() => {
+      },
+      ednError => {
         loading.hide();
-      });
+
+        this.logger.debug(ednError);
+        this.logger.debug('edn signup failed !');
+
+        onFailed(ednError);
+      }
+    );
+
+    this.logger.debug('run edn signup');
   }
 
   signinWithFacebook() {

@@ -39,9 +39,15 @@ import { FirebaseAnalytics } from '@ionic-native/firebase-analytics/ngx';
 
 //=====
 
+import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
+
+//==== Calendar
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+//====
+
 import { environment } from '../environments/environment';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { PinCodePageModule } from './pages/pin-code/pin-code/pin-code.module';
+import { PinCodePageModule } from './pages/local-auth/pin-code/pin-code.module';
 import { PrivacyPolicyPageModule } from './pages/signup-profile/privacy-policy/privacy-policy.module';
 import { TermsAndConditionPageModule } from './pages/signup-profile/terms-and-condition/terms-and-condition.module';
 import { ContentPopupPageModule } from './pages/common/content-popup/content-popup.module';
@@ -91,6 +97,7 @@ export function createTranslateLoader(http: HttpClient) {
       }
     }),
 
+    BrowserAnimationsModule,
     PinCodePageModule,
     PrivacyPolicyPageModule,
     TermsAndConditionPageModule,
@@ -118,7 +125,8 @@ export function createTranslateLoader(http: HttpClient) {
     SQLite,
     SocialSharing,
     Clipboard,
-    QRScanner
+    QRScanner,
+    FingerprintAIO
   ],
   bootstrap: [AppComponent]
 })

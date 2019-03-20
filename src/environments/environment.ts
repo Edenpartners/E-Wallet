@@ -20,7 +20,7 @@ export const environment: Environment = {
     },
 
     useRedirectorOnDebugMode: true,
-    handleUserState: false,
+    handleUserState: true,
     alterStartPath: '',
     compareUserIDTokenOnDeeplinkHandling: false,
     emailVerificationRequired: false,
@@ -32,15 +32,18 @@ export const environment: Environment = {
     useSideMenu: true,
     useSideMenuForDebug: true,
     patches: {
-      useSignupForSignin: true
+      useSignupForSignin: true,
+      useSigninForSignup: false,
+      useEthAddressObject: false
     },
 
     /** Test another ERC20 coin with replacement */
     ednCoinKey: 'EDN',
+    ednApiBaseAddress: 'https://api-ep.edenchain.io/api',
 
     pinCode: {
-      useDecryptPinCodeByPinCode: false,
-      maxPinCodeRetryCount: 4
+      maxPinCodeRetryCount: 4,
+      testFingerprintFeature: false
     },
 
     simulateHardwareBackButton: true,

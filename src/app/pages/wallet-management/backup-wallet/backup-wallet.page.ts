@@ -176,11 +176,6 @@ export class BackupWalletPage implements OnInit {
       }
     }
 
-    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
-      return;
-    }
-
     const loading = this.feedbackUI.showRandomKeyLoading();
 
     setTimeout(() => {
@@ -215,7 +210,7 @@ export class BackupWalletPage implements OnInit {
         path,
         EthProviders.Type.KnownNetwork,
         env.config.ednEthNetwork,
-        this.storage.getWalletPassword()
+        this.storage.getPinCode()
       );
 
       if (!createdWalletInfo) {
@@ -228,7 +223,15 @@ export class BackupWalletPage implements OnInit {
         return;
       }
 
-      this.ednApi.addEthAddress(createdWalletInfo.address).then(
+      const pinCode = this.storage.getPinCode();
+      const w: Wallet = this.walletService.createEthWalletInstance(createdWalletInfo, pinCode);
+
+      if (!w) {
+        finalReject(new Error('invalid wallet'));
+        return;
+      }
+
+      this.ednApi.addEthAddress(this.ednApi.utils.createEthAddressObject(w)).then(
         result => {
           this.storage.addEthAddressToUserInfoTemporary(createdWalletInfo.address);
           this.storage.addWallet(createdWalletInfo);

@@ -125,24 +125,24 @@ export class EthWalletManager implements OnInit, OnDestroy, OnChanges {
   }
 
   copyPrivateKeyToClipboard(wallet: WalletRow) {
-    if (!this.pinCode || !this.storage.isValidPinNumber(this.pinCode)) {
+    if (!this.pinCode || !this.storage.isValidPinCode(this.pinCode)) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
       return;
     }
 
-    const privateKey = this.walletService.getPrivateKeyFromWallet(wallet.data, this.storage.getWalletPassword(this.pinCode));
+    const privateKey = this.walletService.getPrivateKeyFromWallet(wallet.data, this.storage.getPinCode());
     if (privateKey) {
       this.copyToClipboard(privateKey);
     }
   }
 
   copyMnemonicToClipboard(wallet: WalletRow) {
-    if (!this.pinCode || !this.storage.isValidPinNumber(this.pinCode)) {
+    if (!this.pinCode || !this.storage.isValidPinCode(this.pinCode)) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'));
       return;
     }
 
-    const privateKey = this.walletService.getMnemonicFromWallet(wallet.data, this.storage.getWalletPassword(this.pinCode));
+    const privateKey = this.walletService.getMnemonicFromWallet(wallet.data, this.storage.getPinCode());
     if (privateKey) {
       this.copyToClipboard(privateKey);
     }

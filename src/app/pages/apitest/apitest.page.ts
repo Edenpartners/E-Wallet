@@ -7,7 +7,7 @@ import { AppVersion } from '@ionic-native/app-version/ngx';
 import { AppStorageService } from '../../providers/appStorage.service';
 import { Subscription } from 'rxjs';
 
-import { ethers } from 'ethers';
+import { ethers, Wallet, Contract } from 'ethers';
 
 import { WalletService } from '../../providers/wallet.service';
 
@@ -39,9 +39,8 @@ export class ApitestPage implements OnInit, OnDestroy {
   private userStateSubscription: Subscription;
   private userInfoText = '';
   private tednBalance = null;
-  private ethaddressToSend = '';
 
-  private pinCode = '';
+  private currentPinCode = '';
   private oldPinCode = '';
   private tdenTransactionList = [];
 
@@ -116,8 +115,8 @@ export class ApitestPage implements OnInit, OnDestroy {
   }
 
   setPinCode() {
-    if (this.pinCode.length === 6) {
-      this.storage.setPinNumber(this.pinCode, this.oldPinCode);
+    if (this.currentPinCode.length === 6) {
+      this.storage.setPinCode(this.currentPinCode, true, this.oldPinCode);
       this.ethWalletManager.refreshList(true);
     } else {
       this.feedbackUI.showErrorDialog('pin code error!');
@@ -173,17 +172,64 @@ export class ApitestPage implements OnInit, OnDestroy {
   }
 
   runEdnSignup() {
-    this.ednApi.signup().then(
-      userInfoResult => {
-        if (userInfoResult.data) {
-          this.storage.userInfo = userInfoResult.data;
+    const loading = this.feedbackUI.showRandomKeyLoading();
+
+    let signupPromise;
+    if (env.config.patches.useSigninForSignup) {
+      signupPromise = this.ednApi.signin();
+    } else {
+      signupPromise = this.ednApi.signup();
+    }
+
+    const onFailed = (error: any) => {
+      this.feedbackUI.showErrorAndRetryDialog(
+        error,
+        () => {
+          this.runEdnSignup();
+        },
+        () => {}
+      );
+    };
+    signupPromise.then(
+      ednResult => {
+        this.logger.debug('edn signin success !', ednResult);
+
+        if (ednResult.data && ednResult.data.email) {
+          this.storage.userInfo = ednResult.data;
+          loading.hide();
+        } else {
+          this.ednApi
+            .getUserInfo()
+            .then(
+              userInfoResult => {
+                if (userInfoResult.data) {
+                  this.storage.userInfo = userInfoResult.data;
+                } else {
+                  onFailed(new Error());
+                }
+              },
+              userInfoError => {
+                this.logger.debug(userInfoError);
+                this.logger.debug('userInfoError !');
+                onFailed(userInfoError);
+              }
+            )
+            .finally(() => {
+              loading.hide();
+            });
         }
       },
       ednError => {
+        loading.hide();
+
         this.logger.debug(ednError);
         this.logger.debug('edn signup failed !');
+
+        onFailed(ednError);
       }
     );
+
+    this.logger.debug('run edn signup');
   }
 
   runEdnSignin() {
@@ -194,27 +240,39 @@ export class ApitestPage implements OnInit, OnDestroy {
       signinPromise = this.ednApi.signin();
     }
 
-    signinPromise.then(
-      ednResult => {
-        this.logger.debug('edn signin success !');
+    return new Promise<any>((finalResolve, finalReject) => {
+      signinPromise.then(
+        ednResult => {
+          this.logger.debug('edn signin success !', ednResult);
 
-        this.ednApi.getUserInfo().then(
-          userInfoResult => {
-            if (userInfoResult.data) {
-              this.storage.userInfo = userInfoResult.data;
-            }
-          },
-          userInfoError => {
-            this.logger.debug(userInfoError);
-            this.logger.debug('userInfoError !');
+          if (ednResult.data && ednResult.data.email) {
+            this.storage.userInfo = ednResult.data;
+            finalResolve();
+          } else {
+            this.ednApi.getUserInfo().then(
+              userInfoResult => {
+                if (userInfoResult.data) {
+                  this.storage.userInfo = userInfoResult.data;
+                  finalResolve();
+                } else {
+                  finalReject(new Error());
+                }
+              },
+              userInfoError => {
+                this.logger.debug(userInfoError);
+                this.logger.debug('userInfoError !');
+                finalReject(userInfoError);
+              }
+            );
           }
-        );
-      },
-      ednError => {
-        this.logger.debug(ednError);
-        this.logger.debug('edn signin failed !');
-      }
-    );
+        },
+        ednError => {
+          finalReject(ednError);
+          this.logger.debug(ednError);
+          this.logger.debug('edn signin failed !');
+        }
+      );
+    });
   }
 
   signinFirebaseUserWithGoogle(isSignup) {
@@ -374,8 +432,8 @@ export class ApitestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
-    if (walletPw === null) {
+    const pinCode = this.storage.getPinCodeWithValidate(this.currentPinCode);
+    if (pinCode === null) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
@@ -410,7 +468,7 @@ export class ApitestPage implements OnInit, OnDestroy {
           toAddress: this.storage.coinHDAddress,
           srcAmount: adjustedAmount
         },
-        walletPw,
+        pinCode,
         onTransactionCreate,
         onTransactionReceipt
       )
@@ -499,6 +557,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       error => {}
     );
   }
+
   getCoinHDAddress() {
     this.ednApi.getCoinHDAddress().then(
       result => {
@@ -507,15 +566,25 @@ export class ApitestPage implements OnInit, OnDestroy {
       error => {}
     );
   }
+
   addEthAddress() {
-    if (this.ethaddressToSend.trim().length < 1) {
-      this.feedbackUI.showErrorDialog('input address to add');
+    const targetWallet = this.ethWalletManager.getSelectedWallet();
+    if (!targetWallet) {
+      this.feedbackUI.showErrorDialog('select wallet to add');
       return;
     }
 
-    this.ednApi.addEthAddress(this.ethaddressToSend).then(
+    const pinCode = this.storage.getPinCode();
+    const w: Wallet = this.walletService.createEthWalletInstance(targetWallet.data, pinCode);
+
+    if (!w) {
+      this.feedbackUI.showErrorDialog('invalid wallet');
+      return;
+    }
+
+    this.ednApi.addEthAddress(this.ednApi.utils.createEthAddressObject(w)).then(
       result => {
-        this.storage.addEthAddressToUserInfoTemporary(this.ethaddressToSend);
+        this.storage.addEthAddressToUserInfoTemporary(targetWallet.data.address);
         this.getUserInfo();
       },
       error => {
@@ -525,12 +594,21 @@ export class ApitestPage implements OnInit, OnDestroy {
   }
 
   delEthAddress() {
-    if (this.ethaddressToSend.trim().length < 1) {
-      this.feedbackUI.showErrorDialog('input address to remove');
+    const targetWallet = this.ethWalletManager.getSelectedWallet();
+    if (!targetWallet) {
+      this.feedbackUI.showErrorDialog('select wallet to remove');
       return;
     }
 
-    this.ednApi.removeEthAddress(this.ethaddressToSend).then(
+    const pinCode = this.storage.getPinCode();
+    const w: Wallet = this.walletService.createEthWalletInstance(targetWallet.data, pinCode);
+
+    if (!w) {
+      this.feedbackUI.showErrorDialog('invalid wallet');
+      return;
+    }
+
+    this.ednApi.removeEthAddress(this.ednApi.utils.createEthAddressObject(w)).then(
       result => {
         this.getUserInfo();
       },
@@ -543,9 +621,6 @@ export class ApitestPage implements OnInit, OnDestroy {
   onWalletSelected() {
     this.logger.debug('wallet selected');
     this.logger.debug(this.ethWalletManager.getSelectedWallet());
-    if (this.ethWalletManager.getSelectedWallet()) {
-      this.ethaddressToSend = this.ethWalletManager.getSelectedWallet().data.address;
-    }
   }
 
   /**
@@ -570,8 +645,8 @@ export class ApitestPage implements OnInit, OnDestroy {
       return;
     }
 
-    const walletPw = this.storage.getWalletPasswordWithValidate(this.pinCode);
-    if (!walletPw) {
+    const pinCode = this.storage.getPinCodeWithValidate(this.currentPinCode);
+    if (!pinCode) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.areEqual'));
       return;
     }
@@ -581,7 +656,7 @@ export class ApitestPage implements OnInit, OnDestroy {
       path,
       this.ethProviderMaker.selectedWalletProviderType,
       this.ethProviderMaker.selectedWalletConnectionInfo,
-      walletPw
+      pinCode
     );
 
     this.storage.addWallet(walletInfo);

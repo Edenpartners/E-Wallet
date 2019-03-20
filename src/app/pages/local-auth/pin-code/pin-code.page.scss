@@ -1,0 +1,127 @@
+@import '../../../../theme/common.scss';
+
+.page-content.pin-code-layout {
+  .header {
+    align-items: center;
+    height: 60%;
+    max-width: 80%;
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .comment {
+      font-size: var(--font-size-14);
+    }
+
+    ion-label,
+    .comment {
+      color: var(--color-text-light-1);
+    }
+  }
+
+  .footer {
+    width: 100%;
+  }
+
+  ion-item {
+    --background: transparent;
+  }
+
+  num-pad {
+    margin-top: 20px;
+  }
+
+
+
+  .code-box {
+    -webkit-box-shadow: inset 0px 10px 10px -5px rgba(0, 0, 0, 0.36);
+    -moz-box-shadow: inset 0px 10px 10px -5px rgba(0, 0, 0, 0.36);
+    box-shadow: inset 0px 10px 10px -5px rgba(0, 0, 0, 0.36);
+
+    //opacity: 0.56;
+    width: 40px;
+    height: 40px;
+    margin-left: var(--space-qt);
+    margin-right: var(--space-qt);
+    margin-top: var(--space-qt);
+    margin-bottom: var(--space-qt);
+
+    background: rgba(255, 255, 255, 0.56);
+  }
+
+  .code-box.selected {
+    background: var(--color-theme-1);
+  }
+
+  .pincode-error {
+    color: var(--color-error);
+    text-align: center;
+    font-size: var(--font-size-14);
+    font-weight: bold;
+  }
+}
+
+
+
+.page-content.touch-id-layout {
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 100px;
+
+    .comment-1 {
+      font-size: var(--font-size-18);
+      font-weight: var(--fw-bold);
+    }
+
+    .function-box {
+      margin-top: 28px;
+
+      .icon-box {
+        width: 88px;
+
+        .icon {
+          width: 88px;
+          height: 88px;
+        }
+
+        .icon.finger-print {
+          background-image: url('/assets/img/finger-print.svg');
+          background-size: 100% 100%;
+        }
+      }
+
+      .center {
+        width: 46px;
+        height: 1px;
+        background-color: #8c8794;
+        margin-top: 40px;
+      }
+    }
+  }
+}
+
+.underline-button {
+  color: var(--color-text-light-1);
+  font-size: var(--font-size-14);
+
+  .underline {
+    margin-top: 5px;
+    width: 100%;
+    display: inline-block;
+    height: 1px;
+    background-color: var(--color-text-light-1);
+  }
+}
+
+.underline-button.auth-with-pincode {
+  margin-bottom: 28px;
+}
+
+.underline-button.auth-with-fingerprint {
+  margin-top: 40px;
+}

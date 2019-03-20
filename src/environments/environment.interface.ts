@@ -27,12 +27,19 @@ export interface Environment {
     useSideMenuForDebug: boolean;
     patches: {
       useSignupForSignin: boolean;
+      useSigninForSignup: boolean;
+      useEthAddressObject: boolean;
     };
     ednCoinKey: string;
+    ednApiBaseAddress: string;
 
     pinCode: {
-      useDecryptPinCodeByPinCode: boolean;
       maxPinCodeRetryCount: number;
+
+      /**
+       * for test flows of app with fingerprint supported.
+       */
+      testFingerprintFeature: boolean;
     };
 
     simulateHardwareBackButton: boolean;

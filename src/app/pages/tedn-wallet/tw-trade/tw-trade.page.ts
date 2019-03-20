@@ -86,7 +86,11 @@ export class TwTradePage implements OnInit, OnDestroy {
     private analytics: AnalyticsService
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
@@ -100,6 +104,7 @@ export class TwTradePage implements OnInit, OnDestroy {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
                 this.tednBalanceFormatted = BigNumberHelper.removeZeroPrecision(ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL));
+                this.multilineLayout.updateLayout();
               });
             });
           }
@@ -126,18 +131,9 @@ export class TwTradePage implements OnInit, OnDestroy {
       });
     });
 
-    this.refreshList();
-  }
-
-  ngOnDestroy() {
-    this.logger.debug('destroy tw-trade');
-    this.subscriptionPack.clear();
-  }
-
-  ionViewWillEnter() {
-    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
-      if (this.pinCodeConfirmCallback && walletPw) {
-        this.pinCodeConfirmCallback(walletPw);
+    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, pinCode => {
+      if (this.pinCodeConfirmCallback && pinCode) {
+        this.pinCodeConfirmCallback(pinCode);
       }
       this.pinCodeConfirmCallback = null;
     });
@@ -145,11 +141,12 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.refreshList();
   }
 
-  ionViewDidEnter() {
-    //this.refreshList();
-  }
+  ionViewDidEnter() {}
 
-  ionViewWillLeave() {}
+  ionViewWillLeave() {
+    this.logger.debug('destroy tw-trade');
+    this.subscriptionPack.clear();
+  }
 
   ionViewDidLeave() {
     this.pinCodeConfirmCallback = null;
@@ -233,7 +230,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     return adjustedAmount;
   }
 
-  depositTEDN(walletPw?: string) {
+  depositTEDN(pinCode?: string) {
     const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(this.selectedEthWalletId);
     const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
@@ -245,7 +242,7 @@ export class TwTradePage implements OnInit, OnDestroy {
       return;
     }
 
-    if (!walletPw) {
+    if (!pinCode) {
       this.pinCodeConfirmCallback = this.depositTEDN;
       this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
       return;
@@ -285,7 +282,7 @@ export class TwTradePage implements OnInit, OnDestroy {
           srcAmount: adjustedAmount,
           customLogData: 'tedn.deposit.unposted'
         },
-        walletPw,
+        pinCode,
         onTransactionCreate,
         onTransactionReceipt
       )
@@ -316,7 +313,7 @@ export class TwTradePage implements OnInit, OnDestroy {
     this.withdrawTEDN();
   }
 
-  withdrawTEDN(walletPw?: string) {
+  withdrawTEDN(pinCode?: string) {
     const walletInfo: WalletTypes.WalletInfo = this.storage.findWalletById(this.selectedEthWalletId);
     const p: EthProviders.Base = this.eths.getProvider(walletInfo.info.provider);
 
@@ -326,7 +323,7 @@ export class TwTradePage implements OnInit, OnDestroy {
       return;
     }
 
-    if (!walletPw) {
+    if (!pinCode) {
       this.pinCodeConfirmCallback = this.withdrawTEDN;
       this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
       return;

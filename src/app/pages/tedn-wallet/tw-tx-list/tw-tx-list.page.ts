@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,20 +17,36 @@ import { AppStorageTypes, AppStorageService } from '../../../providers/appStorag
 import { DataTrackerService, ValueTracker } from '../../../providers/dataTracker.service';
 
 import { SubscriptionPack } from '../../../utils/listutil';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 
 import { FeedbackUIService } from '../../../providers/feedbackUI.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Consts } from '../../../../environments/constants';
-import { Events, IonInfiniteScroll } from '@ionic/angular';
+import { Events, IonInfiniteScroll, IonContent, IonInput } from '@ionic/angular';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
 import { TextUtils } from 'src/app/utils/textutils';
 import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
 import { BigNumberHelper } from '../../../utils/bigNumberHelper';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+
+import { startOfDay, endOfDay, subDays, addDays, endOfMonth, isSameDay, isSameMonth, addHours } from 'date-fns';
+import { Subject } from 'rxjs';
+import {
+  CalendarEvent,
+  CalendarDateFormatter,
+  CalendarEventAction,
+  CalendarEventTimesChangedEvent,
+  CalendarView,
+  DateFormatterParams,
+  CalendarMonthViewComponent
+} from 'angular-calendar';
+
+import { CustomDateFormatter } from './custom-date-formatter.provider';
+import { isDate } from 'util';
 
 const countPerPage = 30;
-const useDummyData = false;
+const useDummyData = true;
 
 interface TednTransaction {
   isSend: boolean;
@@ -45,26 +61,16 @@ interface TednTransaction {
 @Component({
   selector: 'app-tw-tx-list',
   templateUrl: './tw-tx-list.page.html',
-  styleUrls: ['./tw-tx-list.page.scss']
+  styleUrls: ['./tw-tx-list.page.scss'],
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    {
+      provide: CalendarDateFormatter,
+      useClass: CustomDateFormatter
+    }
+  ]
 })
 export class TwTxListPage implements OnInit, OnDestroy {
-  private subscriptionPack: SubscriptionPack = new SubscriptionPack();
-
-  walletId: string;
-  wallet: AppStorageTypes.TednWalletInfo;
-
-  isNoData = false;
-  txList: Array<TednTransaction> = [];
-  currentPage = 1;
-  totalCount = 0;
-
-  tednBalance = null;
-  tednBalanceFormatted = null;
-
-  @ViewChild('multilineLabel') multilineLabel;
-  @ViewChild('multilineLayout') multilineLayout: MultilineLayoutDirective;
-  @ViewChild('infiniteScroll') infiniteScroll: IonInfiniteScroll;
-
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -83,8 +89,48 @@ export class TwTxListPage implements OnInit, OnDestroy {
     private events: Events,
     private analytics: AnalyticsService
   ) {}
+  private subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
-  ngOnInit() {
+  walletId: string;
+  wallet: AppStorageTypes.TednWalletInfo;
+
+  isNoData = false;
+  txList: Array<TednTransaction> = [];
+  filteredTxList: Array<TednTransaction> = [];
+
+  currentPage = 1;
+  totalCount = 0;
+
+  tednBalance = null;
+  tednBalanceFormatted = null;
+
+  @ViewChild('multilineLabel') multilineLabel;
+  @ViewChild('multilineLayout') multilineLayout: MultilineLayoutDirective;
+
+  @ViewChild('historyScroll') historyScroll: IonContent;
+  @ViewChild('infiniteScroll') infiniteScroll: IonInfiniteScroll;
+
+  @ViewChild('searchForm') searchForm: ElementRef;
+  @ViewChild('searchAddressInput') searchAddressInput: IonInput;
+  @ViewChild('calendarContainer') calendarContainer: ElementRef;
+
+  searchAddress = '';
+
+  showCaneldar = false;
+  @ViewChild('monthView') calendarMonthView: CalendarMonthViewComponent;
+  calendarEvents: CalendarEvent[] = [];
+  calendarRefresh: Subject<any> = new Subject();
+  calendarViewDate: Date = new Date();
+  calendarActiveDayIsOpen = false;
+  calendarSelectedDate: Date = null;
+  calendarTopPosition = '0px';
+  calendarRightPosition = '0px';
+
+  ngOnInit() {}
+
+  ngOnDestroy() {}
+
+  ionViewWillEnter() {
     this.subscriptionPack.addSubscription(() => {
       return this.aRoute.params.subscribe(params => {
         try {
@@ -98,6 +144,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
               return tednTracker.trackObserver.subscribe(balance => {
                 this.tednBalance = balance;
                 this.tednBalanceFormatted = BigNumberHelper.removeZeroPrecision(ethers.utils.formatUnits(balance, Consts.TEDN_DECIMAL));
+                this.multilineLayout.updateLayout();
               });
             });
 
@@ -110,11 +157,9 @@ export class TwTxListPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  ionViewWillLeave() {
     this.subscriptionPack.clear();
   }
-
-  ionViewWillEnter() {}
 
   ionViewDidLeave() {}
 
@@ -122,6 +167,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
     this.infiniteScroll.disabled = false;
     this.isNoData = false;
     this.txList = [];
+    this.filteredTxList = [];
     this.currentPage = 1;
 
     if (evt && evt.target) {
@@ -135,13 +181,60 @@ export class TwTxListPage implements OnInit, OnDestroy {
     });
   }
 
-  doInfinite(evt) {
-    this.loadList(this.currentPage + 1, () => {
-      this.infiniteScroll.complete();
-      if (this.txList.length >= this.totalCount) {
-        this.infiniteScroll.disabled = true;
-      }
+  doInfinite(evt?: any): Promise<any> {
+    return new Promise<any>((finalResolve, finalReject) => {
+      this.loadList(this.currentPage + 1, () => {
+        this.infiniteScroll.complete();
+        if (this.txList.length >= this.totalCount) {
+          this.infiniteScroll.disabled = true;
+        }
+
+        finalResolve();
+      });
     });
+  }
+
+  filterTxList() {
+    if (!this.searchAddress && !this.calendarSelectedDate) {
+      this.filteredTxList = this.txList;
+    } else {
+      this.filteredTxList = [];
+      for (let i = 0; i < this.txList.length; i++) {
+        let addToFilteredList = true;
+        const tx = this.txList[i];
+        if (this.searchAddress) {
+          let isAddressMatched = false;
+          if (tx.from_addr && tx.from_addr.indexOf(this.searchAddress) >= 0) {
+            isAddressMatched = true;
+          }
+          if (tx.to_addr && tx.to_addr.indexOf(this.searchAddress) >= 0) {
+            isAddressMatched = true;
+          }
+          if (!isAddressMatched) {
+            addToFilteredList = false;
+          }
+        }
+
+        if (this.calendarSelectedDate !== null) {
+          let isDateMatched = false;
+          if (
+            tx.regdate.getFullYear() === this.calendarSelectedDate.getFullYear() &&
+            tx.regdate.getMonth() === this.calendarSelectedDate.getMonth() &&
+            tx.regdate.getDate() === this.calendarSelectedDate.getDate()
+          ) {
+            isDateMatched = true;
+          }
+
+          if (!isDateMatched) {
+            addToFilteredList = false;
+          }
+        }
+
+        if (addToFilteredList) {
+          this.filteredTxList.push(tx);
+        }
+      }
+    }
   }
 
   loadList(pageNum: number, onComplete: () => void) {
@@ -173,6 +266,8 @@ export class TwTxListPage implements OnInit, OnDestroy {
           regdateText: this.getDateString(item.regdate)
         });
       }
+
+      this.filterTxList();
 
       onComplete();
     };
@@ -210,8 +305,8 @@ export class TwTxListPage implements OnInit, OnDestroy {
       }
 
       setTimeout(() => {
-        onSuccess(resData);
         this.feedbackUI.hideLoading();
+        onSuccess(resData);
       }, 1000);
     } else {
       this.ednApi
@@ -263,5 +358,97 @@ export class TwTxListPage implements OnInit, OnDestroy {
     });
 
     this.rs.navigateByUrl(`/tedn-withdraw/${this.walletId}`);
+  }
+
+  /**
+   * Calendar Features
+   */
+
+  getCalendarMonth(): number {
+    return this.calendarViewDate.getMonth();
+  }
+
+  toggleCalendar() {
+    if (this.showCaneldar) {
+      this.showCaneldar = false;
+    } else {
+      this.showCaneldar = true;
+
+      const formElement: HTMLElement = this.searchForm.nativeElement;
+      const searchFormRect: ClientRect = formElement.getBoundingClientRect();
+      this.logger.debug(searchFormRect);
+      this.calendarTopPosition = searchFormRect.bottom + 'px';
+    }
+  }
+
+  calendarDayClicked(evt: any) {
+    this.logger.debug(evt);
+    this.logger.debug('calendar day clicked', evt.day.date);
+    //if (isSameMonth(date, this.calendarViewDate)) {
+    this.calendarViewDate = new Date(evt.day.date);
+    //}
+
+    this.calendarSelectedDate = new Date(evt.day.date);
+    if (!this.calendarActiveDayIsOpen) {
+      this.calendarActiveDayIsOpen = true;
+    }
+
+    this.runSearch();
+  }
+
+  loadAllHistory(): Promise<any> {
+    return new Promise<any>((finalResolve, finalReject) => {
+      if (!this.infiniteScroll.disabled) {
+        this.doInfinite().then(() => {
+          this.loadAllHistory().then(
+            () => {
+              finalResolve();
+            },
+            () => {
+              finalReject();
+            }
+          );
+        });
+      } else {
+        finalResolve();
+      }
+    });
+  }
+  /**
+   * Search
+   */
+  async runSearch() {
+    this.searchAddressInput.getInputElement().then((input: HTMLInputElement) => {
+      input.blur();
+    });
+
+    this.logger.debug('run search');
+    if (!this.infiniteScroll.disabled) {
+      await this.loadAllHistory();
+    }
+
+    this.filterTxList();
+  }
+
+  historyScrollToTop() {
+    this.historyScroll.scrollToTop();
+  }
+
+  async historyScrollToBottom() {
+    if (!this.infiniteScroll.disabled) {
+      await this.loadAllHistory();
+
+      this.feedbackUI.showLoading();
+      setTimeout(() => {
+        this.feedbackUI.hideLoading();
+        this.historyScroll.scrollToBottom();
+      }, 1000);
+    } else {
+      this.historyScroll.scrollToBottom();
+    }
+  }
+
+  onHistoryListChange() {
+    this.logger.debug('on history list change');
   }
 }

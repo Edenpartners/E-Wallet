@@ -17,9 +17,7 @@ import { Facebook } from '@ionic-native/facebook/ngx';
 
 import { AppStorageService, AppStorageTypes } from './appStorage.service';
 import { HttpHelperService } from './httpHelper.service';
-
-const API_BASE_ADDRESS = 'https://api-ep.edenchain.io/api';
-//const API_BASE_ADDRESS = 'https://edencore-end-point-dot-manifest-ivy-213501.appspot.com/api';
+import { ethers, Wallet, Contract } from 'ethers';
 
 /**
 {
@@ -46,6 +44,50 @@ export class JsonRpcResultError extends Error {
   }
 }
 
+export namespace EdnRemoteApiTypes {
+  export interface EthAddressObject {
+    address: string;
+    public_key: string;
+    signature: string;
+  }
+}
+
+class EdnRemoteApiServiceUtil {
+  /**
+   *  create request params for add / del eth addresses
+   */
+  createEthAddressObject(w: Wallet): EdnRemoteApiTypes.EthAddressObject {
+    const ethSigningkey: ethers.utils.SigningKey = new ethers.utils.SigningKey(w.privateKey);
+
+    const ethMessageHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(w.address));
+    const ethMessageDigestArrify = ethers.utils.arrayify(ethMessageHash);
+    const ethSignature: ethers.utils.Signature = ethSigningkey.signDigest(ethMessageDigestArrify);
+
+    //the result must be same with : https://github.com/pubkey/eth-crypto#sign
+    const ethJoinedSignature = ethers.utils.joinSignature(ethSignature);
+
+    // console.log(
+    //   'ethers test : ',
+    //   ethSigningkey.address,
+    //   ethSigningkey.publicKey,
+    //   ethSigningkey.privateKey,
+    //   ethers.utils.computeAddress(ethers.utils.arrayify(ethSigningkey.publicKey))
+    // );
+
+    let publicKey = ethSigningkey.publicKey;
+    //remove '0x' prefix from public key
+    if (publicKey.startsWith('0x')) {
+      publicKey = publicKey.substr(2);
+    }
+
+    return {
+      address: w.address,
+      public_key: publicKey,
+      signature: ethJoinedSignature
+    };
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -63,19 +105,21 @@ export class EdnRemoteApiService {
     private httpHelper: HttpHelperService
   ) {}
 
+  public utils = new EdnRemoteApiServiceUtil();
+
   get baseUrl() {
     if (this.platform.is('cordova')) {
-      return API_BASE_ADDRESS;
+      return env.config.ednApiBaseAddress;
     } else if (this.platform.is('desktop')) {
       const location = window.location;
       if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         const result = location.protocol + '//' + location.host + '/api';
         return result;
       } else {
-        return API_BASE_ADDRESS;
+        return env.config.ednApiBaseAddress;
       }
     } else {
-      return API_BASE_ADDRESS;
+      return env.config.ednApiBaseAddress;
     }
   }
 
@@ -380,11 +424,29 @@ export class EdnRemoteApiService {
   // }
   judgeEdnResponseResult(response: any, resolve: (value?: {} | PromiseLike<{}>) => void, reject: (reason?: any) => void) {
     const data = response;
-    if (data && data.id && data.result && data.result.err_code !== undefined && data.result.err_code !== null) {
-      if (String(data.result.err_code).trim() === '0') {
+    if (
+      data &&
+      data.id &&
+      data.result &&
+      ((data.result.err_code !== undefined && data.result.err_code !== null) ||
+        (data.result.code !== undefined && data.result.code !== null))
+    ) {
+      let errCodeKey = 'err_code';
+      if (data.result.err_code !== undefined && data.result.err_code !== null) {
+        errCodeKey = 'err_code';
+      } else if (data.result.code !== undefined && data.result.code !== null) {
+        errCodeKey = 'code';
+      }
+
+      if (String(data.result[errCodeKey]).trim() === '0') {
         resolve(data.result);
       } else {
-        let msg = data.result.err_code + ' / ' + data.result.msg;
+        let msg = data.result[errCodeKey];
+        if (data.result.msg) {
+          msg += ' / ' + data.result.msg;
+        } else if (data.result.message) {
+          msg += ' / ' + data.result.message;
+        }
         if (!msg) {
           msg = '';
         }
@@ -442,16 +504,22 @@ export class EdnRemoteApiService {
     return this.createBasicRequestPromise('user.getbalance');
   }
 
-  addEthAddress(ethaddress: string): Promise<any> {
-    return this.createBasicRequestPromise('eth.add_address', {
-      address: ethaddress
-    });
+  utilCreateEthAddressObject() {}
+
+  addEthAddress(obj: EdnRemoteApiTypes.EthAddressObject): Promise<any> {
+    if (env.config.patches.useEthAddressObject) {
+      return this.createBasicRequestPromise('eth.add_address', obj);
+    } else {
+      return this.createBasicRequestPromise('eth.add_address', { address: obj.address });
+    }
   }
 
-  removeEthAddress(ethaddress: string): Promise<any> {
-    return this.createBasicRequestPromise('eth.del_address', {
-      address: ethaddress
-    });
+  removeEthAddress(obj: EdnRemoteApiTypes.EthAddressObject): Promise<any> {
+    if (env.config.patches.useEthAddressObject) {
+      return this.createBasicRequestPromise('eth.del_address', obj);
+    } else {
+      return this.createBasicRequestPromise('eth.del_address', { address: obj.address });
+    }
   }
 
   getCoinHDAddress() {

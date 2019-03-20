@@ -1,10 +1,10 @@
 <ion-header>
   <common-nav-bar title="{{ isCreation ? ('CreatePinTitle' | translate) : ('ConfirmPinTitle' | translate) }}"
-    (handleBack)="handleBack()" [hideBackButton]="(this.isCreation && !this.isConfirmStep)"></common-nav-bar>
+    (handleBack)="handleBack()" [hideBackButton]="isBackButtonHidden()"></common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper" scrollY="false">
-  <div class="page-content fill hcf-layout flex-col-h-center">
+  <div [hidden]="isFingerPrintMode" class="page-content pin-code-layout fill hcf-layout flex-col-h-center">
     <div class="hcf-layout header">
       <div class="content flex-ch-centered">
 
@@ -37,6 +37,12 @@
         </div>
         <div class="pincode-error margin-top-18" *ngIf="isPinCodeLocked()" [innerHTML]="getLockedComment() | safeHtml">
         </div>
+
+        <div *ngIf="isFingerPrintEnabled" class="underline-button auth-with-fingerprint flex-ch-centered"
+          (click)="onAuthWithFingerPrintClick()">
+          <div>{{ 'AuthWithTouchID' | translate}}</div>
+          <div class="underline"></div>
+        </div>
       </div>
 
       <div class="footer" *ngIf="isCreation && !isConfirmStep">
@@ -46,6 +52,29 @@
         </ion-button>
       </div>
     </div>
+
     <num-pad [disabled]="isPinCodeLocked()" class="content" style="width:100%;" (change)="onNumChange()"></num-pad>
+  </div>
+
+  <div [hidden]="!isFingerPrintMode" class="page-content touch-id-layout fill hcf-layout flex-col-h-center">
+    <div class="header">
+    </div>
+    <div class="content flex-ch-centered">
+      <ion-label color="text-light-1" class="title comment-1 text-center">
+        {{ 'TouchIDLogon' | translate }}
+      </ion-label>
+
+      <div class="flex-h-dir function-box" (click)="openFingerPrintAuth()">
+        <div class="icon-box">
+          <div class="icon finger-print"></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="underline-button auth-with-pincode flex-ch-centered" (click)="onAuthWithPinCodeClick()">
+        <div>{{ 'AuthWithPinCode' | translate}}</div>
+        <div class="underline">&nbsp;</div>
+      </div>
+    </div>
   </div>
 </ion-content>

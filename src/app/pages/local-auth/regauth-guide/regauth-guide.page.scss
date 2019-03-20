@@ -1,0 +1,89 @@
+@import '../../../../theme/common.scss';
+
+.inner-content {
+  height: 100%;
+  align-items: center;
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .comment-1 {
+      font-size: var(--font-size-18);
+      font-weight: var(--fw-bold);
+    }
+
+    .function-box {
+      margin-top: 50px;
+
+      .icon-box {
+        width: 88px;
+
+        .icon {
+          width: 88px;
+          height: 88px;
+        }
+
+        .icon.finger-print {
+          background-image: url('/assets/img/finger-print.svg');
+          background-size: 100% 100%;
+        }
+      }
+
+      .center {
+        width: 46px;
+        height: 1px;
+        background-color: #8c8794;
+        margin-top: 40px;
+      }
+    }
+
+    .comment-2 {
+      margin-top: 42px;
+      color: var(--color-text-light-1);
+      font-size: var(--font-size-14);
+      text-align: center;
+      width: 100%;
+    }
+
+    .comment-2.done {
+      .icon {
+        width: 30px;
+        height: 30px;
+        background-image: url('/assets/img/done.svg');
+        background-size: 100% 100%;
+      }
+
+      .text {
+        margin-top: 11px;
+        font-size: var(--font-size-09);
+        font-weight: var(--fw-bold);
+        color: var(--color-theme-1);
+      }
+    }
+  }
+
+
+}
+
+.footer {
+  width: 100%;
+
+  ion-button {
+    flex-grow: 1;
+  }
+
+  ion-button.later {
+    margin-right: 3px;
+  }
+
+  ion-button.using {
+    margin-left: 3px;
+  }
+
+}
+
+ion-item {
+  --background: transparent;
+}

@@ -15,6 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
+import { Wallet } from 'ethers';
 
 const AnalyticsCategory = 'import wallet';
 const AnalyticsCategory2 = 'import wallet2';
@@ -78,11 +79,6 @@ export class RestoreWalletPage implements OnInit {
     }
     this.logger.debug(this.userInputMnemonic);
 
-    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
-      this.feedbackUI.showErrorDialog(this.translate.instant('valid.pincode.required'), this.getErrorAnalytics());
-      return;
-    }
-
     const loading = this.feedbackUI.showRandomKeyLoading();
 
     setTimeout(() => {
@@ -126,7 +122,7 @@ export class RestoreWalletPage implements OnInit {
           path,
           EthProviders.Type.KnownNetwork,
           env.config.ednEthNetwork,
-          this.storage.getWalletPassword()
+          this.storage.getPinCode()
         );
       } catch (e) {
         this.logger.debug(e);
@@ -144,7 +140,15 @@ export class RestoreWalletPage implements OnInit {
         return;
       }
 
-      this.ednApi.addEthAddress(walletInfo.address).then(
+      const pinCode = this.storage.getPinCode();
+      const w: Wallet = this.walletService.createEthWalletInstance(walletInfo, pinCode);
+
+      if (!w) {
+        finalReject(new Error('invalid wallet'));
+        return;
+      }
+
+      this.ednApi.addEthAddress(this.ednApi.utils.createEthAddressObject(w)).then(
         result => {
           this.storage.addEthAddressToUserInfoTemporary(walletInfo.address);
           this.storage.addWallet(walletInfo);

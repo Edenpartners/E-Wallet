@@ -43,9 +43,7 @@ export class IonComponentUtils {
 
   static blurAllInputs() {
     IonComponentUtils.blurElements(document.getElementsByTagName('ion-input'));
-    IonComponentUtils.blurElements(
-      document.getElementsByTagName('ion-textarea')
-    );
+    IonComponentUtils.blurElements(document.getElementsByTagName('ion-textarea'));
     IonComponentUtils.blurElements(document.getElementsByTagName('input'));
   }
 
@@ -62,22 +60,20 @@ export class IonComponentUtils {
     }
   }
 
+  /**
+   * Ionic has a strange bug on exchanging pages.
+   * It related with focus behaviour of Input elements.
+   * And it will clear with this.
+   */
   static blurActiveElement() {
     IonComponentUtils.blurAllInputs();
 
-    if (
-      document.activeElement &&
-      document.activeElement instanceof HTMLElement
-    ) {
+    if (document.activeElement && document.activeElement instanceof HTMLElement) {
       const el = document.activeElement as HTMLElement;
       const tagName = el.tagName;
       if (tagName) {
         const lowerTagName = tagName.toLowerCase();
-        if (
-          lowerTagName.indexOf('input') >= 0 ||
-          lowerTagName.indexOf('textarea') >= 0 ||
-          lowerTagName.indexOf('button') >= 0
-        ) {
+        if (lowerTagName.indexOf('input') >= 0 || lowerTagName.indexOf('textarea') >= 0 || lowerTagName.indexOf('button') >= 0) {
           el.blur();
         }
       }

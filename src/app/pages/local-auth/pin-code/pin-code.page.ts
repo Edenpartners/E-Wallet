@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { RouterService } from '../../../providers/router.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 
 import { NGXLogger } from 'ngx-logger';
 
@@ -19,6 +19,7 @@ import { environment } from 'src/environments/environment';
 import { Environment } from 'src/environments/environment.interface';
 
 import { String, StringBuilder } from 'typescript-string-operations';
+import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
 
 const AnalyticsCategory = 'confirm pin';
 
@@ -36,12 +37,13 @@ export class PinCodePage implements OnInit, OnDestroy {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private faio: FingerprintAIO
   ) {
     this.logger.trace('init pin-code');
-
     this.env = environment;
   }
+
   @ViewChild(NumPad) numPad: NumPad;
 
   isModal = false;
@@ -50,6 +52,9 @@ export class PinCodePage implements OnInit, OnDestroy {
   isComplete = false;
 
   isBlocked = false;
+
+  isFingerPrintMode = false;
+  isFingerPrintEnabled = false;
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
@@ -72,7 +77,7 @@ export class PinCodePage implements OnInit, OnDestroy {
     this.numPad.clear();
 
     this.subscriptionPack.addSubscription(() => {
-      return this.aRoute.queryParamMap.subscribe(query => {
+      return this.aRoute.queryParamMap.subscribe((query: ParamMap) => {
         try {
           if (query.get('isCreation') !== undefined && query.get('isCreation') !== null) {
             const creationVal = query.get('isCreation');
@@ -88,6 +93,29 @@ export class PinCodePage implements OnInit, OnDestroy {
             }
           } else {
             this.isModal = true;
+
+            const onFingerPrintAvailable = () => {
+              this.isFingerPrintEnabled = true;
+              if (this.storage.preferences.useFingerprintAuth || this.env.config.pinCode.testFingerprintFeature) {
+                this.setFingerPrintMode(true);
+              } else {
+                this.setFingerPrintMode(false);
+              }
+            };
+
+            if (this.env.config.pinCode.testFingerprintFeature) {
+              onFingerPrintAvailable();
+            } else {
+              this.faio.isAvailable().then(
+                () => {
+                  onFingerPrintAvailable();
+                },
+                () => {
+                  this.isFingerPrintEnabled = false;
+                  this.setFingerPrintMode(false);
+                }
+              );
+            }
           }
         } catch (e) {
           this.logger.debug(e);
@@ -105,17 +133,46 @@ export class PinCodePage implements OnInit, OnDestroy {
     this.numPad.clear();
   }
 
+  isBackButtonHidden(): boolean {
+    if (this.isCreation) {
+      if (this.isConfirmStep) {
+        return false;
+      }
+
+      if (this.rs.isCurrentUrlIsRoot()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   handleBack(): boolean {
+    this.logger.debug('handle back customized');
+
     if (this.isModal) {
       this.events.publish(Consts.EVENT_PIN_CODE_RESULT, null);
       this.events.publish(Consts.EVENT_CLOSE_MODAL);
       return true;
     } else {
-      //restart creation
-      if (this.isCreation && this.isConfirmStep) {
-        this.isConfirmStep = false;
-        this.numPad.clear();
-        return true;
+      if (this.isCreation) {
+        if (this.isConfirmStep) {
+          this.logger.debug('restart creation');
+          //restart creation
+          this.isConfirmStep = false;
+          this.numPad.clear();
+          return true;
+        }
+
+        if (this.rs.isCurrentUrlIsRoot()) {
+          this.logger.debug('this is root url will stay here');
+          return true;
+        } else {
+          this.logger.debug('this is not an root url goto back');
+          if (this.rs.canGoBack()) {
+            this.rs.goBack();
+          }
+        }
       }
     }
 
@@ -131,13 +188,22 @@ export class PinCodePage implements OnInit, OnDestroy {
     this.isConfirmStep = true;
   }
 
+  performAuthSuccess() {
+    this.storage.pinCodeFailedCount = 0;
+    this.storage.nextPinCodeEnableTime = null;
+
+    this.events.publish(Consts.EVENT_PIN_CODE_RESULT, this.storage.getPinCode());
+    this.isComplete = true;
+    this.events.publish(Consts.EVENT_CLOSE_MODAL);
+  }
+
   onNumChange() {
     //save to localStorage if creation mode
     if (this.isCreation) {
       if (this.isConfirmStep) {
         if (this.numPad.getUserInputCount() === Consts.PIN_CODE_LENGTH) {
           if (this.numPad.compareWithSavedInput()) {
-            this.storage.setPinNumber(this.numPad.getDecryptedUserInput(), '');
+            this.storage.setPinCode(this.numPad.getDecryptedUserInput(), true, '');
             this.numPad.clear();
             this.isComplete = true;
             this.storage.notifyToUserStateObservers();
@@ -159,13 +225,8 @@ export class PinCodePage implements OnInit, OnDestroy {
 
         const code = this.numPad.getDecryptedUserInput();
         this.numPad.clearPinCode();
-        if (this.storage.isValidPinNumber(code)) {
-          this.storage.pinCodeFailedCount = 0;
-          this.storage.nextPinCodeEnableTime = null;
-
-          this.events.publish(Consts.EVENT_PIN_CODE_RESULT, this.storage.getWalletPassword(code));
-          this.isComplete = true;
-          this.events.publish(Consts.EVENT_CLOSE_MODAL);
+        if (this.storage.isValidPinCode(code)) {
+          this.performAuthSuccess();
         } else {
           this.storage.pinCodeFailedCount = this.storage.pinCodeFailedCount + 1;
           if (this.isPinCodeOverFailed()) {
@@ -274,6 +335,39 @@ export class PinCodePage implements OnInit, OnDestroy {
       this.nextPinCodeEnableRemainTimeDisplay = String.Format('{0}', parseInt(remainSecs, 10));
     } catch (error) {
       this.logger.debug(error);
+    }
+  }
+
+  onAuthWithPinCodeClick() {
+    this.setFingerPrintMode(false);
+  }
+
+  onAuthWithFingerPrintClick() {
+    if (this.isFingerPrintEnabled) {
+      this.setFingerPrintMode(true);
+    }
+  }
+
+  openFingerPrintAuth() {
+    this.faio.show(Consts.FINGER_PRINT_OPTIONS).then(
+      result => {
+        //android's result is like this but it's not an from Android offical API. it's just plugin's features.
+        //{ "withFingerprint": "QtdRCqUmh3sm9jFVfiiZeg==\n" }
+        //ios does not have any result
+
+        this.logger.debug('fingerprint success');
+        this.performAuthSuccess();
+      },
+      error => {
+        this.feedbackUI.showErrorDialog(error);
+      }
+    );
+  }
+
+  setFingerPrintMode(val: boolean) {
+    this.isFingerPrintMode = val;
+    if (this.isFingerPrintMode) {
+      this.openFingerPrintAuth();
     }
   }
 }

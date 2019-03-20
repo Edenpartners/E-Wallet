@@ -91,9 +91,9 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       });
     });
 
-    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
-      if (this.pinCodeConfirmCallback && walletPw) {
-        this.pinCodeConfirmCallback(walletPw);
+    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, pinCode => {
+      if (this.pinCodeConfirmCallback && pinCode) {
+        this.pinCodeConfirmCallback(pinCode);
       }
       this.pinCodeConfirmCallback = null;
     });
@@ -141,7 +141,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
     this.transferERC20Token();
   }
 
-  transferERC20Token(walletPw?: string) {
+  transferERC20Token(pinCode?: string) {
     if (!this.toAddress.trim()) {
       this.feedbackUI.showErrorDialog(this.translate.instant('valid.wallet-address.required'));
 
@@ -182,7 +182,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
       const ednAdjustedBalance = ednTracker.value.adjustedBalance;
     }
 
-    if (!walletPw) {
+    if (!pinCode) {
       this.pinCodeConfirmCallback = this.transferERC20Token;
       this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
       return;
@@ -213,7 +213,7 @@ export class EwSendtoPage implements OnInit, OnDestroy {
           toAddress: this.toAddress.trim(),
           srcAmount: adjustedAmount
         },
-        walletPw,
+        pinCode,
         onTransactionCreate,
         onTransactionReceipt
       )

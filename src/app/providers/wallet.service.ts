@@ -9,6 +9,7 @@ import { CryptoHelper } from '../utils/cryptoHelper';
 
 import { env } from '../../environments/environment';
 import { NGXLogger } from 'ngx-logger';
+import { Consts } from 'src/environments/constants';
 
 export namespace WalletTypes {
   export enum ContractType {
@@ -65,11 +66,17 @@ export namespace WalletTypes {
 export class WalletService {
   constructor(private logger: NGXLogger, private eths: EthService) {}
 
+  private getHashedGlobalSecret(): string {
+    return CryptoJS.SHA256(Consts.GLOBAL_SECRET).toString(CryptoJS.enc.Base64);
+  }
+
   createEthWalletInstance(walletInfo: WalletTypes.EthWalletInfo, password: string): Wallet {
     if (!password) {
       return null;
     }
-    const ki = CryptoHelper.getKeyAndIV(password, walletInfo.info.data.salt);
+
+    const walletPassword = password + this.getHashedGlobalSecret();
+    const ki = CryptoHelper.getKeyAndIV(walletPassword, walletInfo.info.data.salt);
     const decPrivateKey = CryptoJS.AES.decrypt(walletInfo.info.data.privateKey, ki.key, {
       iv: ki.iv
     }).toString(CryptoJS.enc.Utf8);
@@ -132,8 +139,9 @@ export class WalletService {
       return null;
     }
 
+    const walletPassword = password + this.getHashedGlobalSecret();
     const salt = CryptoHelper.createRandSalt();
-    const ki = CryptoHelper.getKeyAndIV(password, salt);
+    const ki = CryptoHelper.getKeyAndIV(walletPassword, salt);
     const encryptedMWords = CryptoJS.AES.encrypt(mWords, ki.key, {
       iv: ki.iv
     }).toString();
@@ -144,7 +152,7 @@ export class WalletService {
       iv: ki.iv
     }).toString();
 
-    const decKi = CryptoHelper.getKeyAndIV(password, salt);
+    const decKi = CryptoHelper.getKeyAndIV(walletPassword, salt);
     const decMWords = CryptoJS.AES.decrypt(encryptedMWords, decKi.key, {
       iv: decKi.iv
     }).toString(CryptoJS.enc.Utf8);

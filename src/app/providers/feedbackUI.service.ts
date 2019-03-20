@@ -197,6 +197,20 @@ export class FeedbackUIService {
       result = opt;
     }
 
+    //to avoid 'Optional("xxx")' text for iOS
+    if (result.message) {
+      const regexExp = /Optional\("(.*)"\)/;
+      const match = regexExp.exec(result.message);
+      let realMessage: string = null;
+      if (match != null && match.length > 1) {
+        realMessage = match[1];
+      }
+
+      if (realMessage) {
+        result.message = realMessage;
+      }
+    }
+
     if (result && result.cancelDisabled === undefined) {
       result.cancelDisabled = false;
     }

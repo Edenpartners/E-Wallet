@@ -17,6 +17,7 @@ import { Consts } from 'src/environments/constants';
 import * as CryptoJS from 'crypto-js';
 import { CryptoHelper } from '../utils/cryptoHelper';
 import { SQLite, SQLiteObject, DbTransaction } from '@ionic-native/sqlite/ngx';
+import { stringify } from 'querystring';
 
 export namespace AppStorageTypes {
   export interface User {
@@ -25,9 +26,12 @@ export namespace AppStorageTypes {
   }
 
   export interface UserAdditionalInfo {
-    pinNumber?: string;
     termsAndConditionsAllowed: boolean;
     privacyAllowed: boolean;
+  }
+
+  export interface Preferences {
+    useFingerprintAuth: boolean;
   }
 
   export interface UserInfo {
@@ -114,9 +118,12 @@ enum StoreKeys {
   _additionalInfo = '_additionalInfo',
   pinCode = 'pin-code',
   salt = 'salt',
+  preferences = 'preferences',
 
   pinCodeFailedCount = 'pinCodeFailedCount',
-  nextPinCodeEnableTime = 'nextPinCodeEnableTime'
+  nextPinCodeEnableTime = 'nextPinCodeEnableTime',
+
+  internalVersionNumber = 'internalVersionNumber'
 }
 
 @Injectable({
@@ -188,6 +195,11 @@ export class AppStorageService {
     //this.afAuth.authState.subscribe((user: firebase.User) => {
   }
 
+  wipeAllData() {
+    this.store.clear();
+    this._wallets = [];
+  }
+
   wipeData() {
     this.userInfo = null;
     this.store.remove(StoreKeys._additionalInfo);
@@ -209,7 +221,14 @@ export class AppStorageService {
     }
   }
 
-  get hasPinNumber(): boolean {
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Pin Code
+   * ==========================================================
+   * ==========================================================
+   */
+  get hasPinCode(): boolean {
     //null | undefined | empty
     if (!this.store.get(StoreKeys.pinCode)) {
       return false;
@@ -217,30 +236,18 @@ export class AppStorageService {
     return true;
   }
 
-  get additionalInfo(): AppStorageTypes.UserAdditionalInfo {
-    const storedVal = this.store.get(StoreKeys._additionalInfo);
-
-    if (!storedVal) {
-      return {
-        termsAndConditionsAllowed: false,
-        privacyAllowed: false
-      };
-    }
-    return storedVal;
+  private getHashedGlobalSecret(): string {
+    return CryptoJS.SHA256(Consts.GLOBAL_SECRET).toString(CryptoJS.enc.Base64);
   }
 
-  set additionalInfo(val: AppStorageTypes.UserAdditionalInfo) {
-    this.store.set(StoreKeys._additionalInfo, val);
-  }
-
-  setPinNumber(val: string, oldPincode: string): boolean {
+  setPinCode(val: string, verifyOldPinCode: boolean = true, oldPincode: string = ''): boolean {
     this.logger.debug('=============== SET PINNUMBER');
 
     if (oldPincode === null || oldPincode === undefined) {
       oldPincode = '';
     }
 
-    if (!this.isValidPinNumber(oldPincode)) {
+    if (verifyOldPinCode && !this.isValidPinCode(oldPincode)) {
       this.logger.debug('CANCEL');
       return false;
     }
@@ -248,27 +255,26 @@ export class AppStorageService {
     const newSalt = this.randSalt();
     const mergedVal = newSalt + val;
     const hashedVal = CryptoJS.SHA256(mergedVal).toString(CryptoJS.enc.Base64);
-    this.logger.debug(newSalt, val, hashedVal);
+    this.logger.debug(newSalt, val, mergedVal, hashedVal);
 
-    let newPinCodeToSave = null;
-    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
-      newPinCodeToSave = CryptoJS.AES.encrypt(hashedVal, val).toString();
-    } else {
-      newPinCodeToSave = hashedVal;
-    }
+    const newPinCodeToSave = hashedVal;
 
     const existingWallets = this.getWallets(false, false);
     if (existingWallets.length > 0) {
-      const walletPw: string = this.getWalletPassword(oldPincode);
-      this.logger.debug('wallet pw : ' + walletPw);
+      const oldPinCode: string = this.getPinCode();
+      this.logger.debug('wallet pw : ' + oldPinCode);
 
-      if (walletPw !== null) {
+      if (oldPinCode !== null) {
+        const globalSecret = this.getHashedGlobalSecret();
+        const newWalletPinCode = newPinCodeToSave + globalSecret;
+        const oldWalletPinCode = oldPinCode + globalSecret;
+
         existingWallets.forEach((item: WalletTypes.WalletInfo) => {
           if (item.type === WalletTypes.WalletType.Ethereum) {
             const ethItem: WalletTypes.EthWalletInfo = item;
 
             const walletSalt = ethItem.info.data.salt;
-            const decKi = CryptoHelper.getKeyAndIV(walletPw, walletSalt);
+            const decKi = CryptoHelper.getKeyAndIV(oldWalletPinCode, walletSalt);
             const decMWords = CryptoJS.AES.decrypt(ethItem.info.data.mnemonic, decKi.key, {
               iv: decKi.iv
             }).toString(CryptoJS.enc.Utf8);
@@ -280,7 +286,7 @@ export class AppStorageService {
             }).toString(CryptoJS.enc.Utf8);
 
             const newEthWalletSalt = CryptoHelper.createRandSalt();
-            const newKi = CryptoHelper.getKeyAndIV(hashedVal, newEthWalletSalt);
+            const newKi = CryptoHelper.getKeyAndIV(newWalletPinCode, newEthWalletSalt);
             const encryptedMWords = CryptoJS.AES.encrypt(decMWords, newKi.key, {
               iv: newKi.iv
             }).toString();
@@ -316,7 +322,7 @@ export class AppStorageService {
     return true;
   }
 
-  isValidPinNumber(guessingPinCode: string): boolean {
+  isValidPinCode(guessingPinCode: string): boolean {
     if (!guessingPinCode === null || !guessingPinCode === undefined) {
       return false;
     }
@@ -324,14 +330,9 @@ export class AppStorageService {
     this.logger.debug('is valid pin? : ' + guessingPinCode);
 
     let pinNumberToCompere = null;
-    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
-      const savingDecryptedHashedVal = this.getDecryptedPinNumber(guessingPinCode);
-      pinNumberToCompere = savingDecryptedHashedVal;
-    } else {
-      const savedVal = this.pinNumber;
-      this.logger.debug('saved val : ' + this.pinNumber);
-      pinNumberToCompere = savedVal;
-    }
+    const savedVal = this.pinCode;
+    this.logger.debug('saved val : ' + this.pinCode);
+    pinNumberToCompere = savedVal;
 
     const salt = this.salt;
     const mergedVal = salt + guessingPinCode;
@@ -348,38 +349,26 @@ export class AppStorageService {
     return false;
   }
 
-  getWalletPassword(guessingPinCode?: string, validate: boolean = false): string | null {
+  getPinCode(): string | null {
+    return this.pinCode;
+  }
+
+  getPinCodeWithValidate(guessingPinCode: string): string | null {
     let result = null;
-    if (env.config.pinCode.useDecryptPinCodeByPinCode) {
-      if (guessingPinCode !== undefined && guessingPinCode !== null) {
-        if (this.isValidPinNumber(guessingPinCode)) {
-          result = this.getDecryptedPinNumber(guessingPinCode);
-        }
-      }
-    } else {
-      if (validate) {
-        if (guessingPinCode !== undefined && guessingPinCode !== null && this.isValidPinNumber(guessingPinCode)) {
-          result = this.pinNumber;
-        }
-      } else {
-        result = this.pinNumber;
-      }
+    if (guessingPinCode !== undefined && guessingPinCode !== null && this.isValidPinCode(guessingPinCode)) {
+      result = this.pinCode;
     }
     return result;
   }
 
-  getWalletPasswordWithValidate(guessingPinCode: string): string | null {
-    return this.getWalletPassword(guessingPinCode, true);
-  }
-
-  getDecryptedPinNumber(guessingPinCode: string) {
-    const savingEnctyptedVal = this.pinNumber;
+  getDecryptedPinCode(guessingPinCode: string) {
+    const savingEnctyptedVal = this.pinCode;
     const savingDecryptedHashedVal = CryptoJS.AES.decrypt(savingEnctyptedVal, guessingPinCode).toString(CryptoJS.enc.Utf8);
 
     return savingDecryptedHashedVal;
   }
 
-  get pinNumber(): string {
+  get pinCode(): string {
     let result = this.store.get(StoreKeys.pinCode);
     if (result === null || result === undefined) {
       const val = '';
@@ -387,12 +376,7 @@ export class AppStorageService {
       const mergedVal = newSalt + val;
       const hashedVal = CryptoJS.SHA256(mergedVal).toString(CryptoJS.enc.Base64);
 
-      let newPinCodeToSave = null;
-      if (env.config.pinCode.useDecryptPinCodeByPinCode) {
-        newPinCodeToSave = CryptoJS.AES.encrypt(hashedVal, val).toString();
-      } else {
-        newPinCodeToSave = hashedVal;
-      }
+      const newPinCodeToSave = hashedVal;
       this.logger.debug('make empty pinNumber : ' + newPinCodeToSave);
       this.internalPinNumber = newPinCodeToSave;
       this.salt = newSalt;
@@ -406,6 +390,52 @@ export class AppStorageService {
     this.store.set(StoreKeys.pinCode, val);
   }
 
+  get pinCodeFailedCount(): number {
+    const result = this.store.get(StoreKeys.pinCodeFailedCount);
+    if (!result) {
+      return 0;
+    }
+    return result;
+  }
+
+  set pinCodeFailedCount(val: number) {
+    if (!val) {
+      this.store.remove(StoreKeys.pinCodeFailedCount);
+    } else {
+      this.store.set(StoreKeys.pinCodeFailedCount, val);
+    }
+  }
+
+  get nextPinCodeEnableTime(): Date {
+    const result: any = this.store.get(StoreKeys.nextPinCodeEnableTime);
+    if (!result) {
+      return null;
+    }
+
+    let resultDate: Date = null;
+    try {
+      resultDate = new Date(parseInt(result, 10));
+    } catch (e) {
+      this.logger.debug(e);
+    }
+    return resultDate;
+  }
+
+  set nextPinCodeEnableTime(val: Date) {
+    if (!val) {
+      this.store.remove(StoreKeys.nextPinCodeEnableTime);
+    } else {
+      this.store.set(StoreKeys.nextPinCodeEnableTime, val.getTime());
+    }
+  }
+
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Salt
+   * ==========================================================
+   * ==========================================================
+   */
   randSalt(): string {
     return UUID.UUID();
   }
@@ -418,6 +448,78 @@ export class AppStorageService {
     this.store.set(StoreKeys.salt, val);
   }
 
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Preferences
+   * ==========================================================
+   * ==========================================================
+   */
+  get preferences(): AppStorageTypes.Preferences {
+    const result = this.store.get(StoreKeys.preferences);
+    if (!result) {
+      return {
+        useFingerprintAuth: false
+      };
+    }
+
+    return result;
+  }
+
+  set preferences(val: AppStorageTypes.Preferences) {
+    this.store.set(StoreKeys.preferences, val);
+  }
+
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Internal Version Number
+   * ==========================================================
+   * ==========================================================
+   */
+  get internalVersionNumber(): number {
+    const result = this.store.get(StoreKeys.internalVersionNumber);
+    if (!result) {
+      return 0;
+    }
+
+    return result;
+  }
+
+  set internalVersionNumber(val: number) {
+    this.store.set(StoreKeys.internalVersionNumber, val);
+  }
+
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Additional Info
+   * ==========================================================
+   * ==========================================================
+   */
+  get additionalInfo(): AppStorageTypes.UserAdditionalInfo {
+    const storedVal = this.store.get(StoreKeys._additionalInfo);
+
+    if (!storedVal) {
+      return {
+        termsAndConditionsAllowed: false,
+        privacyAllowed: false
+      };
+    }
+    return storedVal;
+  }
+
+  set additionalInfo(val: AppStorageTypes.UserAdditionalInfo) {
+    this.store.set(StoreKeys._additionalInfo, val);
+  }
+
+  /**
+   * ==========================================================
+   * ==========================================================
+   * User Info
+   * ==========================================================
+   * ==========================================================
+   */
   get isUserInfoValidated(): boolean {
     if (!this.isSignedIn) {
       return false;
@@ -588,6 +690,13 @@ export class AppStorageService {
     listutil.notifyToObservers(this.userStateSubscribers, this.user);
   }
 
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Coin HD Address
+   * ==========================================================
+   * ==========================================================
+   */
   get coinHDAddress(): string {
     const result = this.store.get(StoreKeys._coinHDAddr);
     if (!result) {
@@ -601,7 +710,11 @@ export class AppStorageService {
   }
 
   /**
+   * ==========================================================
+   * ==========================================================
    * Wallet Features
+   * ==========================================================
+   * ==========================================================
    */
   get walletsObserver(): Observable<void> {
     const thisRef = this;
@@ -809,7 +922,13 @@ export class AppStorageService {
     }
   }
 
-  /** TEDN Features */
+  /**
+   * ==========================================================
+   * ==========================================================
+   * TEDN Features
+   * ==========================================================
+   * ==========================================================
+   */
   getTednWallets(checkSignedIn = true): Array<AppStorageTypes.TednWalletInfo> {
     if (checkSignedIn === true && !this.isSignedIn) {
       return [];
@@ -847,6 +966,13 @@ export class AppStorageService {
     return colors[randIdx];
   }
 
+  /**
+   * ==========================================================
+   * ==========================================================
+   * Transaction
+   * ==========================================================
+   * ==========================================================
+   */
   addTx(
     type: AppStorageTypes.Tx.TxType,
     subType: AppStorageTypes.Tx.TxSubType,
@@ -913,45 +1039,6 @@ export class AppStorageService {
       return new Promise<Array<AppStorageTypes.Tx.TxRowData>>(async (finalResolve, finalReject) => {
         finalResolve(this.localStorageTxManager.getTxListForPaging(walletInfo, pageIndex, countPerPage, sortByDesc, stateFilter));
       });
-    }
-  }
-
-  get pinCodeFailedCount(): number {
-    const result = this.store.get(StoreKeys.pinCodeFailedCount);
-    if (!result) {
-      return 0;
-    }
-    return result;
-  }
-
-  set pinCodeFailedCount(val: number) {
-    if (!val) {
-      this.store.remove(StoreKeys.pinCodeFailedCount);
-    } else {
-      this.store.set(StoreKeys.pinCodeFailedCount, val);
-    }
-  }
-
-  get nextPinCodeEnableTime(): Date {
-    const result: any = this.store.get(StoreKeys.nextPinCodeEnableTime);
-    if (!result) {
-      return null;
-    }
-
-    let resultDate: Date = null;
-    try {
-      resultDate = new Date(parseInt(result, 10));
-    } catch (e) {
-      this.logger.debug(e);
-    }
-    return resultDate;
-  }
-
-  set nextPinCodeEnableTime(val: Date) {
-    if (!val) {
-      this.store.remove(StoreKeys.nextPinCodeEnableTime);
-    } else {
-      this.store.set(StoreKeys.nextPinCodeEnableTime, val.getTime());
     }
   }
 } //end of AppStorageService

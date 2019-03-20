@@ -111,9 +111,9 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
       return this.keyboard.onKeyboardShow().subscribe((val: any) => {});
     });
 
-    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, walletPw => {
-      if (this.pinCodeConfirmCallback && walletPw) {
-        this.pinCodeConfirmCallback(walletPw);
+    this.events.subscribe(Consts.EVENT_PIN_CODE_RESULT, pinCode => {
+      if (this.pinCodeConfirmCallback && pinCode) {
+        this.pinCodeConfirmCallback(pinCode);
       }
       this.pinCodeConfirmCallback = null;
     });
@@ -331,7 +331,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
     }
   }
 
-  tradeEthToEdn(walletPw?: string) {
+  tradeEthToEdn(pinCode?: string) {
     this.analytics.logEvent({
       category: AnalyticsCategory,
       params: {
@@ -397,7 +397,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
     }
 
     //confirm password
-    if (!walletPw) {
+    if (!pinCode) {
       this.pinCodeConfirmCallback = this.tradeEthToEdn;
       this.events.publish(Consts.EVENT_CONFIRM_PIN_CODE);
       return;
@@ -430,7 +430,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
             targetErc20ContractAddres: ednContractInfo.address,
             srcEthAmount: ethAmountBn
           },
-          walletPw,
+          pinCode,
           onTxCreate,
           onTxReceipt
         )
@@ -446,7 +446,7 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
       if (!this.useAutoConvertForIDEX) {
         params.destAmount = ednAmountBn;
       }
-      this.etherApi.idexTradeEthToErc20Token(params, walletPw).then(
+      this.etherApi.idexTradeEthToErc20Token(params, pinCode).then(
         result => {
           loading.hide();
           this.feedbackUI.showToast(this.translate.instant('order.success'));

@@ -4,7 +4,12 @@
   padding-bottom: 18%;
 
   .tedn {
-    font-size: var(--font-size-18);
+    .field-value {
+      font-size: var(--font-size-18);
+
+      text-overflow: ellipsis;
+      overflow-x: hidden;
+    }
   }
 
   .centered-label {

@@ -1,0 +1,49 @@
+<ion-header>
+  <common-nav-bar title="{{ 'RegAuthGuideTitle' | translate }}"></common-nav-bar>
+</ion-header>
+
+<ion-content class="page-wrapper">
+  <div class="page-content fill flex-ch-centered" ion-fixed>
+    <div class="inner-content page-width-wide">
+      <div class="content margin-top-40">
+        <ion-label color="text-light-1" class="title comment-1 text-center">
+          {{ 'RegAuthGuideComment' | translate }}
+        </ion-label>
+
+        <div class="flex-h-dir function-box">
+          <div class="icon-box">
+            <div class="icon finger-print"></div>
+          </div>
+        </div>
+        <div [hidden]="isFinished" class="comment-2">
+          {{ 'RegAuthGuideComment2' | translate }}
+        </div>
+        <div [hidden]="!isFinished" class="comment-2 done flex-ch-centered">
+          <div class="icon"></div>
+          <div class="text">
+            {{ 'RegAuthGuideFinish' | translate }}
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="flex-h-dir" [hidden]="isFinished">
+          <ion-button expand="block" color="gray-2-button" class="later no-uppercase fw-bold font-size-12 radius-10 height-41 margin-top-49"
+            (click)="onLaterBtnClick()">
+            {{ 'Later' | translate }}
+          </ion-button>
+          <ion-button expand="block" color="theme-1" class="using no-uppercase fw-bold font-size-12 radius-10 height-41 margin-top-49"
+            (click)="onUsingBtnClick()">
+            {{ 'Using' | translate }}
+          </ion-button>
+        </div>
+        <div class="flex-h-dir" [hidden]="!isFinished">
+          <ion-button expand="block" color="theme-1" class="using no-uppercase fw-bold font-size-12 radius-10 height-41 margin-top-49"
+            (click)="onNextBtnClick()">
+            {{ 'Next' | translate }}
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

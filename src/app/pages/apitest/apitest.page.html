@@ -68,7 +68,7 @@
   <ion-grid *ngIf="isSignedIn()">
     <ion-row>
       <ion-col size="auto">
-        <ion-input placeholder="Pin Code" [(ngModel)]="pinCode"></ion-input>
+        <ion-input placeholder="Pin Code" [(ngModel)]="currentPinCode"></ion-input>
       </ion-col>
       <ion-col size="auto">
         <ion-input placeholder="Old Pin Code" [(ngModel)]="oldPinCode"></ion-input>
@@ -155,12 +155,6 @@
         <ion-button (click)="getCoinHDAddress()">
           getCoinHDAddress
         </ion-button>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col size-xs>
-        <ion-input placeholder="Eth Address" [(ngModel)]="ethaddressToSend"></ion-input>
       </ion-col>
     </ion-row>
 
