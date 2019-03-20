@@ -100,7 +100,15 @@ export class EwSendtoPage implements OnInit, OnDestroy {
 
     this.events.subscribe(Consts.EVENT_QR_SCAN_RESULT, (scanResult: any) => {
       if (scanResult) {
-        this.toAddress = scanResult;
+        const regexExp = /.*:(.*)/;
+        const match = regexExp.exec(scanResult);
+
+        //remove 'xxx:' prefix like 'ethereum:0x....'
+        if (match != null && match.length > 1) {
+          this.toAddress = match[1];
+        } else {
+          this.toAddress = scanResult;
+        }
       }
     });
   }
