@@ -19,7 +19,10 @@ export class CommaPipe implements PipeTransform {
       .join('');
   }
 
-  numberWithCommas(value: string) {
+  numberWithCommas(value: string): string {
+    if (!value) {
+      return '';
+    }
     const parts = value.toString().split('.');
     if (parts.length > 0) {
       parts[0] = parts[0].replace(CommaPipe.pattern, ',');

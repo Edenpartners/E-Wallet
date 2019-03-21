@@ -19,12 +19,23 @@
   <ion-item class="sub-item" lines="none">
     <ion-label class="field-label"> {{ 'CurrentBalance' | translate }}
     </ion-label>
-    <ion-label #multilineLabel #multilineLayout="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left' }"
-      text-wrap class="field-value balance text-right">
-      {{ (ednBalanceDisplay === null)?'-':(ednBalanceDisplay | comma) }}
-
-    </ion-label>
-    <ion-label class="field-value-tail"> {{ 'EDN' | translate }}
-    </ion-label>
+    <div class="field-value flex-ch-centered">
+      <div class="flex-h-dir-centered fill-width">
+        <ion-label #multilineLabelEdn #multilineLayoutEdn="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left', log:true }"
+          text-wrap class="edn field-value balance text-right">
+          {{ (ednBalanceDisplay === null)?'-':(ednBalanceDisplay | comma) }}
+        </ion-label>
+        <ion-label class="edn field-value-tail"> {{ 'EDN' | translate }}
+        </ion-label>
+      </div>
+      <div class="flex-h-dir-centered fill-width">
+        <ion-label #multilineLabelUsd #multilineLayoutUsd="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'14px', fontSizeForMulti:'12px', textAlignForSingle:'right', textAlignForMulti:'left' }"
+          text-wrap class="converted field-value balance text-right">
+          {{ (usdBalanceDisplay === null)?'-':(usdBalanceDisplay | currency:'USD') }}
+        </ion-label>
+        <ion-label class="converted field-value-tail"> {{ 'USD' | translate }}
+        </ion-label>
+      </div>
+    </div>
   </ion-item>
 </ion-list>

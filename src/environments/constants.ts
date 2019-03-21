@@ -12,6 +12,8 @@ export class Consts {
 
   static TEDN_DEPOSIT_CUSTOM_FILTER = {};
 
+  static USDC_SYMBOL = 'USDC';
+
   static EVENT_OPEN_SIDE_MENU = 'ui:openSideMenu';
   static EVENT_CONFIRM_PIN_CODE = 'ui:confirmPinCode';
   static EVENT_PIN_CODE_RESULT = 'pincode.result';

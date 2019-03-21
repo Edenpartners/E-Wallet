@@ -31,8 +31,7 @@ ion-refresher-content {
       margin-bottom: var(--space-24);
 
       .field-value {
-        text-overflow: ellipsis;
-        overflow-x: hidden;
+        word-break: break-word;
       }
     }
 

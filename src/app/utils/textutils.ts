@@ -29,6 +29,7 @@ export class TextUtils {
     el.style.opacity = '0.0';
     el.style.left = '0px';
     el.style.top = '0px';
+    el.style.wordBreak = 'break-word';
 
     if (width) {
       el.style.width = String(width) + 'px';

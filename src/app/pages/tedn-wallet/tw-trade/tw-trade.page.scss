@@ -6,9 +6,7 @@
   .tedn {
     .field-value {
       font-size: var(--font-size-18);
-
-      text-overflow: ellipsis;
-      overflow-x: hidden;
+      word-break: break-word;
     }
   }
 

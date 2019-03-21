@@ -871,6 +871,7 @@ export class EtherApiService {
         market: `${srcTokenCode}_${destTokenCode}`
       };
 
+      //src value by '1.0' dest value
       // {
       //   "last": "0.0000244",
       //   "high": "0.000026599999999999",
@@ -916,7 +917,20 @@ export class EtherApiService {
               const testval = 100;
               const testvalBn = ethers.utils.bigNumberify(10).pow(testval);
 
-              const parsedSrcBn = ethers.utils.parseUnits(responseData.last, srcDecimals);
+              let lastVal: string = String(responseData.last);
+              const lastValSplited = lastVal.split('.');
+              if (lastValSplited.length > 1 && lastValSplited[1].length > srcDecimals) {
+                if (env.config.debugging.logIdexAPI) {
+                  this.logger.debug('underflow cut will happen', lastValSplited[1]);
+                }
+                lastValSplited[1] = lastValSplited[1].substring(0, srcDecimals);
+                if (env.config.debugging.logIdexAPI) {
+                  this.logger.debug('result', lastValSplited[1]);
+                }
+                lastVal = lastValSplited.join('.');
+              }
+
+              const parsedSrcBn = ethers.utils.parseUnits(lastVal, srcDecimals);
               const oneSrcBn = ethers.utils.parseUnits('1.0', srcDecimals);
               const convertedVal = oneSrcBn
                 .mul(ethers.utils.bigNumberify(10).pow(srcDecimals))
@@ -926,7 +940,9 @@ export class EtherApiService {
               let fixedratio = convertedVal.div(testvalBn);
               const decimalDiff = srcDecimals - destDecimals;
 
-              this.logger.debug('decimalDiff : ', srcDecimals, destDecimals, decimalDiff);
+              if (env.config.debugging.logIdexAPI) {
+                this.logger.debug('decimalDiff : ', srcDecimals, destDecimals, decimalDiff);
+              }
 
               //cut underflow ( 1.11111111 -> 1.11110000 )
               if (decimalDiff > 0) {
@@ -935,7 +951,9 @@ export class EtherApiService {
               }
 
               expectedRate = fixedratio;
-              this.logger.debug('expectedRate : ', expectedRate.toString());
+              if (env.config.debugging.logIdexAPI) {
+                this.logger.debug('expectedRate : ', expectedRate.toString());
+              }
             } catch (e) {
               this.logger.debug(e);
               finalReject(e);

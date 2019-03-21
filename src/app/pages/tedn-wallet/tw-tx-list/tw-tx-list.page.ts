@@ -46,7 +46,7 @@ import { CustomDateFormatter } from './custom-date-formatter.provider';
 import { isDate } from 'util';
 
 const countPerPage = 30;
-const useDummyData = true;
+const useDummyData = false;
 
 interface TednTransaction {
   isSend: boolean;
@@ -174,16 +174,16 @@ export class TwTxListPage implements OnInit, OnDestroy {
       evt.target.complete();
     }
 
-    this.loadList(this.currentPage, () => {
+    this.loadList(this.currentPage, true, () => {
       if (this.txList.length < 1) {
         this.isNoData = true;
       }
     });
   }
 
-  doInfinite(evt?: any): Promise<any> {
+  doInfinite(evt: any, controlLoading: boolean = true): Promise<any> {
     return new Promise<any>((finalResolve, finalReject) => {
-      this.loadList(this.currentPage + 1, () => {
+      this.loadList(this.currentPage + 1, controlLoading, () => {
         this.infiniteScroll.complete();
         if (this.txList.length >= this.totalCount) {
           this.infiniteScroll.disabled = true;
@@ -237,9 +237,11 @@ export class TwTxListPage implements OnInit, OnDestroy {
     }
   }
 
-  loadList(pageNum: number, onComplete: () => void) {
+  loadList(pageNum: number, controlLoading: boolean, onComplete: () => void) {
     this.logger.debug('load page : ' + pageNum);
-    this.feedbackUI.showLoading();
+    if (controlLoading) {
+      this.feedbackUI.showLoading();
+    }
 
     let tednPublicKey = null;
     if (this.storage.isSignedIn) {
@@ -305,7 +307,9 @@ export class TwTxListPage implements OnInit, OnDestroy {
       }
 
       setTimeout(() => {
-        this.feedbackUI.hideLoading();
+        if (controlLoading) {
+          this.feedbackUI.hideLoading();
+        }
         onSuccess(resData);
       }, 1000);
     } else {
@@ -315,7 +319,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
           this.feedbackUI.showErrorAndRetryDialog(
             err,
             () => {
-              this.loadList(pageNum, onComplete);
+              this.loadList(pageNum, controlLoading, onComplete);
             },
             () => {
               onComplete();
@@ -323,7 +327,9 @@ export class TwTxListPage implements OnInit, OnDestroy {
           );
         })
         .finally(() => {
-          this.feedbackUI.hideLoading();
+          if (controlLoading) {
+            this.feedbackUI.hideLoading();
+          }
         });
     }
   }
@@ -365,7 +371,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
    */
 
   getCalendarMonth(): number {
-    return this.calendarViewDate.getMonth();
+    return this.calendarViewDate.getMonth() + 1;
   }
 
   toggleCalendar() {
@@ -399,12 +405,15 @@ export class TwTxListPage implements OnInit, OnDestroy {
   loadAllHistory(): Promise<any> {
     return new Promise<any>((finalResolve, finalReject) => {
       if (!this.infiniteScroll.disabled) {
-        this.doInfinite().then(() => {
+        this.feedbackUI.showLoading();
+        this.doInfinite(null, false).then(() => {
           this.loadAllHistory().then(
             () => {
+              this.feedbackUI.hideLoading();
               finalResolve();
             },
             () => {
+              this.feedbackUI.hideLoading();
               finalReject();
             }
           );

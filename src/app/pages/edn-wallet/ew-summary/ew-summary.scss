@@ -1,3 +1,7 @@
+ion-label {
+  word-break: break-word;
+}
+
 ion-list {
   margin-bottom: 0px;
 
@@ -30,8 +34,12 @@ ion-list {
     font-size: var(--font-size-13);
   }
 
-  .balance {
+  .edn.balance {
     font-size: var(--font-size-18);
+  }
+
+  .converted.balance {
+    font-size: var(--font-size-14);
   }
 
   .field-value {
@@ -40,7 +48,16 @@ ion-list {
 
   .field-value-tail {
     flex: none;
-    margin-left: var(--space-half);
     font-size: var(--font-size-13);
+  }
+
+  .edn.field-value-tail {
+    margin-left: var(--space-04);
+    font-size: var(--font-size-13);
+  }
+
+  .converted.field-value-tail {
+    margin-left: var(--space-03);
+    font-size: var(--font-size-11);
   }
 }

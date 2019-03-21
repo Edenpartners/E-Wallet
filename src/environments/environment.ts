@@ -16,17 +16,17 @@ export const environment: Environment = {
       logBlockchain: false,
       logEdnApi: false,
       showDebugToast: false,
-      logIdexAPI: true
+      logIdexAPI: false
     },
 
     useRedirectorOnDebugMode: true,
-    handleUserState: true,
+    handleUserState: false,
     alterStartPath: '',
     compareUserIDTokenOnDeeplinkHandling: false,
     emailVerificationRequired: false,
 
     /** this is the ethereum network information which edn server running. */
-    ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
+    ednEthNetwork: EthProviders.KnownNetworkType.homestead,
 
     signinWithEdnUserInfo: true,
     useSideMenu: true,

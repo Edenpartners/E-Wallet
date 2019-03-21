@@ -29,6 +29,11 @@ import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
 import { SharedPageModule } from 'src/app/modules/shared.page.module';
 import { UUID } from 'angular2-uuid';
 import { BigNumberHelper } from 'src/app/utils/bigNumberHelper';
+import { AnyARecord } from 'dns';
+import { ethers } from 'ethers';
+
+const EthEdnTrackerKey = 'EthEdn';
+const UsdcEthTrackerKey = 'UsdcEth';
 
 @Component({
   selector: 'ew-summary',
@@ -45,14 +50,22 @@ export class EwSummary {
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
   ednBalance: BigNumber;
   ednBalanceAdjusted: BigNumber;
-  ednBalanceDisplay: string;
+  ednBalanceDisplay: string = null;
+
+  usdBalance: BigNumber;
+  usdBalanceDisplay: string = null;
 
   @ViewChild('aliasInput') aliasInput: IonInput;
 
-  @ViewChild('multilineLabel') multilineLabel;
-  @ViewChild('multilineLayout') multilineLayout: MultilineLayoutDirective;
+  @ViewChild('multilineLabelEdn') multilineLabelEdn;
+  @ViewChild('multilineLayoutEdn') multilineLayoutEdn: MultilineLayoutDirective;
+
+  @ViewChild('multilineLabelUsd') multilineLabelUsd;
+  @ViewChild('multilineLayoutUsd') multilineLayoutUsd: MultilineLayoutDirective;
 
   keyboardVisible = false;
+  tradeRateETH_EDN: any = null;
+  tradeRateUSDC_ETH: any = null;
 
   constructor(
     private element: ElementRef,
@@ -83,13 +96,14 @@ export class EwSummary {
 
   stopGetInfo() {
     this.subscriptionPack.clear();
+    this.dataTracker.stopTracker(EthEdnTrackerKey, false);
+    this.dataTracker.stopTracker(UsdcEthTrackerKey, false);
   }
 
   setWalletEvents() {
     const p: EthProviders.Base = this.eths.getProvider(this.wallet.info.provider);
 
     const ednContractInfo = this.etherData.contractResolver.getERC20ContractInfo(env.config.ednCoinKey, p);
-
     const ednTracker = this.dataTracker.startERC20ContractBalanceTracking(this.wallet, ednContractInfo);
 
     const applyEdnValue = (value: { balance: BigNumber; adjustedBalance: BigNumber }) => {
@@ -97,16 +111,93 @@ export class EwSummary {
       this.ednBalanceAdjusted = value.adjustedBalance;
 
       this.ednBalanceDisplay = BigNumberHelper.removeZeroPrecision(this.ednBalanceAdjusted.toString());
-      this.multilineLayout.updateLayout();
+      this.multilineLayoutEdn.updateLayout();
+
+      if (this.tradeRateETH_EDN !== null) {
+        const tradeRateEthEdnBn = ethers.utils.bigNumberify(this.tradeRateETH_EDN.expectedRate);
+        //convert EDN to ETH
+        const ednToEthBn = this.etherApi.calculateTradeResultReversed(
+          this.ednBalance,
+          Consts.ETH_DECIMAL,
+          ednContractInfo.contractInfo.decimal,
+          tradeRateEthEdnBn
+        );
+
+        const ednToEthBnText = ethers.utils.formatUnits(ednToEthBn, Consts.ETH_DECIMAL);
+        const ednToEthBnTextDisplay = BigNumberHelper.removeZeroPrecision(ednToEthBnText);
+
+        this.logger.debug('Converted ETH for EDN', ednToEthBnTextDisplay);
+
+        if (this.tradeRateUSDC_ETH !== null) {
+          const tradeRateUsdcEthBn = ethers.utils.bigNumberify(this.tradeRateUSDC_ETH.expectedRate);
+          const ethToUsdcRateResultBn = this.etherApi.calculateTradeResultReversed(ednToEthBn, 6, Consts.ETH_DECIMAL, tradeRateUsdcEthBn);
+          const ethToUsdcBnText = ethers.utils.formatUnits(ethToUsdcRateResultBn, 6);
+          const ethToUsdcBnTextDisplay = BigNumberHelper.removeZeroPrecision(ethToUsdcBnText);
+          this.logger.debug('Converted USD for ETH', ethToUsdcBnTextDisplay);
+
+          this.usdBalance = ethToUsdcRateResultBn;
+          this.usdBalanceDisplay = ethToUsdcBnTextDisplay;
+        }
+      }
     };
 
     this.subscriptionPack.addSubscription(() => {
       return ednTracker.trackObserver.subscribe(applyEdnValue);
-    }, this.wallet);
+    }, this.wallet.id);
+
+    this.setTradeRateTrackers(ednContractInfo);
 
     if (ednTracker.value) {
       applyEdnValue(ednTracker.value);
     }
+  }
+
+  setTradeRateTrackers(ednContractInfo: WalletTypes.ContractInfo) {
+    const tradeRateEthEdnTracker = this.dataTracker.startTracker(EthEdnTrackerKey, () => {
+      return new Promise<any>((finalResolve, finalReject) => {
+        this.etherApi.idexGetExpectedTradeRate(Consts.ETH_CODE, ednContractInfo.contractInfo.symbol).then(
+          rateEthEdn => {
+            finalResolve(rateEthEdn);
+          },
+          (error: any) => {
+            finalReject(error);
+          }
+        );
+      });
+    });
+
+    this.subscriptionPack.addSubscription(() => {
+      return tradeRateEthEdnTracker.trackObserver.subscribe((rateEthEdn: any) => {
+        this.tradeRateETH_EDN = rateEthEdn;
+      });
+    });
+
+    if (tradeRateEthEdnTracker.value) {
+      this.tradeRateETH_EDN = tradeRateEthEdnTracker.value;
+    }
+
+    const tradeRateUsdcEthTracker = this.dataTracker.startTracker(UsdcEthTrackerKey, () => {
+      return new Promise<any>((finalResolve, finalReject) => {
+        this.etherApi.idexGetExpectedTradeRate(Consts.USDC_SYMBOL, Consts.ETH_CODE).then(
+          rateUsdcEth => {
+            finalResolve(rateUsdcEth);
+          },
+          (error: any) => {
+            finalReject(error);
+          }
+        );
+      });
+    });
+
+    if (tradeRateUsdcEthTracker.value) {
+      this.tradeRateUSDC_ETH = tradeRateUsdcEthTracker.value;
+    }
+
+    this.subscriptionPack.addSubscription(() => {
+      return tradeRateUsdcEthTracker.trackObserver.subscribe((rateUsdcEth: any) => {
+        this.tradeRateUSDC_ETH = rateUsdcEth;
+      });
+    });
   }
 
   onWalletAliasClick() {
