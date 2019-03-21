@@ -13,6 +13,7 @@ export class Consts {
   static TEDN_DEPOSIT_CUSTOM_FILTER = {};
 
   static USDC_SYMBOL = 'USDC';
+  static USDC_DECIMAL = 6;
 
   static EVENT_OPEN_SIDE_MENU = 'ui:openSideMenu';
   static EVENT_CONFIRM_PIN_CODE = 'ui:confirmPinCode';

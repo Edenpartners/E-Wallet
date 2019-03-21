@@ -29,7 +29,6 @@ import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
 import { SharedPageModule } from 'src/app/modules/shared.page.module';
 import { UUID } from 'angular2-uuid';
 import { BigNumberHelper } from 'src/app/utils/bigNumberHelper';
-import { AnyARecord } from 'dns';
 import { ethers } from 'ethers';
 
 const EthEdnTrackerKey = 'EthEdn';
@@ -130,8 +129,13 @@ export class EwSummary {
 
         if (this.tradeRateUSDC_ETH !== null) {
           const tradeRateUsdcEthBn = ethers.utils.bigNumberify(this.tradeRateUSDC_ETH.expectedRate);
-          const ethToUsdcRateResultBn = this.etherApi.calculateTradeResultReversed(ednToEthBn, 6, Consts.ETH_DECIMAL, tradeRateUsdcEthBn);
-          const ethToUsdcBnText = ethers.utils.formatUnits(ethToUsdcRateResultBn, 6);
+          const ethToUsdcRateResultBn = this.etherApi.calculateTradeResultReversed(
+            ednToEthBn,
+            Consts.USDC_DECIMAL,
+            Consts.ETH_DECIMAL,
+            tradeRateUsdcEthBn
+          );
+          const ethToUsdcBnText = ethers.utils.formatUnits(ethToUsdcRateResultBn, Consts.USDC_DECIMAL);
           const ethToUsdcBnTextDisplay = BigNumberHelper.removeZeroPrecision(ethToUsdcBnText);
           this.logger.debug('Converted USD for ETH', ethToUsdcBnTextDisplay);
 
