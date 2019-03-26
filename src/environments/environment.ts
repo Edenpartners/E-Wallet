@@ -20,7 +20,7 @@ export const environment: Environment = {
     },
 
     useRedirectorOnDebugMode: true,
-    handleUserState: false,
+    handleUserState: true,
     alterStartPath: '',
     compareUserIDTokenOnDeeplinkHandling: false,
     emailVerificationRequired: false,
@@ -32,9 +32,9 @@ export const environment: Environment = {
     useSideMenu: true,
     useSideMenuForDebug: true,
     patches: {
-      useSignupForSignin: true,
-      useSigninForSignup: false,
-      useEthAddressObject: false
+      useSignupForSignin: false,
+      useSigninForSignup: true,
+      useEthAddressObject: true
     },
 
     /** Test another ERC20 coin with replacement */

@@ -21,7 +21,7 @@ export const environment: Environment = {
     emailVerificationRequired: false,
 
     /** this is the ethereum network information which edn server running. */
-    ednEthNetwork: EthProviders.KnownNetworkType.homestead,
+    ednEthNetwork: EthProviders.KnownNetworkType.ropsten,
     signinWithEdnUserInfo: true,
     useSideMenu: true,
     useSideMenuForDebug: false,
@@ -33,7 +33,7 @@ export const environment: Environment = {
 
     /** Test another ERC20 coin with replacement */
     ednCoinKey: 'EDN',
-    ednApiBaseAddress: 'https://api-ep.edenchain.io/api',
+    ednApiBaseAddress: 'https://api-ep-br.edenchain.io/api',
 
     pinCode: {
       maxPinCodeRetryCount: 4,

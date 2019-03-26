@@ -76,6 +76,9 @@ class EdnRemoteApiServiceUtil {
 
     let publicKey = ethSigningkey.publicKey;
     //remove '0x' prefix from public key
+    if (publicKey.startsWith('0x04')) {
+      publicKey = publicKey.substr(4);
+    }
     if (publicKey.startsWith('0x')) {
       publicKey = publicKey.substr(2);
     }
