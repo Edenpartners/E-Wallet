@@ -44,7 +44,7 @@ export const environment: Environment = {
     clearWalletsOnWipeStorage: false,
     clearPincodeOnWipeStorage: false,
     clearTxHistoryOnWipeStorage: false,
-    blockSignup: true,
+    blockSignup: false,
     firebaseFeatures: {
       analytics: true,
       google: true,
