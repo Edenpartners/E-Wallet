@@ -3,10 +3,12 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 @Pipe({ name: 'comma' })
 export class CommaPipe implements PipeTransform {
-  constructor(private sanitized: DomSanitizer) {}
-
   static onlyNumberPattern = /\B(?=(\d{3})+(?!\d))/g;
   static pattern = /\B(?=(.{3})+(?!\d))/g;
+
+  private applyPrecision = false;
+
+  constructor(private sanitized: DomSanitizer) {}
 
   transform(value: string) {
     return this.numberWithCommas(value);
@@ -27,7 +29,8 @@ export class CommaPipe implements PipeTransform {
     if (parts.length > 0) {
       parts[0] = parts[0].replace(CommaPipe.pattern, ',');
     }
-    if (parts.length > 1) {
+
+    if (this.applyPrecision && parts.length > 1) {
       let precisionValue = parts[1];
       precisionValue = this.reversedString(precisionValue);
       precisionValue = precisionValue.replace(CommaPipe.pattern, ',');
