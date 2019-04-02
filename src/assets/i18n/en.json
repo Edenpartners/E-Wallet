@@ -167,13 +167,13 @@
   "ConfirmPinComment": "Enter 6-digit PIN",
   "VerificationFailedFormat": "Verification failed : <span style=\"color:#ffffff;\">{0}</span> times left.",
   "RemainTimeFormat": "Pin code verification too many failed.</br>You have to have <span style=\"color:#ffffff;\">{0}</span> seconds to retry.",
-  "AuthWithTouchID": "Login with Touch ID",
-  "AuthWithFaceID": "Login with Face ID",
+  "AuthWithTouchID": "Touch ID",
+  "AuthWithFaceID": "Face ID",
 
   "______________CONFIRM_TOUCH_ID": "",
   "TouchIDLogon": "Touch ID log on",
   "FaceIDLogon": "Face ID log on",
-  "AuthWithPinCode": "Login with Pin code",
+  "AuthWithPinCode": "Pin code",
 
   "______________BACKUP_WALLET_NOTICE": "",
   "BackupWalletTitle": "Backup Wallet",
