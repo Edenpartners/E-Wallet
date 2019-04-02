@@ -15,10 +15,11 @@ import { SubscriptionPack } from '../../../utils/listutil';
 import { Consts } from '../../../../environments/constants';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
-import { environment } from 'src/environments/environment';
+import { environment, env } from 'src/environments/environment';
 import { Environment } from 'src/environments/environment.interface';
 
 import { String, StringBuilder } from 'typescript-string-operations';
+import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
 
 @Component({
   selector: 'app-regauth-intro',
@@ -26,6 +27,8 @@ import { String, StringBuilder } from 'typescript-string-operations';
   styleUrls: ['./regauth-intro.page.scss']
 })
 export class RegauthIntroPage implements OnInit {
+  isFaceIDAvailable = false;
+
   constructor(
     private aRoute: ActivatedRoute,
     private rs: RouterService,
@@ -34,10 +37,23 @@ export class RegauthIntroPage implements OnInit {
     private feedbackUI: FeedbackUIService,
     private translate: TranslateService,
     private events: Events,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private faio: FingerprintAIO
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (env.config.pinCode.testFaceIDFeature) {
+      this.isFaceIDAvailable = true;
+    } else {
+      this.isFaceIDAvailable = false;
+    }
+
+    this.faio.isAvailable().then(type => {
+      if (type === 'face') {
+        this.isFaceIDAvailable = true;
+      }
+    });
+  }
 
   onNextBtnClick() {
     this.rs.navigateByUrl('/regauth-guide');

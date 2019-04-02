@@ -586,6 +586,17 @@ export class AppStorageService {
     return result;
   }
 
+  hasEthAddressInUserInfo(address: string): boolean {
+    const userEthAddressses = this.getExtractedUserEthAddresses();
+    let result = false;
+    userEthAddressses.forEach(val => {
+      if (val.toUpperCase() === address.toUpperCase()) {
+        result = true;
+      }
+    });
+
+    return result;
+  }
   /**
    * an eth address will stay into userinfo until synchronize with server
    * @param address

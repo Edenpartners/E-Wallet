@@ -1,10 +1,11 @@
 <ion-header>
-  <common-nav-bar title="{{ isCreation ? ('CreatePinTitle' | translate) : ('ConfirmPinTitle' | translate) }}"
-    (handleBack)="handleBack()" [hideBackButton]="isBackButtonHidden()"></common-nav-bar>
+  <common-nav-bar title="{{ getTitleText() }}" (handleBack)="handleBack()"
+    [hideBackButton]="isBackButtonHidden()"></common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper" scrollY="false">
-  <div [hidden]="isFingerPrintMode" class="page-content pin-code-layout fill hcf-layout flex-col-h-center">
+  <div [hidden]="isFingerPrintMode"
+    class="page-content pin-code-layout fill hcf-layout flex-col-h-center">
     <div class="hcf-layout header">
       <div class="content flex-ch-centered">
 
@@ -25,53 +26,68 @@
         </div>
 
         <div class="pin-code flex-h-dir">
-          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 0) || isComplete)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 1) || isComplete)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 2) || isComplete)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 3) || isComplete)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 4) || isComplete)}"></span>
-          <span class="code-box radius-10" [ngClass]="{selected:((numPad.getUserInputCount() > 5) || isComplete)}"></span>
+          <span class="code-box radius-10"
+            [ngClass]="{selected:((numPad.getUserInputCount() > 0) || isComplete)}"></span>
+          <span class="code-box radius-10"
+            [ngClass]="{selected:((numPad.getUserInputCount() > 1) || isComplete)}"></span>
+          <span class="code-box radius-10"
+            [ngClass]="{selected:((numPad.getUserInputCount() > 2) || isComplete)}"></span>
+          <span class="code-box radius-10"
+            [ngClass]="{selected:((numPad.getUserInputCount() > 3) || isComplete)}"></span>
+          <span class="code-box radius-10"
+            [ngClass]="{selected:((numPad.getUserInputCount() > 4) || isComplete)}"></span>
+          <span class="code-box radius-10"
+            [ngClass]="{selected:((numPad.getUserInputCount() > 5) || isComplete)}"></span>
         </div>
 
-        <div class="pincode-error margin-top-18" *ngIf="isRetryState()" [innerHTML]="getRetryStateComment() | safeHtml">
+        <div class="pincode-error margin-top-18" *ngIf="isRetryState()"
+          [innerHTML]="getRetryStateComment() | safeHtml">
         </div>
-        <div class="pincode-error margin-top-18" *ngIf="isPinCodeLocked()" [innerHTML]="getLockedComment() | safeHtml">
+        <div class="pincode-error margin-top-18" *ngIf="isPinCodeLocked()"
+          [innerHTML]="getLockedComment() | safeHtml">
         </div>
 
-        <div *ngIf="isFingerPrintEnabled" class="underline-button auth-with-fingerprint flex-ch-centered"
+        <div *ngIf="isFingerPrintEnabled"
+          class="underline-button auth-with-fingerprint flex-ch-centered"
           (click)="onAuthWithFingerPrintClick()">
-          <div>{{ 'AuthWithTouchID' | translate}}</div>
+          <div>
+            {{ isFaceIDAvailable?('AuthWithFaceID' | translate):('AuthWithTouchID' | translate) }}
+          </div>
           <div class="underline"></div>
         </div>
       </div>
 
       <div class="footer" *ngIf="isCreation && !isConfirmStep">
-        <ion-button expand="block" color="theme-1" class="radius-10" [disabled]="numPad.getUserInputCount() !== 6"
-          (click)="onCreatePinBtnClick()">
+        <ion-button expand="block" color="theme-1" class="radius-10"
+          [disabled]="numPad.getUserInputCount() !== 6" (click)="onCreatePinBtnClick()">
           {{ 'CreatePin' | translate }}
         </ion-button>
       </div>
     </div>
 
-    <num-pad [disabled]="isPinCodeLocked()" class="content" style="width:100%;" (change)="onNumChange()"></num-pad>
+    <num-pad [disabled]="isPinCodeLocked()" class="content" style="width:100%;"
+      (change)="onNumChange()"></num-pad>
   </div>
 
-  <div [hidden]="!isFingerPrintMode" class="page-content touch-id-layout fill hcf-layout flex-col-h-center">
+  <div [hidden]="!isFingerPrintMode"
+    class="page-content touch-id-layout fill hcf-layout flex-col-h-center">
     <div class="header">
     </div>
     <div class="content flex-ch-centered">
       <ion-label color="text-light-1" class="title comment-1 text-center">
-        {{ 'TouchIDLogon' | translate }}
+        {{ isFaceIDAvailable?('FaceIDLogon' | translate):('TouchIDLogon' | translate) }}
       </ion-label>
 
       <div class="flex-h-dir function-box" (click)="openFingerPrintAuth()">
         <div class="icon-box">
-          <div class="icon finger-print"></div>
+          <div class="icon"
+            [ngClass]="{'finger-print':!isFaceIDAvailable, 'face-id':isFaceIDAvailable}"></div>
         </div>
       </div>
     </div>
     <div class="footer">
-      <div class="underline-button auth-with-pincode flex-ch-centered" (click)="onAuthWithPinCodeClick()">
+      <div class="underline-button auth-with-pincode flex-ch-centered"
+        (click)="onAuthWithPinCodeClick()">
         <div>{{ 'AuthWithPinCode' | translate}}</div>
         <div class="underline">&nbsp;</div>
       </div>

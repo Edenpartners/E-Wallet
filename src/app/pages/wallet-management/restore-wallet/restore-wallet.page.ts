@@ -135,7 +135,7 @@ export class RestoreWalletPage implements OnInit {
         return;
       }
 
-      if (this.storage.findWalletByInfo(walletInfo)) {
+      if (this.storage.findWalletByInfo(walletInfo) && this.storage.hasEthAddressInUserInfo(walletInfo.address)) {
         finalReject(new Error(this.translate.instant('valid.wallet.unique')));
         return;
       }

@@ -218,7 +218,7 @@ export class BackupWalletPage implements OnInit {
         return;
       }
 
-      if (this.storage.findWalletByInfo(createdWalletInfo)) {
+      if (this.storage.findWalletByInfo(createdWalletInfo) && this.storage.hasEthAddressInUserInfo(createdWalletInfo.address)) {
         finalReject(new Error(this.translate.instant('valid.wallet.unique')));
         return;
       }

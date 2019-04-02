@@ -89,7 +89,6 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.refreshWalletList();
     this.exchangers = [];
 
     ///IDEX only available with mainnet
@@ -131,8 +130,11 @@ export class AddEdnEthPage implements OnInit, OnDestroy {
 
   refreshWalletList() {
     this.wallets = this.storage.getWallets(true, true);
+
     if (this.wallets.length > 0) {
-      this.selectedWalletId = this.wallets[0].id;
+      setTimeout(() => {
+        this.selectedWalletId = this.wallets[0].id;
+      }, 500);
     }
   }
 

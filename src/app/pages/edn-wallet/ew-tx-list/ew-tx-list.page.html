@@ -8,51 +8,83 @@
       <div class="header">
         <ew-summary #summary></ew-summary>
       </div>
-      <ion-content class="content" class="content" appScrollbarStyle [hidden]="isNoData">
-        <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
-          <ion-refresher-content></ion-refresher-content>
-        </ion-refresher>
-        <ion-list>
-          <ion-item lines="none" *ngFor="let item of txList">
-            <div class="row-icon-content">
-              <div class="icon-area">
-                <ion-icon src="/assets/img/arrow-drop-up.svg" *ngIf="isSendTx(item)"></ion-icon>
-                <ion-icon src="/assets/img/arrow-drop-down.svg" *ngIf="!isSendTx(item)"></ion-icon>
-              </div>
-              <div class="inner-content">
-                <div class="flex-h-dir">
-                  <ion-label class="label flex-item-auto font-size-16 fw-bold" color="text-dark-1-1">
-                    {{ item.info.amount.display }} {{ 'EDN' | translate }}
-                  </ion-label>
-                </div>
-                <div class="flex-h-dir">
-                  <ion-label text-wrap class="flex-item-fill address font-size-14" color="text-dark-2">
-                    {{ isSendTx(item) ? ('To' | translate) : ('From' | translate ) }} {{ item.info.to }}
-                  </ion-label>
-                </div>
-                <div class="flex-h-dir">
-                  <ion-label class="text-right flex-item-fill date font-size-14" color="text-dark-2">
-                    {{ getDate(item.cDate) | date:'medium' }}
-                  </ion-label>
-                </div>
-              </div>
-            </div>
-          </ion-item>
-        </ion-list>
+      <div class="content hcf-layout list-container" [hidden]="isNoData">
+        <div class="header">
+          <div #searchForm class="search-form flex-h-dir-centered radius-10">
+            <ion-input #searchAddressInput [(ngModel)]="searchAddress" (ionBlur)="runSearch()"
+              (keyup.enter)="runSearch()" placeholder="Address"
+              class="search-address flex-item-fill text-center"></ion-input>
+            <div class="bar"></div>
 
-        <ion-infinite-scroll #infiniteScroll (ionInfinite)="doInfinite($event)">
-          <ion-infinite-scroll-content></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
-      </ion-content>
+            <div [hidden]="calendarSelectedDate" class="search-date empty text-center"
+              (click)="toggleCalendar()">Date</div>
+            <div [hidden]="!calendarSelectedDate" class="search-date text-center"
+              (click)="toggleCalendar()">{{ calendarSelectedDate | date:'mediumDate' }}</div>
+            <div class="search-icon"></div>
+          </div>
+        </div>
 
-      <ion-content class="content" [hidden]="!isNoData">
+        <ion-content scroll-y="false" scroll-x="false" class="content">
+          <ion-content #historyScroll class="content" appScrollbarStyle>
+            <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
+              <ion-refresher-content></ion-refresher-content>
+            </ion-refresher>
+            <ion-list>
+              <ion-item lines="none" *ngFor="let item of filteredTxList">
+                <div class="row-icon-content">
+                  <div class="icon-area">
+                    <ion-icon src="/assets/img/arrow-drop-up.svg" *ngIf="isSendTx(item)"></ion-icon>
+                    <ion-icon src="/assets/img/arrow-drop-down.svg" *ngIf="!isSendTx(item)">
+                    </ion-icon>
+                  </div>
+                  <div class="inner-content">
+                    <div class="flex-h-dir">
+                      <ion-label class="label flex-item-auto font-size-16 fw-bold"
+                        color="text-dark-1-1">
+                        {{ item.info.amount.display }} {{ 'EDN' | translate }}
+                      </ion-label>
+                    </div>
+                    <div class="flex-h-dir">
+                      <ion-label text-wrap class="flex-item-fill address font-size-14"
+                        color="text-dark-2">
+                        {{ isSendTx(item)? ('To' | translate):('From' | translate ) }}
+                        {{ isSendTx(item)? item.info.to:item.info.from }}
+                      </ion-label>
+                    </div>
+                    <div class="flex-h-dir">
+                      <ion-label class="text-right flex-item-fill date font-size-14"
+                        color="text-dark-2">
+                        {{ getDate(item.cDate) | date:'medium' }}
+                      </ion-label>
+                    </div>
+                  </div>
+                </div>
+              </ion-item>
+            </ion-list>
+
+            <ion-infinite-scroll #infiniteScroll (ionInfinite)="doInfinite($event)">
+              <ion-infinite-scroll-content></ion-infinite-scroll-content>
+            </ion-infinite-scroll>
+          </ion-content>
+
+          <div class="scroll-to-top" (click)="historyScrollToTop()">
+
+          </div>
+          <div class="scroll-to-bottom" (click)="historyScrollToBottom()">
+
+          </div>
+        </ion-content>
+      </div>
+
+      <ion-content class="content list-container" [hidden]="!isNoData">
         <ion-refresher slot="fixed" (ionRefresh)="reloadList($event)">
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
         <div class="flex-ch-centered fill">
           <div class="flex-h-dir-centered">
             <ion-icon name="information-circle-outline" color="text-dark-1"></ion-icon>
-            <ion-label class="icon-space-left-margin" color="text-dark-1">{{ 'NoTransactions' | translate }}</ion-label>
+            <ion-label class="icon-space-left-margin" color="text-dark-1">
+              {{ 'NoTransactions' | translate }}</ion-label>
           </div>
         </div>
       </ion-content>
@@ -61,10 +93,12 @@
         <ion-toolbar>
           <div class="flex-h-dir">
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle color="text-light-1" class="fw-bold" (click)="onReceiveClick()">{{ "Receive" | translate }}</ion-button>
+              <ion-button appBtnStyle color="text-light-1" class="fw-bold"
+                (click)="onReceiveClick()">{{ "Receive" | translate }}</ion-button>
             </div>
             <div class="flex-item-fill flex-ch-centered">
-              <ion-button appBtnStyle color="text-light-1" class="fw-bold" (click)="onSendClick()">{{ "Send" | translate }}</ion-button>
+              <ion-button appBtnStyle color="text-light-1" class="fw-bold" (click)="onSendClick()">
+                {{ "Send" | translate }}</ion-button>
             </div>
           </div>
         </ion-toolbar>
@@ -72,4 +106,15 @@
     </div>
   </div>
 
+  <div [hidden]="!showCaneldar" class="calendar-hidden-tigger" (click)="toggleCalendar()"></div>
+  <div #calendarContainer [hidden]="!showCaneldar" class="calendar"
+    [ngStyle]="{'top': calendarTopPosition, 'right':calendarRightPosition}">
+    <div class="currentMonth">
+      {{ getCalendarMonth() }}
+    </div>
+    <mwl-calendar-month-view #monthView [viewDate]="calendarViewDate" [events]="calendarEvents"
+      [refresh]="calendarRefresh" [activeDayIsOpen]="calendarActiveDayIsOpen"
+      (dayClicked)="calendarDayClicked($event)">
+    </mwl-calendar-month-view>
+  </div>
 </ion-content>

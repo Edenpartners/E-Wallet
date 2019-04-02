@@ -25,7 +25,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Consts } from '../../../../environments/constants';
 
-import { Events, IonInput } from '@ionic/angular';
+import { Events, IonInput, IonSelect, IonContent } from '@ionic/angular';
 
 import { IonComponentUtils } from '../../../utils/ion-component-utils';
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
@@ -156,14 +156,30 @@ export class TwTradePage implements OnInit, OnDestroy {
   refreshList() {
     this.wallets = this.storage.getWallets(true, true);
     if (this.wallets.length > 0) {
-      this.selectedEthWalletId = this.wallets[0].id;
+      setTimeout(() => {
+        try {
+          this.selectedEthWalletId = this.wallets[0].id;
+        } catch (e) {
+          this.logger.debug(e);
+        }
+      }, 500);
     }
 
     this.tednWallets = this.storage.getTednWallets();
     if (this.tednWallets.length > 0) {
-      this.selectedTednWalletId = this.tednWallets[0].id;
+      setTimeout(() => {
+        try {
+          this.selectedTednWalletId = this.tednWallets[0].id;
+        } catch (e) {
+          this.logger.debug(e);
+        }
+      }, 500);
     }
   }
+
+  onEthWalletChange(evt, val) {}
+
+  onTednWalletChange(evt, val) {}
 
   onTradeAmountChange() {
     const safeText = BigNumberHelper.safeText(this.tradeAmount, Consts.TEDN_DECIMAL);

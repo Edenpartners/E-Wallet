@@ -55,6 +55,7 @@ export class PinCodePage implements OnInit, OnDestroy {
 
   isFingerPrintMode = false;
   isFingerPrintEnabled = false;
+  isFaceIDAvailable = false;
 
   subscriptionPack: SubscriptionPack = new SubscriptionPack();
 
@@ -64,9 +65,36 @@ export class PinCodePage implements OnInit, OnDestroy {
   nextPinCodeEnableRemainTime = 0;
   nextPinCodeEnableRemainTimeDisplay = '0';
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.env.config.pinCode.testFaceIDFeature) {
+      this.isFaceIDAvailable = true;
+    } else {
+      this.isFaceIDAvailable = false;
+    }
+
+    this.faio.isAvailable().then(type => {
+      if (type === 'face') {
+        this.isFaceIDAvailable = true;
+      }
+    });
+  }
+
   ngOnDestroy() {}
 
+  getTitleText(): string {
+    if (this.isCreation) {
+      return this.translate.instant('CreatePinTitle');
+    } else {
+      if (this.isFingerPrintMode) {
+        if (this.isFaceIDAvailable) {
+          return this.translate.instant('FaceID');
+        }
+        return this.translate.instant('TouchID');
+      } else {
+        return this.translate.instant('ConfirmPinTitle');
+      }
+    }
+  }
   ionViewWillEnter() {
     this.checkPinCodeOverFailedState();
 

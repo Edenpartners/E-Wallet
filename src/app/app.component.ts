@@ -622,6 +622,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.subscriptionPack.removeSubscriptionsByKey(TRACKER_KEY_USERINFO);
     this.dataTracker.stopTracker(TRACKER_KEY_USERINFO, true);
+
+    this.dataTracker.removeAllTrackers();
   }
 
   getBaseValues() {

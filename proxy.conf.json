@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://api-ep.edenchain.io",
+    "target": "https://api-ep-br.edenchain.io",
     "changeOrigin": true,
     "secure": false,
     "logLevel": "debug"

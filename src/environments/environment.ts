@@ -1,6 +1,7 @@
 import { Environment } from './environment.interface';
 import { EthProviders } from '../app/providers/ether.service';
 import { firebaseConfig } from './firebase.config';
+import { truncate } from 'fs';
 
 // The file contents for the current environment will overwrite these during build.
 // The build system defaults to the dev environment which uses `environment.ts`, but if you do
@@ -20,7 +21,7 @@ export const environment: Environment = {
     },
 
     useRedirectorOnDebugMode: true,
-    handleUserState: true,
+    handleUserState: false,
     alterStartPath: '',
     compareUserIDTokenOnDeeplinkHandling: false,
     emailVerificationRequired: false,
@@ -39,11 +40,12 @@ export const environment: Environment = {
 
     /** Test another ERC20 coin with replacement */
     ednCoinKey: 'EDN',
-    ednApiBaseAddress: 'https://api-ep.edenchain.io/api',
+    ednApiBaseAddress: 'https://api-ep-br.edenchain.io/api',
 
     pinCode: {
       maxPinCodeRetryCount: 4,
-      testFingerprintFeature: false
+      testFingerprintFeature: false,
+      testFaceIDFeature: false
     },
 
     simulateHardwareBackButton: true,

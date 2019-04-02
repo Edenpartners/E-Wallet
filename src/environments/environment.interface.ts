@@ -40,6 +40,7 @@ export interface Environment {
        * for test flows of app with fingerprint supported.
        */
       testFingerprintFeature: boolean;
+      testFaceIDFeature: boolean;
     };
 
     simulateHardwareBackButton: boolean;

@@ -231,6 +231,13 @@ export class DataTrackerService {
     }
   }
 
+  removeAllTrackers() {
+    const allKeys: Array<string> = Object.keys(this.trackers);
+    allKeys.forEach(key => {
+      this.stopTracker(key, true);
+    });
+  }
+
   startEtherBalanceTracking(walletInfo: WalletTypes.EthWalletInfo): ValueTracker {
     const valueGetter = () => {
       return new Promise((finalResolve, finalReject) => {

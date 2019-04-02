@@ -15,6 +15,8 @@
 
   "Retry": "Retry",
   "Cancel": "Cancel",
+  "Complete": "Complete",
+  "Completed": "Completed",
 
   "valid.username.required": "Username is required",
   "valid.username.minlength": "Username must be at least 5 characters long",
@@ -76,6 +78,7 @@
   "Next":"Next",
   "Later":"LATER",
   "Using":"Using",
+  "Register":"REGISTER",
 
   "TEST": "Test {{value}}",
 
@@ -157,7 +160,7 @@
   "CreatePinTitle": "Create PIN",
   "PinComment": "A 6-digit PIN code is needed when accessing confidential information of E-Wallet. You should keep this 6-digit PIN code secretly and provide whenever your approval is needed for transfer of fund or backup code.",
   "CreatePinComment": "Create 6-digit PIN code",
-  "CreatePin": "CREATE PIN",
+  "CreatePin": "CREATE",
 
   "______________CONFIRM_PIN_CODE": "",
   "ConfirmPinTitle": "Confirm PIN",
@@ -165,9 +168,11 @@
   "VerificationFailedFormat": "Verification failed : <span style=\"color:#ffffff;\">{0}</span> times left.",
   "RemainTimeFormat": "Pin code verification too many failed.</br>You have to have <span style=\"color:#ffffff;\">{0}</span> seconds to retry.",
   "AuthWithTouchID": "Login with Touch ID",
+  "AuthWithFaceID": "Login with Face ID",
 
   "______________CONFIRM_TOUCH_ID": "",
   "TouchIDLogon": "Touch ID log on",
+  "FaceIDLogon": "Face ID log on",
   "AuthWithPinCode": "Login with Pin code",
 
   "______________BACKUP_WALLET_NOTICE": "",
@@ -227,13 +232,15 @@
   "______________REG_AUTH_INTRO": "",
   "RegAuthIntroTitle": "",
   "RegAuthIntroComment":"Register the authentication method to be used on the e-wallet.",
-  "RegAuthIntroComment2":"Fingerprint registration is available as an authentication method in mobile devices that support fingerprint recognition.",
+  "RegAuthIntroComment2-TouchID":"Fingerprint registration is available as an authentication method in mobile devices that support fingerprint recognition.",
+  "RegAuthIntroComment2-FaceID":"Face ID registration is available as an authentication method in mobile devices that support fingerprint recognition.",
   "TouchID":"Touch ID",
+  "FaceID":"Face ID",
   "PinCode":"PIN code",
 
   "______________REG_AUTH_GUIDE": "",
-  "RegAuthGuideTitle": "Touch ID",
-  "RegAuthGuideComment":"Enable fingerprint authentication for quick login?",
-  "RegAuthGuideComment2":"You can use e-wallet service with all the fingerprint information registered in your mobile phone. Please make sure that someone's fingerprint is registered.",
-  "RegAuthGuideFinish":"Finished appointment"
+  "RegAuthGuideComment-TouchID":"Enable fingerprint authentication for quick login?",
+  "RegAuthGuideComment-FaceID":"Enable Face ID authentication for quick login?",
+  "RegAuthGuideComment2-TouchID":"You can use e-wallet service with all the fingerprint information registered in your mobile phone. Please make sure that someone's fingerprint is registered.",
+  "RegAuthGuideComment2-FaceID":"You can use e-wallet service with all the Face ID information registered in your mobile phone. Please make sure that someone's Face ID is registered."
 }

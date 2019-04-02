@@ -1,5 +1,6 @@
 <ion-header>
-  <common-nav-bar [hideBackButton]="true" title="{{ 'RegAuthIntroTitle' | translate }}"></common-nav-bar>
+  <common-nav-bar [hideBackButton]="true" title="{{ 'RegAuthIntroTitle' | translate }}">
+  </common-nav-bar>
 </ion-header>
 
 <ion-content class="page-wrapper">
@@ -12,9 +13,10 @@
 
         <div class="flex-h-dir function-box">
           <div class="icon-box">
-            <div class="icon touch-id"></div>
+            <div class="icon"
+              [ngClass]="{'touch-id':!isFaceIDAvailable, 'face-id':isFaceIDAvailable}"></div>
             <div class="name text-center">
-              {{ 'TouchID' | translate }}
+              {{ isFaceIDAvailable? ('FaceID' | translate):('TouchID' | translate) }}
             </div>
           </div>
 
@@ -29,12 +31,13 @@
           </div>
         </div>
         <div class="comment-2">
-          {{ 'RegAuthIntroComment2' | translate }}
+          {{ isFaceIDAvailable? ('RegAuthIntroComment2-FaceID' | translate):('RegAuthIntroComment2-TouchID' | translate) }}
         </div>
       </div>
 
       <div class="footer">
-        <ion-button expand="block" color="theme-1" class="no-uppercase fw-bold font-size-12 radius-10 height-41 margin-top-49"
+        <ion-button expand="block" color="theme-1"
+          class="no-uppercase fw-bold font-size-12 radius-10 height-41 margin-top-49"
           (click)="onNextBtnClick()">
           {{ 'Next' | translate }}
         </ion-button>

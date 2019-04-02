@@ -1,3 +1,5 @@
+@import './calendar.scss';
+
 :root {
   --ion-font-family: Lato,
     -apple-system,
@@ -200,7 +202,7 @@
 }
 
 .ion-page.hidden-page {
-  display:none;
+  display: none;
 }
 
 .transparent-page {
@@ -436,9 +438,9 @@ ion-header {
 
 .ion-color-gray-2-button {
   --ion-color-base: #979797;
-  --ion-color-base-rgb: 151,151,151;
+  --ion-color-base-rgb: 151, 151, 151;
   --ion-color-contrast: #ffffff;
-  --ion-color-contrast-rgb: 255,255,255;
+  --ion-color-contrast-rgb: 255, 255, 255;
   --ion-color-shade: #858585;
   --ion-color-tint: #a1a1a1;
 }

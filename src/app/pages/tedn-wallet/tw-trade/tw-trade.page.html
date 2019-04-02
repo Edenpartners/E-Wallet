@@ -9,8 +9,10 @@
         <div class="tedn flex-h-dir-v-centered margin-top-30">
           <ion-label class="field-label font-size-13"> {{ 'CurrentBalance' | translate }}
           </ion-label>
-          <ion-label #multilineLabel #multilineLayout="multilineLayout" [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left'}"
-            text-wrap class="field-value flex-item-fill text-right"> {{ (tednBalanceFormatted === null)?'-': (tednBalanceFormatted | comma) }}</ion-label>
+          <ion-label #multilineLabel #multilineLayout="multilineLayout"
+            [appMultilineLayout]="{ fontSizeForSingle:'18px', fontSizeForMulti:'16px', textAlignForSingle:'right', textAlignForMulti:'left'}"
+            text-wrap class="field-value flex-item-fill text-right">
+            {{ (tednBalanceFormatted === null)?'-': (tednBalanceFormatted | comma) }}</ion-label>
           <ion-label class="field-value-tail font-size-13">
             {{ 'TEDN' | translate }}
           </ion-label>
@@ -20,32 +22,48 @@
       <div class="content fill-width">
         <div *ngIf="mode === 'deposit'" class="margin-top-40">
           <ion-label class="font-size-15">{{ 'WithdrawEDNFrom' | translate }}</ion-label>
-          <ion-select class="input-field margin-top-08 font-size-15" [(ngModel)]="selectedEthWalletId">
-            <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
+          <ion-select class="input-field margin-top-08 font-size-15"
+            [(ngModel)]="selectedEthWalletId"
+            (ionChange)="onEthWalletChange($event, selectedEthWalletId)">
+            <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">
+              {{ item.profile.alias }}</ion-select-option>
           </ion-select>
 
-          <ion-label class="font-size-15 margin-top-28">{{ 'DepositAsTEDNInto' | translate }}</ion-label>
-          <ion-select class="input-field margin-top-08 font-size-15" [(ngModel)]="selectedTednWalletId">
-            <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">{{ item.name }}</ion-select-option>
+          <ion-label class="font-size-15 margin-top-28">{{ 'DepositAsTEDNInto' | translate }}
+          </ion-label>
+          <ion-select class="input-field margin-top-08 font-size-15"
+            [(ngModel)]="selectedTednWalletId"
+            (ionChange)="onTednWalletChange($event, selectedTednWalletId)">
+            <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">
+              {{ item.name }}</ion-select-option>
           </ion-select>
         </div>
 
         <div *ngIf="mode === 'withdraw'" class="margin-top-40">
           <ion-label class="font-size-15">{{ 'WithdrawTEDNFrom' | translate }}</ion-label>
-          <ion-select class="input-field font-size-15 margin-top-08" [(ngModel)]="selectedTednWalletId">
-            <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">{{ item.name }}</ion-select-option>
+          <ion-select class="input-field font-size-15 margin-top-08"
+            [(ngModel)]="selectedTednWalletId"
+            (ionChange)="onTednWalletChange($event, selectedTednWalletId)">
+            <ion-select-option *ngFor="let item of tednWallets; let idx = index;" [value]="item.id">
+              {{ item.name }}</ion-select-option>
           </ion-select>
 
-          <ion-label class="font-size-15 margin-top-28">{{ 'DepositAsEDNInto' | translate }}</ion-label>
-          <ion-select class="input-field font-size-15 margin-top-08" [(ngModel)]="selectedEthWalletId">
-            <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
+          <ion-label class="font-size-15 margin-top-28">{{ 'DepositAsEDNInto' | translate }}
+          </ion-label>
+          <ion-select class="input-field font-size-15 margin-top-08"
+            [(ngModel)]="selectedEthWalletId"
+            (ionChange)="onEthWalletChange($event, selectedEthWalletId)">
+            <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">
+              {{ item.profile.alias }}</ion-select-option>
           </ion-select>
         </div>
 
 
-        <ion-label class="margin-top-48 sub-header font-size-18">{{ 'Amount' | translate }}</ion-label>
+        <ion-label class="margin-top-48 sub-header font-size-18">{{ 'Amount' | translate }}
+        </ion-label>
 
-        <ion-item lines="full" class="full-text-input margin-top-10" [ngClass]="{'selected':isInputHasNonZero(tradeAmountInput)}">
+        <ion-item lines="full" class="full-text-input margin-top-10"
+          [ngClass]="{'selected':isInputHasNonZero(tradeAmountInput)}">
           <ion-input color="text-light-1" text-right #tradeAmountInput appWeakNumber appZeroHandler
             (ionChange)="onTradeAmountChange()" [(ngModel)]="tradeAmount"></ion-input>
 
@@ -56,9 +74,11 @@
 
       <div class="footer fill-width margin-top-32">
         <ion-button expand="block" class="fw-bold margin-bottom radius-10 height-41 font-size-12"
-          color="theme-1" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">{{ 'Deposit' | translate }}</ion-button>
+          color="theme-1" (click)="tradeEdnToTedn()" *ngIf="mode === 'deposit'">
+          {{ 'Deposit' | translate }}</ion-button>
         <ion-button expand="block" class="fw-bold margin-bottom radius-10 height-41 font-size-12"
-          color="theme-1" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">{{ 'Withdraw' | translate }}</ion-button>
+          color="theme-1" (click)="tradeTednToEdn()" *ngIf="mode === 'withdraw'">
+          {{ 'Withdraw' | translate }}</ion-button>
       </div>
     </div>
 

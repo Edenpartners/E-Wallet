@@ -8,32 +8,41 @@
       <ion-label class="font-size-15">{{ 'Exchange' | translate }}</ion-label>
       <ion-select class="input-field margin-top-12 font-size-15" [(ngModel)]="selectedTrader"
         (ionChange)="onExchangerChange(this)">
-        <ion-select-option *ngFor="let item of exchangers; let idx = index;" [value]="item.id">{{ item.name }}</ion-select-option>
+        <ion-select-option *ngFor="let item of exchangers; let idx = index;" [value]="item.id">
+          {{ item.name }}</ion-select-option>
       </ion-select>
 
       <ion-label class="margin-top-30 font-size-15">{{ 'AddEdnTo' | translate }}</ion-label>
       <ion-select class="input-field margin-top-12 font-size-15" [(ngModel)]="selectedWalletId"
         (ionChange)="onWalletChange(this)">
-        <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">{{ item.profile.alias }}</ion-select-option>
+        <ion-select-option *ngFor="let item of wallets; let idx = index;" [value]="item.id">
+          {{ item.profile.alias }}</ion-select-option>
       </ion-select>
 
-      <ion-label class="fw-500 margin-top-24 sub-header font-size-18">{{ 'Amount' | translate }}</ion-label>
+      <ion-label class="fw-500 margin-top-24 sub-header font-size-18">{{ 'Amount' | translate }}
+      </ion-label>
 
-      <ion-item lines="full" class="full-text-input margin-top-18" [ngClass]="{'selected':isInputHasNonZero(ethAmountInput)}">
-        <ion-input #ethAmountInput appWeakNumber appZeroHandler color="text-light-1" class="font-size-24 fw-500"
-          text-right [(ngModel)]="ethAmount" (ionChange)="onEthAmountChange()" (ionBlur)="onEthAmountBlur()"
+      <ion-item lines="full" class="full-text-input margin-top-18"
+        [ngClass]="{'selected':isInputHasNonZero(ethAmountInput)}">
+        <ion-input #ethAmountInput appWeakNumber appZeroHandler color="text-light-1"
+          class="font-size-24 fw-500" text-right [(ngModel)]="ethAmount"
+          (ionChange)="onEthAmountChange()" (ionBlur)="onEthAmountBlur()"
           (ionFocus)="onEthAmountFocused()"></ion-input>
         <ion-label class="fw-500">{{ 'ETH' | translate }}</ion-label>
       </ion-item>
 
-      <ion-item lines="full" class="full-text-input" [ngClass]="{'selected':isInputHasNonZero(ednAmountInput)}">
-        <ion-input #ednAmountInput appWeakNumber appZeroHandler color="text-light-1" class="font-size-24 fw-500"
-          text-right [(ngModel)]="ednAmount" (ionChange)="onEdnAmountChange()" (ionBlur)="onEdnAmountBlur()"
+      <ion-item lines="full" class="full-text-input"
+        [ngClass]="{'selected':isInputHasNonZero(ednAmountInput)}">
+        <ion-input #ednAmountInput appWeakNumber appZeroHandler color="text-light-1"
+          class="font-size-24 fw-500" text-right [(ngModel)]="ednAmount"
+          (ionChange)="onEdnAmountChange()" (ionBlur)="onEdnAmountBlur()"
           (ionFocus)="onEdnAmountFocused()"></ion-input>
         <ion-label>{{ 'EDN' | translate }}</ion-label>
       </ion-item>
 
-      <ion-button expand="block" color="theme-1" (click)="tradeEthToEdn()" class="margin-top-32 fw-bold radius-10 height-41 font-size-12">{{ 'Add' | translate }}</ion-button>
+      <ion-button expand="block" color="theme-1" (click)="tradeEthToEdn()"
+        class="margin-top-32 fw-bold radius-10 height-41 font-size-12">{{ 'Add' | translate }}
+      </ion-button>
     </div>
   </div>
 

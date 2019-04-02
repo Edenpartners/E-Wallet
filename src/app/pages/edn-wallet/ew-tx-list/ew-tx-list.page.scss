@@ -5,8 +5,29 @@
   --border-width: 0 0 0 0;
 }
 
-.content {
+.list-container {
   --background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.86);
+
+  ion-content {
+    .scroll-to-top {
+      width: 54px;
+      height: 40px;
+      background-image: url('/assets/img/scroll-top.svg');
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .scroll-to-bottom {
+      width: 54px;
+      height: 40px;
+      background-image: url('/assets/img/scroll-bottom.svg');
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
+  }
 
   ion-list {
     --background: none;
@@ -19,6 +40,55 @@
     background: none;
     --padding-start: var(--space-normal);
     --padding-end: var(--space-normal);
+  }
+
+  .search-form {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    height: 32px;
+
+    font-weight: bold;
+    font-size: 10px;
+
+    margin-left: 20px;
+    margin-right: 18px;
+    background-color: #ffffff;
+
+    ion-input {
+      --placeholder-color: #979797;
+      --placeholder-opacity: 1.0;
+      --padding-start: 0px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    .search-address {
+      color: #979797;
+    }
+
+    .search-date {
+      color: var(--color-theme-1);
+      width: 120px;
+    }
+
+    .search-date.empty {
+      color: #979797;
+    }
+
+    .search-icon {
+      width: 15px;
+      height: 15px;
+      background-image: url('/assets/img/search.svg');
+      margin-right: 7px;
+    }
+
+    .bar {
+      margin-right: 10px;
+      display: inline-block;
+      width: 1px;
+      height: 24px;
+      background-color: #BCBCBC;
+    }
   }
 }
 

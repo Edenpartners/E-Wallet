@@ -28,10 +28,9 @@ import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.s
 import { TextUtils } from 'src/app/utils/textutils';
 import { MultilineLayoutDirective } from 'src/app/directives/multiline-layout';
 import { BigNumberHelper } from '../../../utils/bigNumberHelper';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 
-import { startOfDay, endOfDay, subDays, addDays, endOfMonth, isSameDay, isSameMonth, addHours } from 'date-fns';
 import { Subject } from 'rxjs';
+
 import {
   CalendarEvent,
   CalendarDateFormatter,
@@ -42,8 +41,7 @@ import {
   CalendarMonthViewComponent
 } from 'angular-calendar';
 
-import { CustomDateFormatter } from './custom-date-formatter.provider';
-import { isDate } from 'util';
+import { CustomDateFormatter } from 'src/app/utils/custom-date-formatter.provider';
 
 const countPerPage = 30;
 const useDummyData = false;
@@ -62,7 +60,7 @@ interface TednTransaction {
   selector: 'app-tw-tx-list',
   templateUrl: './tw-tx-list.page.html',
   styleUrls: ['./tw-tx-list.page.scss'],
-  encapsulation: ViewEncapsulation.None,
+  // encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: CalendarDateFormatter,
@@ -115,8 +113,8 @@ export class TwTxListPage implements OnInit, OnDestroy {
   @ViewChild('calendarContainer') calendarContainer: ElementRef;
 
   searchAddress = '';
-
   showCaneldar = false;
+
   @ViewChild('monthView') calendarMonthView: CalendarMonthViewComponent;
   calendarEvents: CalendarEvent[] = [];
   calendarRefresh: Subject<any> = new Subject();
@@ -423,6 +421,7 @@ export class TwTxListPage implements OnInit, OnDestroy {
       }
     });
   }
+
   /**
    * Search
    */

@@ -37,7 +37,8 @@ export const environment: Environment = {
 
     pinCode: {
       maxPinCodeRetryCount: 4,
-      testFingerprintFeature: false
+      testFingerprintFeature: false,
+      testFaceIDFeature: false
     },
 
     simulateHardwareBackButton: false,

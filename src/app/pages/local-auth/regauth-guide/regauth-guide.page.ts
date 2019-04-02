@@ -15,7 +15,7 @@ import { SubscriptionPack } from '../../../utils/listutil';
 import { Consts } from '../../../../environments/constants';
 
 import { AnalyticsService, AnalyticsEvent } from '../../../providers/analytics.service';
-import { environment } from 'src/environments/environment';
+import { environment, env } from 'src/environments/environment';
 import { Environment } from 'src/environments/environment.interface';
 
 import { String, StringBuilder } from 'typescript-string-operations';
@@ -28,6 +28,9 @@ import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
 })
 export class RegauthGuidePage implements OnInit {
   isFinished = false;
+  isFaceIDAvailable = false;
+
+  titleText = '';
 
   constructor(
     private aRoute: ActivatedRoute,
@@ -41,7 +44,29 @@ export class RegauthGuidePage implements OnInit {
     private faio: FingerprintAIO
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (env.config.pinCode.testFaceIDFeature) {
+      this.setFaceIDAvailable(true);
+    } else {
+      this.setFaceIDAvailable(false);
+    }
+    this.faio.isAvailable().then(type => {
+      if (type === 'face') {
+        this.setFaceIDAvailable(true);
+      }
+    });
+  }
+
+  setFaceIDAvailable(val: boolean) {
+    this.isFaceIDAvailable = val;
+    if (val) {
+      this.titleText = this.translate.instant('FaceID');
+    } else {
+      this.titleText = this.translate.instant('TouchID');
+    }
+    this.logger.debug('face id available');
+    this.logger.debug(this.titleText);
+  }
 
   onLaterBtnClick() {
     this.rs.navigateByUrl('/pin-code?isCreation=true');
